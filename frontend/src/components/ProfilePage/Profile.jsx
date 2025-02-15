@@ -1,13 +1,13 @@
-// HomePage.jsx
+// Profile.jsx
 import React from 'react';
 
-const HomePage = () => {
+const Profile = () => {
     return (
         <div>
-            <h2>HomePage</h2>
+            <h2>Profile</h2>
             {/* Your form code goes here */}
         </div>
     );
 };
 
-export default HomePage;
+export default Profile;

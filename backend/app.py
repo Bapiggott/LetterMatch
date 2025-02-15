@@ -29,5 +29,6 @@ def home():
     return jsonify({"message": "Backend is running!"})
 
 if __name__ == "__main__":
-    db.create_all()
+    with app.app_context():  # Ensure app context is set
+        db.create_all()  # Create tables
     app.run(debug=True, port=5000)

@@ -1,13 +1,13 @@
-// HomePage.jsx
+// LoginForm.jsx
 import React from 'react';
 
-const HomePage = () => {
+const LoginForm = () => {
     return (
         <div>
-            <h2>HomePage</h2>
+            <h2>Login Form</h2>
             {/* Your form code goes here */}
         </div>
     );
 };
 
-export default HomePage;
+export default LoginForm;
