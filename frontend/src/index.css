@@ -1,3 +1,19 @@
+
+/* Start of Header */
+header, ul {
+  display: flex;
+}
+header a {
+  color: white;
+}
+ul {
+  list-style: none;
+}
+header .logo {
+  max-width: 100px;
+ }
+/* End of Header */
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

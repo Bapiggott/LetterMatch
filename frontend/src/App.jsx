@@ -9,6 +9,7 @@ import WordChainPage from './components/WordChainPage/WordChain';
 import FriendsPage from './components/FriendsPage/Friends';
 import ProfilePage from './components/ProfilePage/Profile'
 
+
 const App = () => {
     return (
         <>
