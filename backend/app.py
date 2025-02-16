@@ -24,6 +24,13 @@ class User(db.Model):
     role = db.Column(db.Integer, default=1)  # Regular user = role 1
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+class Friendship(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username_1 = db.Column(db.String, foreign_key=True, nullable=False)
+    username_2 = db.Column(db.String, foreign_key=True, nullable=False)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
 @app.route("/")
 def home():
     return jsonify({"message": "Backend is running!"})
