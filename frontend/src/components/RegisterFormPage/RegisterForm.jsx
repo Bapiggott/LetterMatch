@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import './RegisterForm.css';
+import Layout from "../Layout/Layout";
 
 const RegisterForm = () => {
 
@@ -15,30 +16,34 @@ const RegisterForm = () => {
     }
 
     return (
-        <div className="register-form">
-            <h1>Register</h1>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <input
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-                <button type="submit">Register</button>
-            </form>
-        </div>
+
+        <Layout>
+            
+            <div className="register-form">
+                <h1>Register</h1>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                    />
+                    <button type="submit">Register</button>
+                </form>
+            </div>
+        </Layout>
     );
 };
 export default RegisterForm;

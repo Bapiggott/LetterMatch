@@ -1,3 +1,44 @@
+
+/* Flex and height/width adjustments to the main layout */
+body > div {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+main{
+  flex-grow: 1;
+}
+/* End */
+
+
+
+/* Start of Header */
+header, header ul {
+  display: flex;
+}
+header {
+  align-items: center;
+}
+header nav{
+  flex-grow: 1;
+}
+header ul {
+  justify-content: space-around;
+  list-style: none;
+}
+header a {
+  color: white;
+}
+header .logo {
+  max-width: 100px;
+ }
+/* End of Header */
+
+
+
+
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
