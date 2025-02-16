@@ -9,9 +9,14 @@ const Header = () => {
             </div>
             <nav>
                 <ul>
-                    <a href="/"><li>Home</li></a>
+                    <a href="/home"><li>Home</li></a>
+                    <a href="/lettermatch"><li>Letter Match</li></a>
+                    <a href="/wordblitz"><li>Word Blitz</li></a>
+                    <a href="/wordchain"><li>Word Chain</li></a>
                     <a href="/friends"><li>Friends</li></a>
-                    <a href="/lettermatch"><li>LetterMatch</li></a>
+                    <a href="/profile"><li>My Profile</li></a>
+                    <a href="/login"><li>Login</li></a>
+                    <a href="/resister"><li>Register For Free</li></a>
                 </ul>
             </nav>
         </header>
