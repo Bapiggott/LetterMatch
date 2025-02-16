@@ -16,7 +16,7 @@ const Header = () => {
                     <a href="/friends"><li>Friends</li></a>
                     <a href="/profile"><li>My Profile</li></a>
                     <a href="/login"><li>Login</li></a>
-                    <a href="/resister"><li>Register For Free</li></a>
+                    <a href="/register"><li>Register For Free</li></a>
                 </ul>
             </nav>
         </header>
