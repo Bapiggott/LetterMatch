@@ -4,8 +4,9 @@ import React from 'react';
 const Header = () => {
     return (
         <header>
-            <div>
-                <img class='logo' src='./logo.png' alt='Letter Match Logo'/>
+            <div className='logo-div'>
+                <img class='logo' src='./puzzle-icon-no-fill-white.png' alt='Letter Match Logo'/>
+                <div>Letter Match</div>
             </div>
             <nav>
                 <ul>

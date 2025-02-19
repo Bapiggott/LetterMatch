@@ -7,7 +7,6 @@
     width: 500px;
     min-height: 400px;
 
-    background-color: aqua;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,12 +36,15 @@
     z-index: 1;
 
     transition: background-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+
 }
 
 .games-div section:hover::before {
     background-color: rgba(0, 0, 0, 0.2); 
     box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7); 
+
 }
+
 
 .games-div h2{
     transition: scale ease-in-out 0.25s;
@@ -53,7 +55,7 @@
 
 
 .letter-match-section{
-    background-image: url("./scramble.jpg");
+    background-image: url("./scrabble.jpg");
 }
 .word-blitz-section{
     background-image: url("./chess.jpg");
@@ -65,4 +67,12 @@
 .games-div h2{
     color:white;
     font-size: 2.2rem;
+}
+
+
+
+@media screen and (max-width: 500px) {
+    .games-div section{
+        width: 100vw;
+    }
 }
