@@ -8,6 +8,9 @@ import HomePage from './components/HomePage/HomePage';
 import WordChainPage from './components/WordChainPage/WordChain';
 import FriendsPage from './components/FriendsPage/Friends';
 import ProfilePage from './components/ProfilePage/Profile'
+import AboutPage from './components/AboutPage/AboutPage';
+import GamesPage from './components/GamesPage/GamesPage';
+
 
 
 const App = () => {
@@ -24,6 +27,8 @@ const App = () => {
                     <Route path="/wordchain" element={<WordChainPage />} />
                     <Route path="/Friends" element={<FriendsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/games" element={<GamesPage />} />
+                    <Route path="/about" element={<AboutPage />} />
                     <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
             </Router>

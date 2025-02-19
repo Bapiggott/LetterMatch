@@ -10,9 +10,7 @@ const Header = () => {
             <nav>
                 <ul>
                     <a href="/home"><li>Home</li></a>
-                    <a href="/lettermatch"><li>Letter Match</li></a>
-                    <a href="/wordblitz"><li>Word Blitz</li></a>
-                    <a href="/wordchain"><li>Word Chain</li></a>
+                    <a href='/games'><li>Games</li></a>
                     <a href="/friends"><li>Friends</li></a>
                     <a href="/profile"><li>My Profile</li></a>
                     <a href="/login"><li>Login</li></a>
