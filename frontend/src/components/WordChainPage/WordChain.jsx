@@ -73,7 +73,7 @@ const WordChain = () => {
     
                 <p>{status}</p>
             </div>
-        <Layout>
+        </Layout>
     );
 };
 
