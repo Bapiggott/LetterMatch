@@ -1,7 +1,7 @@
 import traceback
-import eventlet
+"""import eventlet
 import eventlet.wsgi
-eventlet.monkey_patch()
+eventlet.monkey_patch()"""
 
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
@@ -23,7 +23,7 @@ CORS(app)
 # Initialize Extensions
 db.init_app(app)
 migrate = Migrate(app, db)
-socketio.init_app(app)
+#socketio.init_app(app)
 
 # Register Blueprints
 app.register_blueprint(auth, url_prefix="/auth")
@@ -81,5 +81,4 @@ def get_jwt_token(request):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Ensure database tables exist
-
-    socketio.run(app, debug=True, port=5000, host='0.0.0.0')
+    app.run(debug=True, port=5000)

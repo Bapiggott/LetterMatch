@@ -1,85 +1,77 @@
 import traceback
 from flask import Blueprint, request, jsonify
-from extensions import db, socketio
-from models import Game, Player, Word, User
-from flask_socketio import emit, join_room
+from extensions import db
+from models import Game, Player, Word
 
 word_chain_bp = Blueprint('word_chain', __name__)
 
-@socketio.on('create_word_chain')
-def create_word_chain(data):
+@word_chain_bp.route("/create", methods=["POST"])
+def create_word_chain():
     try:
+        data = request.get_json()
         room = data['room']
-        existing_game = Game.query.filter_by(room=room, game_type="WordChain").first()
 
+        existing_game = Game.query.filter_by(room=room, game_type="WordChain").first()
         if existing_game:
-            emit('error', {"message": "Game room already exists"})
-            return
+            return jsonify({"error": "Game room already exists"}), 400
 
         new_game = Game(room=room, game_type="WordChain")
         db.session.add(new_game)
         db.session.commit()
 
-        join_room(room)
-        emit('game_created', {"room": room, "game_type": "WordChain"}, room=room)
-    
+        return jsonify({"message": f"Game '{room}' created!"}), 201
+
     except Exception as e:
         print(f"Error in create_word_chain: {e}")
         traceback.print_exc()
-        emit('error', {"message": "Server error"})
+        return jsonify({"error": "Server error"}), 500
 
-@socketio.on('join_word_chain')
-def join_word_chain(data):
+@word_chain_bp.route("/join", methods=["POST"])
+def join_word_chain():
     try:
+        data = request.get_json()
         room = data['room']
-        username = data['username']
+        username = data.get('username', "Guest")
 
         game = Game.query.filter_by(room=room, game_type="WordChain").first()
         if not game:
-            emit('error', {"message": "Room does not exist"})
-            return
-
-        if not User.query.filter_by(username=username).first():
-            emit('error', {"message": "User does not exist"})
-            return
+            return jsonify({"error": "Room does not exist"}), 404
 
         new_player = Player(username=username, game_id=game.id)
         db.session.add(new_player)
         db.session.commit()
 
-        join_room(room)
         players = [p.username for p in game.players]
-        emit('player_joined', {"username": username, "players": players}, room=room)
-    
+        return jsonify({"message": f"{username} joined {room}", "players": players}), 200
+
     except Exception as e:
         print(f"Error in join_word_chain: {e}")
         traceback.print_exc()
-        emit('error', {"message": "Server error"})
+        return jsonify({"error": "Server error"}), 500
 
-@socketio.on('submit_word_chain')
-def submit_word_chain(data):
+@word_chain_bp.route("/submit_word", methods=["POST"])
+def submit_word_chain():
     try:
+        data = request.get_json()
         room = data['room']
         word = data['word']
         username = data['username']
 
         game = Game.query.filter_by(room=room, game_type="WordChain").first()
         if not game:
-            emit('error', {"message": "Room does not exist"})
-            return
+            return jsonify({"error": "Room does not exist"}), 404
 
         last_word = Word.query.filter_by(game_id=game.id).order_by(Word.date_added.desc()).first()
         if last_word and last_word.word[-1] != word[0]:  # Chain rule validation
-            emit('word_rejected', {"message": "Word does not follow the chain rule"}, room=room)
-            return
+            return jsonify({"error": "Word does not follow the chain rule"}), 400
 
         new_word = Word(word=word, game_id=game.id, username=username)
         db.session.add(new_word)
         db.session.commit()
 
-        emit('word_accepted', {"word": word, "username": username}, room=room)
+        return jsonify({"message": "Word accepted", "word": word, "username": username}), 200
 
     except Exception as e:
         print(f"Error in submit_word_chain: {e}")
         traceback.print_exc()
-        emit('error', {"message": "Server error"})
+        return jsonify({"error": "Server error"}), 500

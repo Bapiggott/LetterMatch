@@ -21,7 +21,7 @@ class Friendship(db.Model):
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     room = db.Column(db.String, unique=True, nullable=False)
-    game_type = db.Column(db.String, nullable=False) 
+    game_type = db.Column(db.String, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     players = db.relationship('Player', backref='game', lazy=True)
@@ -29,7 +29,7 @@ class Game(db.Model):
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
+    username = db.Column(db.String, nullable=False)  # Allows non-registered players
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -37,5 +37,5 @@ class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
-    username = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
+    username = db.Column(db.String, nullable=False)  # Allows non-registered players
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
