@@ -7,6 +7,7 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from datetime import datetime, timedelta
+from auth import auth
 
 app = Flask(__name__)
 
@@ -19,6 +20,7 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 socketio = SocketIO(app, cors_allowed_origins="*")
+app.register_blueprint(auth, url_prefix="/auth")  # All auth routes are now under /auth/
 
 # Define Models
 class User(db.Model):
@@ -31,8 +33,6 @@ class User(db.Model):
 
     friendships_1 = db.relationship('Friendship', foreign_keys='Friendship.username_1', backref='user_1', lazy=True)
     friendships_2 = db.relationship('Friendship', foreign_keys='Friendship.username_2', backref='user_2', lazy=True)
-
-
 
 class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
