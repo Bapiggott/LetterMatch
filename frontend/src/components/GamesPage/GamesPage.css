@@ -1,0 +1,78 @@
+.games-div {
+    display: flex;
+    flex-direction: column;
+    align-items:center;
+}
+.games-div section {
+    width: 500px;
+    min-height: 400px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+
+    position: relative;
+}
+
+.games-div section * {
+    position: relative;
+    z-index: 2;
+}
+
+.games-div section::before{
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.9); 
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+
+    transition: background-color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+
+}
+
+.games-div section:hover::before {
+    background-color: rgba(0, 0, 0, 0.2); 
+    box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7); 
+
+}
+
+
+.games-div h2{
+    transition: scale ease-in-out 0.25s;
+}
+.games-div section:hover h2{ 
+    scale: 103%;
+}
+
+
+.letter-match-section{
+    background-image: url("./scrabble.jpg");
+}
+.word-blitz-section{
+    background-image: url("./chess.jpg");
+}
+.word-chain-section{
+    background-image: url("./board-game.jpg");
+}
+
+.games-div h2{
+    color:white;
+    font-size: 2.2rem;
+}
+
+
+
+@media screen and (max-width: 500px) {
+    .games-div section{
+        width: 100vw;
+    }
+}

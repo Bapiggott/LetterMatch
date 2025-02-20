@@ -1,13 +1,76 @@
-// LoginForm.jsx
-import React from 'react';
-import Layout from '../Layout/Layout';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "./LoginForm.css";
+import Layout from "../Layout/Layout";
 
 const LoginForm = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
+
+    const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setSuccess("");
+
+        if (!isValidEmail(email)) {
+            setError("Invalid email address");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:5000/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Login failed");
+            }
+
+            setSuccess("Login successful! Redirecting...");
+            setTimeout(() => window.location.href = "/home", 2000);
+
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     return (
         <Layout>
-            <div>
-                <h2>Login Form</h2>
-                {/* Your form code goes here */}
+            <div className="login-form">
+                <h1>Login</h1>
+                <form onSubmit={handleSubmit}>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+
+                    {error && <p className="error-message">{error}</p>}
+                    {success && <p className="success-message">{success}</p>}
+
+                    <button type="submit">Login</button>
+
+                    <p className="register-text">
+                        Don't have an account? <Link to="/register" className="register-link">Register</Link>
+                    </p>
+                </form>
             </div>
         </Layout>
     );
