@@ -14,6 +14,18 @@ main{
 
 
 /* Start of Header */
+header{
+  padding: 20px 20px;
+  color: white;
+  font-weight: 600;
+  background-color: #1a1a1a;
+}
+
+header .logo-div{
+  display: flex;
+  align-items: center;
+  font-size: 1.6rem;
+}
 header, header ul {
   display: flex;
 }
@@ -24,14 +36,19 @@ header nav{
   flex-grow: 1;
 }
 header ul {
-  justify-content: space-around;
+  justify-content: flex-start;
   list-style: none;
 }
 header a {
   color: white;
+  font-weight: 600;
+  padding-left: 30px;
+  padding-left: 30px;
+  
 }
 header .logo {
-  max-width: 100px;
+  max-width: 35px;
+  padding-right: 7px;
  }
 /* End of Header */
 
