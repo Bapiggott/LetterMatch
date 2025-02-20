@@ -1,59 +1,35 @@
 import traceback
-from flask import Flask, render_template, request, jsonify
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from flask_sqlalchemy import SQLAlchemy
+import eventlet
+import eventlet.wsgi
+eventlet.monkey_patch()
+
+from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
-from werkzeug.security import generate_password_hash, check_password_hash
-import jwt
-from datetime import datetime, timedelta
-from auth import auth
+from extensions import db, socketio  # Import from extensions.py
+from models import User, Friendship  # Import models
+from auth import auth  # Import auth routes
 
 app = Flask(__name__)
 
 # Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///LetterMatch.db'
 app.config['SECRET_KEY'] = 'VerySecretKey!'
-CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+CORS(app)
 
 # Initialize Extensions
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
-socketio = SocketIO(app, cors_allowed_origins="*")
-app.register_blueprint(auth, url_prefix="/auth")  # All auth routes are now under /auth/
+socketio.init_app(app)
 
-# Define Models
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String, unique=True, nullable=False)
-    email = db.Column(db.String, unique=True, nullable=False)
-    password = db.Column(db.String, nullable=False)
-    role = db.Column(db.Integer, default=1)  # Regular user = role 1
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
-
-    friendships_1 = db.relationship('Friendship', foreign_keys='Friendship.username_1', backref='user_1', lazy=True)
-    friendships_2 = db.relationship('Friendship', foreign_keys='Friendship.username_2', backref='user_2', lazy=True)
-
-
-
-class Friendship(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username_1 = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
-    username_2 = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+# Register Blueprints
+app.register_blueprint(auth, url_prefix="/auth")
 
     
 # Routes
 @app.route("/")
 def home():
     return jsonify({"message": "Backend is running!"})
-
-
-
-def addUser(username, email, password, role):
-        new_user = User(username=username, email=email, password=password, role=role )
-        db.session.add(new_user)
-        db.session.commit()
 
 # The below function will only work if both users have already 
 # been added to the database
@@ -141,55 +117,9 @@ def get_jwt_token(request):
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return jsonify({"message": "Invalid or expired token!"}), 401
 
-@app.route("/register", methods=["POST"])
-def register():
-    try: 
-        data = request.get_json()
-        if not data:
-            return jsonify({"message": "No input data provided"}), 400
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
-        #role = data.get('role')
-        if not username or not email or not password:
-            return jsonify({"message": "Missing input data"}), 400
-        if User.query.filter_by(username=username).first():
-            return jsonify({"message": "Username already exists"}), 400
-        if User.query.filter_by(email=email).first():
-            return jsonify({"message": "Email already exists"}), 400
-        hashed_password = generate_password_hash(password, method='sha256')
-        newUser = User(username=username, email=email, password=hashed_password, role=1)
-        db.session.add(newUser)
-        db.session.commit()
-        return jsonify({"message": "User successfully registered"}), 201
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        print(traceback.format_exc())
-        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
-
-@app.route("/login", methods=["POST"])
-def login():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"message": "No input data provided"}), 400
-        email = data.get('email')
-        password = data.get('password')
-        if not email or not password:
-            return jsonify({"message": "Missing input data"}), 400
-        user = db.session.query(User.id, User.email, User.role, User.date_created).filter_by(email=email).first()
-        if not user:
-            return jsonify({"message": "User does not exist"}), 400
-        if not check_password_hash(user.password, password):
-            return jsonify({"message": "Invalid password"}), 400
-        token = jwt.encode({'user_id': user.id, 'exp': datetime.utcnow() + timedelta(hours=24)}, app.config['SECRET_KEY'], algorithm='HS256')
-        return jsonify({"message": "Login Successful", "token": token, "user": {"id": user.id, "email": user.email, "role": user.role, "date_created": user.date_created}}), 200
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
-        print(traceback.format_exc())
-        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
     
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Ensure database tables exist
-    socketio.run(app, debug=True, port=5000)
+
+    socketio.run(app, debug=True, port=5000, host='0.0.0.0')
