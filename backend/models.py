@@ -1,5 +1,5 @@
 from datetime import datetime
-from extensions import db  # Import db from extensions.py
+from extensions import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -17,3 +17,25 @@ class Friendship(db.Model):
     username_1 = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
     username_2 = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Game(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    room = db.Column(db.String, unique=True, nullable=False)
+    game_type = db.Column(db.String, nullable=False) 
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+    players = db.relationship('Player', backref='game', lazy=True)
+    words = db.relationship('Word', backref='game', lazy=True)
+
+class Player(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Word(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    username = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)

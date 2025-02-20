@@ -9,6 +9,9 @@ from flask_cors import CORS
 from extensions import db, socketio  # Import from extensions.py
 from models import User, Friendship  # Import models
 from auth import auth  # Import auth routes
+from games.word_chain import word_chain_bp
+# from games.word_blitz import word_blitz_bp
+# from games.letter_match import letter_match_bp
 
 app = Flask(__name__)
 
@@ -24,7 +27,9 @@ socketio.init_app(app)
 
 # Register Blueprints
 app.register_blueprint(auth, url_prefix="/auth")
-
+app.register_blueprint(word_chain_bp, url_prefix="/word_chain")
+# app.register_blueprint(word_blitz_bp, url_prefix="/word_blitz")
+# app.register_blueprint(letter_match_bp, url_prefix="/letter_match")
     
 # Routes
 @app.route("/")
@@ -54,55 +59,10 @@ def add_friend():
         print(f"Error: {e}")
         return jsonify({"error": "Failed to add friend"}), 400
 
-if __name__ == "__main__":
+"""if __name__ == "__main__":
     with app.app_context():  # Ensure app context is set
         db.create_all()  # Create tables
-    app.run(debug=True, port=5000)
-
-    
-# WebSocket Game Logic
-games = {}  # Stores ongoing games
-
-@socketio.on('create_game')
-def create_game(data):
-    room = data['room']
-    if room not in games:
-        games[room] = {"players": [], "word_chain": [], "turn": 0}
-    join_room(room)
-    emit('game_created', {"room": room}, room=room)
-
-@socketio.on('join_game')
-def join_game(data):
-    room = data['room']
-    username = data['username']
-    
-    if room in games:
-        games[room]["players"].append(username)
-        join_room(room)
-        emit('player_joined', {"username": username, "players": games[room]["players"]}, room=room)
-    else:
-        emit('error', {"message": "Room does not exist"})
-
-
-@socketio.on('submit_word')
-def submit_word(data):
-    room = data['room']
-    word = data['word']
-    username = data['username']
-
-    if room in games:
-        game = games[room]
-        
-        if len(game["players"]) == 0:  # Prevent division by zero
-            emit('error', {"message": "No players in the room"}, room=room)
-            return
-
-        if not game["word_chain"] or game["word_chain"][-1][-1] == word[0]:  # Chain rule validation
-            game["word_chain"].append(word)
-            game["turn"] = (game["turn"] + 1) % len(game["players"])
-            emit('word_accepted', {"word": word, "username": username, "turn": game["players"][game["turn"]]}, room=room)
-        else:
-            emit('word_rejected', {"message": "Word does not follow the chain rule"}, room=room)
+    app.run(debug=True, port=5000)"""
 
     
 def get_jwt_token(request):
