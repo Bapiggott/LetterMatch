@@ -67,3 +67,30 @@ def login():
         print(f"An error occurred: {str(e)}")
         print(traceback.format_exc())
         return jsonify({"message": f"An error occurred: {str(e)}"}), 400
+
+@auth.route("/me", methods=["GET"])
+def get_current_user():
+    token = request.headers.get("Authorization")
+
+    if not token:
+        return jsonify({"message": "Token is missing!"}), 401
+
+    try:
+        token = token.split(" ")[1]  # Remove "Bearer " prefix
+        decoded_token = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = User.query.get(decoded_token['user_id'])
+
+        if not user:
+            return jsonify({"message": "User not found!"}), 404
+
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "role": user.role,
+            "date_created": user.date_created
+        }), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Session expired. Please log in again."}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid session. Please log in again."}), 401

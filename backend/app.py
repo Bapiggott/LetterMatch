@@ -6,12 +6,14 @@ eventlet.monkey_patch()"""
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
-from extensions import db, socketio  # Import from extensions.py
+from extensions import db# , socketio  # Import from extensions.py
 from models import User, Friendship  # Import models
 from auth import auth  # Import auth routes
 from games.word_chain import word_chain_bp
 # from games.word_blitz import word_blitz_bp
 # from games.letter_match import letter_match_bp
+from friends import friends_bp  # Import the new friends module
+
 
 app = Flask(__name__)
 
@@ -30,6 +32,8 @@ app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(word_chain_bp, url_prefix="/word_chain")
 # app.register_blueprint(word_blitz_bp, url_prefix="/word_blitz")
 # app.register_blueprint(letter_match_bp, url_prefix="/letter_match")
+app.register_blueprint(friends_bp, url_prefix="/friends")
+
     
 # Routes
 @app.route("/")

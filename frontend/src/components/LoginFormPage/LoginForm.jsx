@@ -33,6 +33,8 @@ const LoginForm = () => {
             if (!response.ok) {
                 throw new Error(data.message || "Login failed");
             }
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("username", data.user.username);
 
             setSuccess("Login successful! Redirecting...");
             setTimeout(() => window.location.href = "/home", 2000);
