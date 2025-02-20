@@ -34,6 +34,8 @@ class User(db.Model):
     friendships_1 = db.relationship('Friendship', foreign_keys='Friendship.username_1', backref='user_1', lazy=True)
     friendships_2 = db.relationship('Friendship', foreign_keys='Friendship.username_2', backref='user_2', lazy=True)
 
+
+
 class Friendship(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username_1 = db.Column(db.String, db.ForeignKey('user.username'), nullable=False)
