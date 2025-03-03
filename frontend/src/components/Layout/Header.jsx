@@ -28,7 +28,8 @@ const Header = () => {
                     <a href='/games'><li>Games</li></a>
                     <a href="/friends"><li>Friends</li></a>
                     <a href="/profile"><li>My Profile</li></a>
-
+                </ul>
+                <div>
                     {isLoggedIn ? (
                         <a href="#" onClick={handleLogout}><li>Logout</li></a>
                     ) : (
@@ -37,7 +38,7 @@ const Header = () => {
                             <a href="/register"><li>Register For Free</li></a>
                         </>
                     )}
-                </ul>
+                </div>
             </nav>
         </header>
     );
