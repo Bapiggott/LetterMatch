@@ -1,5 +1,4 @@
 
-/* Flex and height/width adjustments to the main layout */
 body > div {
   display: flex;
   flex-direction: column;
@@ -8,8 +7,8 @@ body > div {
 }
 main{
   flex-grow: 1;
+  background: #f8f9fa;
 }
-/* End */
 
 
 
