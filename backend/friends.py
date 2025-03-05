@@ -1,6 +1,6 @@
 import traceback
 from flask import Blueprint, request, jsonify
-from extensions import db
+from setup.extensions import db
 from models import User, Friendship
 
 friends_bp = Blueprint('friends', __name__)

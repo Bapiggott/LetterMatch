@@ -3,7 +3,7 @@ import jwt
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
-from extensions import db  # Import db correctly
+from setup.extensions import db  # Import db correctly
 from models import User  # Import User model correctly
 
 auth = Blueprint('auth', __name__)

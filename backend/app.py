@@ -6,13 +6,14 @@ eventlet.monkey_patch()"""
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
-from extensions import db# , socketio  # Import from extensions.py
+from setup.extensions import db# , socketio  # Import from extensions.py
 from models import User, Friendship  # Import models
 from auth import auth  # Import auth routes
 from games.word_chain import word_chain_bp
-# from games.word_blitz import word_blitz_bp
+from games.word_blitz import word_blitz_bp
 # from games.letter_match import letter_match_bp
 from friends import friends_bp  # Import the new friends module
+from setup.seed_data import seed_question_sets # Import seed function
 
 
 app = Flask(__name__)
@@ -30,7 +31,7 @@ migrate = Migrate(app, db)
 # Register Blueprints
 app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(word_chain_bp, url_prefix="/word_chain")
-# app.register_blueprint(word_blitz_bp, url_prefix="/word_blitz")
+app.register_blueprint(word_blitz_bp, url_prefix="/word_blitz")
 # app.register_blueprint(letter_match_bp, url_prefix="/letter_match")
 app.register_blueprint(friends_bp, url_prefix="/friends")
 
@@ -81,8 +82,8 @@ def get_jwt_token(request):
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return jsonify({"message": "Invalid or expired token!"}), 401
 
-    
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()  # Ensure database tables exist
+with app.app_context():
+    db.create_all()  # Ensure all tables exist
+    seed_question_sets()
+if __name__ == "__main__": 
     app.run(debug=True, port=5000)

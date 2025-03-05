@@ -1,5 +1,5 @@
 from datetime import datetime
-from extensions import db
+from setup.extensions import db
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,4 +38,21 @@ class Word(db.Model):
     word = db.Column(db.String, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     username = db.Column(db.String, nullable=False)  # Allows non-registered players
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+
+class QuestionSet_blitz(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False, unique=True)
+
+class Question_blitz(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    prompt = db.Column(db.String, nullable=False)
+    question_set_id = db.Column(db.Integer, db.ForeignKey('question_set_blitz.id'), nullable=False)  # ✅ FIXED
+
+class Word_blitz(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    word = db.Column(db.String, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    username = db.Column(db.String, nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)  # ✅ FIXED
     date_added = db.Column(db.DateTime, default=datetime.utcnow)

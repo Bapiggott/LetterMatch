@@ -1,6 +1,6 @@
 import traceback
 from flask import Blueprint, request, jsonify
-from extensions import db
+from setup.extensions import db
 from models import Game, Player, Word
 
 word_chain_bp = Blueprint('word_chain', __name__)

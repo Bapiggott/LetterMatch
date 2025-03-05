@@ -1,0 +1,63 @@
+/* General container */
+.word-blitz-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #333;
+}
+
+/* Question list */
+.question-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 90%;
+    max-width: 800px;
+    margin-top: 15px;
+}
+
+.question-box {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.word-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #222;
+    color: white;
+}
+
+/* Buttons */
+.submit-button, .add-questions-button {
+    margin-top: 15px;
+    padding: 12px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: white;
+    width: 200px;
+}
+
+.submit-button {
+    background-color: #28a745;
+}
+
+.add-questions-button {
+    background-color: #007bff;
+}
