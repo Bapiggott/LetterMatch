@@ -90,11 +90,43 @@ const LetterMatch = () => {
         }
     };
 
+
+    //helps to remove local player in case if a local user changes their mind 
+    const removeLocalPlayer = (index) => {
+        setLocalPlayers(prevVal => prevVal.filter((_,i) => i != index));
+        
+    };
+
+
+
     return (
         <Layout>
             <div className="letter-match-container">
-                <h1>🔗 Letter Match Game</h1>
-                <button>Test Button</button>
+                <h1 style={{ color: "white" }}>🔗 Letter Match Game</h1>
+                <div className="mode-selection">
+                    <button onClick={() => setGameMode("single player")}>Play Single Player</button>
+                    <button onClick={() => setGameMode("online")}>Play Online</button>
+                    <button onClick={() => setGameMode("local")}>Local Multiplayer</button>
+                </div>
+
+                {gameMode && (
+                    <div className="game-setup">
+                        <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
+                        
+                        {gameMode === "local" ? (
+                            <div>
+                                <input type="text" placeholder="Enter Player Name" value={newLocalPlayer} onChange={(e) => setNewLocalPlayer(e.target.value)} />
+                                <button onClick={addLocalPlayer}>Add Local Player</button>
+                                <ul>{localPlayers.map((p, index) => <li key={index}>{p} <button onClick={() => removeLocalPlayer(index)}>Remove</button></li>)}</ul>
+               
+                            </div>
+                        ) : (
+                            <button onClick={joinGame}>Join Online Game</button>
+                        )}
+
+                        <button onClick={createGame}>Create Game</button>
+                    </div>
+                )}
             </div>
         </Layout>
     );
