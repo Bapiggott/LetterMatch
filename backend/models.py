@@ -47,12 +47,12 @@ class QuestionSet_blitz(db.Model):
 class Question_blitz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     prompt = db.Column(db.String, nullable=False)
-    question_set_id = db.Column(db.Integer, db.ForeignKey('question_set_blitz.id'), nullable=False)  # ✅ FIXED
+    question_set_id = db.Column(db.Integer, db.ForeignKey('question_set_blitz.id'), nullable=False)  
 
 class Word_blitz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     username = db.Column(db.String, nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)  # ✅ FIXED
+    question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False) 
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
