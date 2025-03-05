@@ -1,21 +1,16 @@
+/* General container for login form */
 .login-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /*min-height: 100vh;*/
     height: 100vh;
     background-color: #f8f9fa;
     padding: 20px;
 }
 
-h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-form {
+/* Login form box */
+.login-form form {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -24,9 +19,20 @@ form {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box; /* Ensures it fits properly */
 }
 
-input {
+/* Form title */
+h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+/* Input fields */
+.login-form form input {
+    width: 100%; /* Ensures the input stays inside */
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
@@ -35,13 +41,17 @@ input {
     outline: none;
     background-color: #222;
     color: white;
+    box-sizing: border-box;
+    display: block; /* Prevents it from overflowing */
 }
 
-input:focus {
+.login-form form input:focus {
     border-color: #007bff;
 }
 
-button {
+/* Buttons */
+.login-form form button {
+    width: 100%;
     padding: 12px;
     background-color: #007bff;
     color: white;
@@ -50,36 +60,42 @@ button {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
-button:hover {
+.login-form form button:hover {
     background-color: #0056b3;
 }
 
-button:disabled {
+.login-form form button:disabled {
     background-color: #aaa;
     cursor: not-allowed;
 }
 
+/* Status messages */
 .error-message {
     color: #d9534f;
     font-size: 0.9rem;
     margin-top: 5px;
+    text-align: center;
 }
 
 .success-message {
     color: #28a745;
     font-size: 0.9rem;
     margin-top: 5px;
+    text-align: center;
 }
 
+/* Register text */
 .register-text {
     margin-top: 15px;
     font-size: 1rem;
     text-align: center;
-    color: #333; 
+    color: #333;
 }
 
+/* Register link */
 .register-link {
     color: #007bff;
     text-decoration: none;

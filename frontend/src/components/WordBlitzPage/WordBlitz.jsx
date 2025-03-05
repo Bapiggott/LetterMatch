@@ -111,7 +111,7 @@ const WordBlitz = () => {
                     <div className="question-list">
                         {questions.map(q => (
                             <div key={q.id} className="question-box">
-                                <p>{q.prompt} (Must start with {q.letter})</p>
+                                <p style={{ color: "black" }}>{q.prompt} (Must start with {q.letter})</p>
                                 <input
                                     type="text"
                                     className="word-input"
