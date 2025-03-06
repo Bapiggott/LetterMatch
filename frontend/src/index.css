@@ -15,13 +15,20 @@ main{
 /* Start of Header */
 header{
   padding: 20px 30px;
-  color: white;
-  font-weight: 600;
   background-color: #1a1a1a;
   list-style: none;
   display: flex;
   align-items: center;
 }
+header *{
+  color: white;
+  font-weight: 600;
+  transition: 0.1s ease color;
+}
+header *:hover{
+  color:rgb(0, 255, 242);
+}
+
 header .logo-div{
   display: flex;
   align-items: center;
@@ -43,9 +50,7 @@ header ul {
   align-items: center;
   list-style: none;
 }
-header a {
-  color: white;
-  font-weight: 600;
+header > nav a, header > div a {
   padding-left: 30px;
   padding-left: 30px;
 }
@@ -55,7 +60,20 @@ header .logo {
  }
  /* End of Header */
 
+ 
+/* Start of Footer */
+footer{
+  min-height: 60px;
+  background-color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+footer * {
+  font-weight: 600;
+}
 
+/* End of Footer */
 
 
 

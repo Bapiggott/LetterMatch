@@ -18,10 +18,12 @@ const Header = () => {
 
     return (
         <header>
-            <div className='logo-div'>
-                <img className='logo' src='./puzzle-icon-no-fill-white.png' alt='Letter Match Logo' />
-                <div>Letter Match</div>
-            </div>
+            <a href="/home">
+                <div className='logo-div'>
+                    <img className='logo' src='./puzzle-icon-no-fill-white.png' alt='Letter Match Logo' />
+                    <div>Letter Match</div>
+                </div>
+            </a>
             <nav>
                 <ul>
                     <a href="/home"><li>Home</li></a>
