@@ -84,13 +84,14 @@ header .logo {
   max-width: 35px;
   padding-right: 7px;
  }
- header .call-to-action-div a{
+ .header-style-btn{
   padding: 10px 14px;
   border: 3px solid var(--header-color-highlight);
   border-radius: 10px;
   transform: all 0.1s ease;
+  font-weight: 600;
  }
- header .call-to-action-div a:hover *, header .call-to-action-div a:hover{
+ header .call-to-action-div a:hover *, .header-style-btn:hover{
   color:var(--header-color-hightlight-brightened);
   border-color: var(--header-color-hightlight-brightened);
  }

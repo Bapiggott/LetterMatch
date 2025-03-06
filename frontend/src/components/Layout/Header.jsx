@@ -34,11 +34,11 @@ const Header = () => {
                 </ul>
                 <div className="call-to-action-div">
                     {isLoggedIn ? (
-                        <a href="#" onClick={handleLogout}><li>Logout</li></a>
+                        <a className="header-style-btn" href="#" onClick={handleLogout}><li>Logout</li></a>
                     ) : (
                         <>
-                            <a href="/login"><li>Login</li></a>
-                            <a href="/register"><li>Register For Free</li></a>
+                            <a className="header-style-btn" href="/login"><li>Login</li></a>
+                            <a className="header-style-btn" href="/register"><li>Register For Free</li></a>
                         </>
                     )}
                 </div>

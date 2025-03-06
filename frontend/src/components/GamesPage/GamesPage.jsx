@@ -12,25 +12,47 @@ const GamesPage = () => {
                     <h1>Games</h1>
                 </section>
                 
-                <div className='games-div'>
+                <div className='all-games-div'>
 
-                    <a href="/lettermatch">
-                        <section className='letter-match-section'>
+                    <div className='game-div letter-match-div'>
+                        <div className='game-image-div'>
                             <h2>Letter Match</h2>
-                        </section>
-                    </a>    
-                   
-                    <a href="/wordblitz">
-                        <section className='word-blitz-section'>
+                        </div>
+                        <div >
+                            <div>
+                                <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ratione dolorem consectetur a! Rem corrupti eligendi vero asperiores, error laudantium consequuntur odit repudiandae vitae tempore, eos voluptas fuga at cupiditate quia.</p>
+                            </div>
+                            <div className='btn-div'>
+                                <a className="header-style-btn" href="/lettermatch">Play</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='game-div word-blitz-div'>
+                        <div className='game-image-div'>
                             <h2>Word Blitz</h2>
-                        </section>
-                    </a>
-
-                    <a href="/wordchain">
-                        <section className='word-chain-section'>
+                        </div>
+                        <div >
+                            <div>
+                                <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ratione dolorem consectetur a! Rem corrupti eligendi vero asperiores, error laudantium consequuntur odit repudiandae vitae tempore, eos voluptas fuga at cupiditate quia.</p>
+                            </div>
+                            <div className='btn-div'>
+                                <a className="header-style-btn" href="/wordblitz">Play</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='game-div word-chain-div'>
+                        <div className='game-image-div'>
                             <h2>Word Chain</h2>
-                        </section>
-                    </a>
+                        </div>
+                        <div >
+                            <div>
+                                <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ratione dolorem consectetur a! Rem corrupti eligendi vero asperiores, error laudantium consequuntur odit repudiandae vitae tempore, eos voluptas fuga at cupiditate quia.</p>
+                            </div>
+                            <div className='btn-div'>
+                                <a className="header-style-btn" href="/wordchain">Play</a>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
