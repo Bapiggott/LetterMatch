@@ -11,6 +11,12 @@ main{
 }
 
 
+* {
+  --header-color-highlight: rgb(0, 119, 255);
+  --header-color-hightlight-brightened: rgb(80, 162, 255);
+}
+
+
 
 /* Start of Header */
 header{
@@ -22,20 +28,23 @@ header{
 }
 header box-icon {
   fill: white;
-  width: 30px;
-  height: 30px;
-  margin-right: 8px;
+  width: 50px;
+  height: 50px;
+  margin-right: 14px;
+}
+header box-icon {
+  fill: var(--header-color-highlight)
 }
 header a {
   color: white;
   font-weight: 600;
 }
-header a, header .logo-div{
+header a, header .logo-div div{
   transition: 0.1s ease color;
 }
-header a:hover, header .logo-div:hover *{
-  color:rgb(0, 255, 13);
-  fill:rgb(0, 255, 13);
+header a:hover, header .logo-div:hover div{
+  color:var(--header-color-hightlight-brightened);
+  fill: var(--header-color-hightlight-brightened)
 }
 header .logo-div{
   display: flex;
@@ -48,7 +57,7 @@ header nav{
   align-items: center;
   flex-grow: 1;
 }
-header nav div {
+header nav .call-to-action-div{
   display: flex;
   justify-content: end;
   align-items: center;
@@ -58,13 +67,27 @@ header ul {
   align-items: center;
   list-style: none;
 }
-header > nav a, header > div a {
-  padding-left: 30px;
-  padding-left: 30px;
+header nav a {
+  padding: 3px 9px;
+  margin-left: 8px;
+  margin-right: 8px;
 }
 header .logo {
   max-width: 35px;
   padding-right: 7px;
+ }
+ header .call-to-action-div a{
+  padding: 10px 14px;
+  border: 3px solid var(--header-color-highlight);
+  border-radius: 10px;
+  transform: all 0.1s ease;
+ }
+ header .call-to-action-div a:hover *, header .call-to-action-div a:hover{
+  color:var(--header-color-hightlight-brightened);
+  border-color: var(--header-color-hightlight-brightened);
+ }
+ header .call-to-action-div * {
+  color: var(--header-color-highlight);
  }
  /* End of Header */
 
@@ -80,7 +103,6 @@ footer{
 footer * {
   font-weight: 600;
 }
-
 /* End of Footer */
 
 

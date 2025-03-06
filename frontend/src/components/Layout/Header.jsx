@@ -32,7 +32,7 @@ const Header = () => {
                     <a href="/friends"><li>Friends</li></a>
                     <a href="/profile"><li>My Profile</li></a>
                 </ul>
-                <div>
+                <div className="call-to-action-div">
                     {isLoggedIn ? (
                         <a href="#" onClick={handleLogout}><li>Logout</li></a>
                     ) : (
