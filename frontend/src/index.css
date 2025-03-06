@@ -1,4 +1,14 @@
 
+* {
+  --header-color-highlight: rgb(0, 119, 255);
+  --header-color-hightlight-brightened: rgb(80, 162, 255);
+  
+  --header-bg-color: #1a1a1a;
+  --footer-bg-color: var(--header-bg-color);
+  --main-bg-color: #f8f9fa;
+}
+
+
 body > div {
   display: flex;
   flex-direction: column;
@@ -7,13 +17,11 @@ body > div {
 }
 main{
   flex-grow: 1;
-  background: #f8f9fa;
+  background: var(--main-bg-color)
 }
 
-
-* {
-  --header-color-highlight: rgb(0, 119, 255);
-  --header-color-hightlight-brightened: rgb(80, 162, 255);
+body {
+  background-color: var(--footer-bg-color);
 }
 
 
@@ -21,7 +29,7 @@ main{
 /* Start of Header */
 header{
   padding: 20px 30px;
-  background-color: #1a1a1a;
+  background-color: var(--header-bg-color);
   list-style: none;
   display: flex;
   align-items: center;
@@ -95,7 +103,7 @@ header .logo {
 /* Start of Footer */
 footer{
   min-height: 60px;
-  background-color: #1a1a1a;
+  background-color: var(--footer-bg-color);
   display: flex;
   align-items: center;
   justify-content: center;
