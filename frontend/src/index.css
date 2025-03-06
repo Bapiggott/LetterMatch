@@ -20,15 +20,23 @@ header{
   display: flex;
   align-items: center;
 }
-header *{
+header box-icon {
+  fill: white;
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+}
+header a {
   color: white;
   font-weight: 600;
+}
+header a, header .logo-div{
   transition: 0.1s ease color;
 }
-header *:hover{
-  color:rgb(0, 255, 242);
+header a:hover, header .logo-div:hover *{
+  color:rgb(0, 255, 13);
+  fill:rgb(0, 255, 13);
 }
-
 header .logo-div{
   display: flex;
   align-items: center;

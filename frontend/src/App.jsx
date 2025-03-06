@@ -10,6 +10,7 @@ import FriendsPage from './components/FriendsPage/Friends';
 import ProfilePage from './components/ProfilePage/Profile'
 import AboutPage from './components/AboutPage/AboutPage';
 import GamesPage from './components/GamesPage/GamesPage';
+import 'boxicons'
 
 
 

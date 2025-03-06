@@ -20,7 +20,8 @@ const Header = () => {
         <header>
             <a href="/home">
                 <div className='logo-div'>
-                    <img className='logo' src='./puzzle-icon-no-fill-white.png' alt='Letter Match Logo' />
+                    {/* <img className='logo' src='./puzzle-icon-no-fill-white.png' alt='Letter Match Logo' /> */}
+                    <box-icon name='game'></box-icon>
                     <div>Letter Match</div>
                 </div>
             </a>
