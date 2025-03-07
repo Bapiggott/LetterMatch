@@ -94,6 +94,7 @@ const Friends = () => {
                     {message && <p className="friend-message">{message}</p>}
                 </div>
             </div>
+            
         </Layout>
     );
 };
