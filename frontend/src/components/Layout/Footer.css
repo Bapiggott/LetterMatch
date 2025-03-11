@@ -1,7 +1,7 @@
 .footer {
     background-color: black;
     color: white;
-    padding: 10px;
+    padding: 0px;
     position: relative;
     width: 100%;
 }
@@ -9,7 +9,7 @@
 .toggle-btn {
     position: absolute;
     right: 20px;
-    bottom: 17.5px;
+    bottom: 10px;
     font-size: 0.7rem; 
     padding: 2px 5px;  
     width: 100px; 
