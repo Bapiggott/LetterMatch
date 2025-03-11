@@ -125,7 +125,7 @@ header .call-to-action-div box-icon {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100px;
-    z-index: 2;
+    z-index: 10;
  }
  .user-icon-dropdown-menu ul {
   display: flex;
@@ -141,6 +141,21 @@ header .call-to-action-div box-icon {
  .hello-user-span{
   font-weight: bold;
   font-size: 1.3rem;
+ }
+
+ .hamburger-menu{
+  position: fixed;
+  top: 0;
+  right:0;
+  width: 150px; 
+  height: 100vh;
+  background-color: var(--header-bg-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease-in-out;
+  padding: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
  }
  /* End of Header */
 
