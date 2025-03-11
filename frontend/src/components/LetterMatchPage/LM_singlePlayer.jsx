@@ -7,20 +7,24 @@ import './LM_SinglePlayer.css'
 const LM_singlePlayer = () => {
     let userInput = ""; // allows user to input something
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    let getLetter;
 
     const handlePrompt = () => {
         const input = window.prompt("Enter a letter or type 'Random' for a random letter: "); 
         if (input !== null && input.length === 1 && letters.includes(input.toUpperCase())) { //if user types a ;etter
             userInput = input.toUpperCase();
-            alert(userInput + " is your letter")
+            getLetter = userInput; 
+            alert(getLetter + " is your letter")
         }
         else if (input === "random" || input === "Random" || input === "RANDOM" ) //selects random letter
         {
             //generates random letter
             const randomLetter = letters[Math.floor(Math.random() * letters.length)];
 
+            getLetter = randomLetter;
+
             //notify user on letter
-            alert(randomLetter + " is your letter");
+            alert(getLetter + " is your letter");
         }
         else //if user enters number, symbol, or multiple letters
         {
@@ -28,9 +32,13 @@ const LM_singlePlayer = () => {
         }
 
 
-        //gameplay
+        //gameplay ...............................................
+
 
         //start countdown timer
+
+
+        //questions
 
         //game end -- compare stats 
 
@@ -54,6 +62,7 @@ const LM_singlePlayer = () => {
         <Layout>
             <div>
                 <button onClick={handlePrompt}>Letter Button</button>
+           
                 
             </div>
         </Layout>
