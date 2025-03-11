@@ -125,12 +125,12 @@ const Header = () => {
                 </nav>
             )}
             {showHamburger && (
-                <nav className="mobile-nav">
-                    <div ref={hamburgerMenuRef}>
+                <nav className="mobile-nav" ref={hamburgerMenuRef}>
+                    <div>
                         <box-icon name='menu' onClick={() => setIsHamburgerMenuOpen(!isHamburgerMenuOpen)}></box-icon>
                     </div>
                     {isHamburgerMenuOpen && (
-                        <ul  className="hamburger-menu">
+                        <ul className="hamburger-menu">
                             <a href="/home"><li>Home</li></a>
                             <a href='/games'><li>Games</li></a>
                             <a href="/friends"><li>Friends</li></a>  
