@@ -32,7 +32,7 @@ const LM_singlePlayer = () => {
 
         //start countdown timer
 
-        //
+        //game end -- compare stats 
 
 
 
