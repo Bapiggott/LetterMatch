@@ -23,22 +23,32 @@ class Game(db.Model):
     room = db.Column(db.String, unique=True, nullable=False)
     game_type = db.Column(db.String, nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-
     players = db.relationship('Player', backref='game', lazy=True)
     words = db.relationship('Word', backref='game', lazy=True)
+    blitz_questions = db.relationship('GameQuestionBlitz', backref='game', lazy=True)
+    started = db.Column(db.Boolean, default=False)
+    time_limit = db.Column(db.Integer, default=60)
+    start_time = db.Column(db.DateTime, nullable=True)
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False)  # Allows non-registered players
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
+    is_creator = db.Column(db.Boolean, default=False)
 
+    # Score for WordBlitz
+    score = db.Column(db.Integer, default=0)
+
+    
 class Word(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     username = db.Column(db.String, nullable=False)  # Allows non-registered players
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)
+
 
 class QuestionSet_blitz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,3 +66,15 @@ class Word_blitz(db.Model):
     username = db.Column(db.String, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False) 
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class GameQuestionBlitz(db.Model):
+    """
+    Associates a single question with a single game,
+    plus the randomly assigned letter for that question in that game.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)
+    letter = db.Column(db.String(1), nullable=False)  # Single letter
+    question = db.relationship("Question_blitz", lazy=True)
