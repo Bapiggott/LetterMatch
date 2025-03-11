@@ -3,8 +3,8 @@ import jwt
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
-from setup.extensions import db  # Import db correctly
-from models import User  # Import User model correctly
+from setup.extensions import db  
+from models import User \
 
 auth = Blueprint('auth', __name__)
 
@@ -67,6 +67,36 @@ def login():
         print(f"An error occurred: {str(e)}")
         print(traceback.format_exc())
         return jsonify({"message": f"An error occurred: {str(e)}"}), 400
+
+
+@auth.route("/toggle-role", methods=["POST"])
+def toggle_role():
+    print("Toggling user role")
+    token = request.headers.get("Authorization")
+    if not token:
+        print("Token is missing!")
+        return jsonify({"message": "Token is missing!"}), 401
+
+    try:
+        print("Token found")
+        print(token)
+        token = token.split(" ")[1]  # Remove "Bearer " prefix
+        decoded_token = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = User.query.get(decoded_token['user_id'])
+        
+        if not user:
+            return jsonify({"message": "User not found"}), 404
+        
+        # Toggle role: if currently admin (0), change to regular (1); else, change to admin (0)
+        user.role = 1 if user.role == 0 else 0
+        
+        db.session.commit()
+        return jsonify({"message": "User role toggled", "new_role": user.role}), 200
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
+    
 
 @auth.route("/me", methods=["GET"])
 def get_current_user():
