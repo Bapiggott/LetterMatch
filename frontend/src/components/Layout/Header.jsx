@@ -63,7 +63,7 @@ const Header = () => {
         <header  ref={userMenuRef}>
             <a href="/home">
                 <div className='logo-div'>
-                    <box-icon name='game'></box-icon>
+                    <box-icon name='extension'></box-icon>
                     <div>Letter Match</div>
                 </div>
             </a>
