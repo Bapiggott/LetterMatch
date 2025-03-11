@@ -10,6 +10,13 @@ import FriendsPage from './components/FriendsPage/Friends';
 import ProfilePage from './components/ProfilePage/Profile'
 import AboutPage from './components/AboutPage/AboutPage';
 import GamesPage from './components/GamesPage/GamesPage';
+
+//Letter match routes
+import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
+import LM_LocalPlayer from './components/LetterMatchPage/LM_LocalPlayer';
+import LM_onlineMode from './components/LetterMatchPage/LM_onlineMode';
+
+
 import 'boxicons'
 
 
@@ -30,6 +37,9 @@ const App = () => {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/games" element={<GamesPage />} />
                     <Route path="/about" element={<AboutPage />} />
+
+                    <Route path="/singlePlayer" element={<LM_singlePlayer />} />
+
                     <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
             </Router>

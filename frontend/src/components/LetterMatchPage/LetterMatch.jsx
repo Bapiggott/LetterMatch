@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./LetterMatch.css";
-import Layout from "../Layout/Layout";
+import Layout from "../Layout/Layout.jsx";
+import { useNavigate } from "react-router-dom";
+import LM_singlePlayer from './LM_singlePlayer.jsx';
 
 const API_BASE_URL = "http://localhost:5000/letter_match";
 
@@ -9,9 +11,11 @@ const LetterMatch = () => {
     const [players, setPlayers] = useState([]);
     const [letterMatch, setLetterMatch] = useState([]);
     const [status, setStatus] = useState("");
-    const [gameMode, setGameMode] = useState(""); // "local" or "online"
+    const [gameMode, setGameMode] = useState(""); 
     const [localPlayers, setLocalPlayers] = useState([]);
     const [newLocalPlayer, setNewLocalPlayer] = useState("");
+
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         if (room) {
@@ -59,29 +63,8 @@ const LetterMatch = () => {
         setStatus(data.message || data.error);
     };
 
-    const submitWord = async () => {
-        const wordInput = document.getElementById("wordInput").value.trim();
-        if (!wordInput) {
-            setStatus("❌ Please enter a word!");
-            return;
-        }
 
-        const username = gameMode === "local" ? localPlayers[0] || "Guest" : "RegisteredUser"; 
 
-        const response = await fetch(`${API_BASE_URL}/submit_word`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ room, word: wordInput, username }),
-        });
-
-        const data = await response.json();
-        if (data.error) {
-            setStatus(`❌ ${data.error}`);
-        } else {
-            setLetterMatch(prev => [...prev, data.word]);
-            setStatus(`✅ Word accepted! Next turn.`);
-        }
-    };
 
     const addLocalPlayer = () => {
         if (newLocalPlayer && !localPlayers.includes(newLocalPlayer)) {
@@ -104,17 +87,21 @@ const LetterMatch = () => {
             <div className="letter-match-container">
                 <h1 style={{ color: "white" }}>🔗 Letter Match Game</h1>
                 <div className="mode-selection">
-                    <button onClick={() => setGameMode("single player")}>Play Single Player</button>
+                    <button onClick={() => setGameMode("single")}>Play Single Player</button>
                     <button onClick={() => setGameMode("online")}>Play Online</button>
                     <button onClick={() => setGameMode("local")}>Local Multiplayer</button>
                 </div>
 
                 {gameMode && (
                     <div className="game-setup">
-                        <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
-                        
-                        {gameMode === "local" ? (
+
+                       
+                     {gameMode === "single" ? (
+                            <a href="/singlePlayer">Start Single Player Game </a>
+                          
+                        ): gameMode === "local" ? (
                             <div>
+                                <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
                                 <input type="text" placeholder="Enter Player Name" value={newLocalPlayer} onChange={(e) => setNewLocalPlayer(e.target.value)} />
                                 <button onClick={addLocalPlayer}>Add Local Player</button>
                                 <ul>{localPlayers.map((p, index) => <li key={index}>{p} <button onClick={() => removeLocalPlayer(index)}>Remove</button></li>)}</ul>
@@ -123,6 +110,8 @@ const LetterMatch = () => {
                         ) : (
                             <button onClick={joinGame}>Join Online Game</button>
                         )}
+
+                      
 
                         <button onClick={createGame}>Create Game</button>
                     </div>
