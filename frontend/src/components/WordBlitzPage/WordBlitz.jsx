@@ -2,59 +2,59 @@ import React, { useState, useEffect } from "react";
 import "./WordBlitz.css";
 import Layout from "../Layout/Layout";
 
-// API URL
-const API_URL = "http://localhost:5000";       // Your main API root
-const API_BASE_URL = `${API_URL}/word_blitz`; // WordBlitz endpoints
+const API_URL = "http://localhost:5000";
+const API_BASE_URL = `${API_URL}/word_blitz`;
 
 const WordBlitz = () => {
-  // Logged-in user (only used for online games)
+  // Logged-in user (for online)
   const [loggedInUser, setLoggedInUser] = useState("");
 
   // Basic game config
   const [room, setRoom] = useState("");
-  const [gameType, setGameType] = useState("WordBlitzLocal"); // or WordBlitzOnline
+  const [gameType, setGameType] = useState("WordBlitzLocal"); // or "WordBlitzOnline"
   const [timeLimit, setTimeLimit] = useState(60);
 
-  // Local game: collect multiple player names
+  // Local players typed in UI
   const [playerNames, setPlayerNames] = useState([""]);
 
   // True if we created or joined a game
   const [inRoom, setInRoom] = useState(false);
 
-  // True if the game is actually started
+  // Game state
   const [gameStarted, setGameStarted] = useState(false);
-
-  // True if the time ran out or the game otherwise ended
   const [gameOver, setGameOver] = useState(false);
 
-  // For online: only the creator can start the game
+  // For online only: are we the host?
   const [isCreator, setIsCreator] = useState(false);
 
-  // Current state
+  // Current status + questions + answers
   const [status, setStatus] = useState("");
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(0);
-  // 'players' can be array of { username, score }
+  // players[] = array of { username, score }
   const [players, setPlayers] = useState([]);
 
-  // If user wants to see a list of open (unstarted) online games
+  // Index of the local player whose turn it is
+  const [currentLocalPlayerIndex, setCurrentLocalPlayerIndex] = useState(0);
+  // Local countdown for the current player’s turn
+  const [localTimeLeft, setLocalTimeLeft] = useState(timeLimit);
+
+  // For listing open online games
   const [openGames, setOpenGames] = useState([]);
 
-  // For the "Add Custom Questions" modal
+  // For custom question sets
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customSetName, setCustomSetName] = useState("");
   const [customQuestions, setCustomQuestions] = useState(Array(10).fill(""));
 
-  // ----------------------------------------------------------------------------
-  // 1. On mount, fetch the logged-in user (for online)
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // 1. On mount, fetch logged-in user (for online)
+  // --------------------------------------------------------------------------
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("No token found – user not logged in (okay for local).");
-        return;
+        return; // not logged in = fine for local
       }
       try {
         const response = await fetch(`${API_URL}/auth/me`, {
@@ -64,90 +64,98 @@ const WordBlitz = () => {
         if (response.ok) {
           const data = await response.json();
           setLoggedInUser(data.username);
-        } else {
-          console.error("Error fetching user for online game.");
         }
       } catch (error) {
         console.error("Error fetching user:", error);
       }
     };
-
     fetchUser();
   }, []);
 
-  // ----------------------------------------------------------------------------
-  // 2. Periodically poll the current game state if we're "in" a room
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // 2. "Local" Turn Timer: each local player gets "timeLimit" seconds
+  // --------------------------------------------------------------------------
   useEffect(() => {
-    let intervalId;
-    if (inRoom && !gameOver) {
-      intervalId = setInterval(() => {
+    if (gameType !== "WordBlitzLocal") return; // skip for online
+    if (!gameStarted || gameOver) return;      // skip if not in local game
+
+    const intervalId = setInterval(() => {
+      setLocalTimeLeft((prev) => {
+        if (prev <= 1) {
+          // Time’s up for the current player
+          clearInterval(intervalId);
+          // Auto-submit for this player
+          submitAllAnswers(true); // pass a param so we know it’s auto
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [gameType, gameStarted, gameOver, currentLocalPlayerIndex]);
+
+  // --------------------------------------------------------------------------
+  // 3. For ONLINE: poll server for "time_left" etc.
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    let pollId;
+    if (inRoom && gameType === "WordBlitzOnline" && !gameOver) {
+      pollId = setInterval(() => {
         fetchGameState();
       }, 3000);
     }
-
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      if (pollId) clearInterval(pollId);
     };
-  }, [inRoom, gameOver]);
+  }, [inRoom, gameOver, gameType]);
 
-  // ----------------------------------------------------------------------------
-  // 3. fetchGameState: load the status from the server
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // fetchGameState (ONLINE only) – local we handle entirely in front end
+  // --------------------------------------------------------------------------
   const fetchGameState = async () => {
     if (!room || !inRoom) return;
-
     try {
       const res = await fetch(`${API_BASE_URL}/get_state?room=${room}`);
       const data = await res.json();
-
       if (data.error) {
         setStatus("❌ " + data.error);
         return;
       }
 
       setGameStarted(data.started);
-      setTimeLeft(data.time_left);
+      setPlayers(data.players || []); // e.g. [ {username, score}, ... ]
 
-      // Convert players if the server returns only usernames
-      if (Array.isArray(data.players)) {
-        setPlayers(data.players.map((u) => ({ username: u, score: 0 })));
-      } else {
-        setPlayers(data.players);
-      }
-
-      // If the game is started, load questions
+      // If started, load questions
       if (data.started && data.questions) {
         setQuestions(data.questions);
-        // Initialize any missing answers
-        const initAnswers = {};
+        const initAns = {};
         data.questions.forEach((q) => {
-          if (!initAnswers[q.question_id]) {
-            initAnswers[q.question_id] = "";
-          }
+          initAns[q.question_id] = "";
         });
-        setAnswers((prev) => ({ ...initAnswers, ...prev }));
+        setAnswers((old) => ({ ...initAns, ...old }));
       }
 
-      // If time runs out, mark gameOver
       if (data.started && data.time_left === 0) {
+        // Time ended on server side => game over
         setGameOver(true);
         setStatus("⏰ Time's up! Final scores shown below.");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (err) {
+      console.error(err);
       setStatus("❌ Failed to fetch state");
     }
   };
 
-  // ----------------------------------------------------------------------------
-  // 4. Create Game
-  //    - For local: automatically start the game
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // 4. CREATE GAME
+  // --------------------------------------------------------------------------
   const createGame = async () => {
-    if (!room) return setStatus("❌ Please enter a room name!");
+    if (!room) {
+      return setStatus("❌ Please enter a room name!");
+    }
     if (gameType === "WordBlitzOnline" && !loggedInUser) {
-      return setStatus("❌ You must be logged in to create an online game!");
+      return setStatus("❌ Must be logged in for online game!");
     }
 
     const payload =
@@ -155,7 +163,7 @@ const WordBlitz = () => {
         ? {
             room,
             game_type: "WordBlitzLocal",
-            player_names: playerNames.filter((n) => n.trim() !== ""),
+            player_names: playerNames.filter((p) => p.trim() !== ""),
             time_limit: parseInt(timeLimit, 10),
           }
         : {
@@ -166,13 +174,12 @@ const WordBlitz = () => {
           };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/create`, {
+      const resp = await fetch(`${API_BASE_URL}/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-
+      const data = await resp.json();
       if (data.error) {
         setStatus("❌ " + data.error);
       } else {
@@ -180,78 +187,85 @@ const WordBlitz = () => {
         setIsCreator(true);
         setInRoom(true);
 
-        // If local, automatically start the game
+        // If local, auto-start
         if (gameType === "WordBlitzLocal") {
-          // By your backend logic, the first local player is creator
-          // We'll call the same /start route with that username
-          const firstPlayerName = playerNames[0].trim() || "LocalHost";
-          autoStartLocalGame(firstPlayerName);
+          const firstName = playerNames[0].trim() || "LocalHost";
+          autoStartLocalGame(firstName);
         }
       }
     } catch (err) {
       console.error(err);
-      setStatus("❌ Server error");
+      setStatus("❌ Server error while creating game");
     }
   };
 
-  // Helper to auto-start local game after creation
+  // Start a local game by calling /start with first player's username
   const autoStartLocalGame = async (creatorName) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/start`, {
+      const resp = await fetch(`${API_BASE_URL}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room, username: creatorName }),
       });
-      const data = await res.json();
+      const data = await resp.json();
       if (data.error) {
         setStatus("❌ " + data.error);
       } else {
         setStatus("✅ " + data.message);
         setGameStarted(true);
+
         setQuestions(data.questions || []);
-        setTimeLeft(data.time_limit);
+        // Now let's fetch the actual players from the server
+        // to ensure we have their correct names
+        const gameStateResp = await fetch(`${API_BASE_URL}/get_state?room=${room}`);
+        const gameStateData = await gameStateResp.json();
+        if (!gameStateData.error) {
+          setPlayers(gameStateData.players || []);
+        }
+        
+        // Start the local turn system
+        setCurrentLocalPlayerIndex(0);
+        setLocalTimeLeft(timeLimit);
 
-        const initAnswers = {};
+        // Make answers object
+        const initAns = {};
         (data.questions || []).forEach((q) => {
-          initAnswers[q.question_id] = "";
+          initAns[q.question_id] = "";
         });
-        setAnswers(initAnswers);
-      }
-    } catch (error) {
-      console.error(error);
-      setStatus("❌ Could not auto-start local game");
-    }
-  };
-
-  // ----------------------------------------------------------------------------
-  // 5. Join an existing online game
-  // ----------------------------------------------------------------------------
-  const fetchOpenGames = async () => {
-    try {
-      const res = await fetch(`${API_BASE_URL}/open_games`);
-      const data = await res.json();
-      if (data.open_games) {
-        setOpenGames(data.open_games);
-      } else if (data.error) {
-        setStatus(`❌ ${data.error}`);
+        setAnswers(initAns);
       }
     } catch (err) {
       console.error(err);
-      setStatus("❌ Error fetching open games.");
+      setStatus("❌ Could not auto-start local");
+    }
+  };
+
+  // --------------------------------------------------------------------------
+  // 5. JOIN an Existing Online Game
+  // --------------------------------------------------------------------------
+  const fetchOpenGames = async () => {
+    try {
+      const resp = await fetch(`${API_BASE_URL}/open_games`);
+      const data = await resp.json();
+      if (data.open_games) {
+        setOpenGames(data.open_games);
+      } else if (data.error) {
+        setStatus("❌ " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus("❌ Error fetching open games");
     }
   };
 
   const joinExistingGame = async (selectedRoom) => {
-    if (!loggedInUser) {
-      return setStatus("❌ You must be logged in to join an online game!");
-    }
     try {
-      const res = await fetch(`${API_BASE_URL}/join`, {
+      const resp = await fetch(`${API_BASE_URL}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room: selectedRoom, username: loggedInUser }),
       });
-      const data = await res.json();
+      const data = await resp.json();
       if (data.error) {
         setStatus("❌ " + data.error);
       } else {
@@ -262,101 +276,155 @@ const WordBlitz = () => {
       }
     } catch (err) {
       console.error(err);
-      setStatus("❌ Server error");
+      setStatus("❌ Server error while joining");
     }
   };
 
-  // ----------------------------------------------------------------------------
-  // 6. Start the game (online creator only)
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // 6. START (Online Only)
+  // --------------------------------------------------------------------------
   const startGame = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/start`, {
+      const resp = await fetch(`${API_BASE_URL}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room, username: loggedInUser }),
       });
-      const data = await res.json();
+      const data = await resp.json();
       if (data.error) {
         setStatus("❌ " + data.error);
       } else {
         setStatus("✅ " + data.message);
         setGameStarted(true);
-        setQuestions(data.questions || []);
-        setTimeLeft(data.time_limit);
-
-        const initAnswers = {};
-        (data.questions || []).forEach((q) => {
-          initAnswers[q.question_id] = "";
-        });
-        setAnswers(initAnswers);
+        // We'll poll get_state to see questions/time left
+        fetchGameState();
       }
     } catch (err) {
       console.error(err);
-      setStatus("❌ Server error");
+      setStatus("❌ Server error while starting");
     }
   };
 
-  // ----------------------------------------------------------------------------
-  // 7. Submit All Answers
-  // ----------------------------------------------------------------------------
-  const submitAllAnswers = async () => {
+  // --------------------------------------------------------------------------
+  // 7. SUBMIT answers
+  //    In local mode, we pass the "currentLocalPlayerIndex" player's name
+  // --------------------------------------------------------------------------
+  const submitAllAnswers = async (autoFromTimer = false) => {
     if (!questions.length) {
       return setStatus("❌ No questions to answer.");
     }
 
-    // Validate that all are filled
-    for (const q of questions) {
-      if (!answers[q.question_id] || !answers[q.question_id].trim()) {
-        setStatus(`❌ Please answer all questions (missing question: ${q.question_id}).`);
+    // If local, we use the "currentLocalPlayerIndex" to find the correct name
+    let localPlayerName = "";
+    if (gameType === "WordBlitzLocal") {
+      const p = players[currentLocalPlayerIndex];
+      if (!p) {
+        console.warn("No player found at index", currentLocalPlayerIndex);
         return;
+      }
+      localPlayerName = p.username;
+    }
+
+    // If not autoFromTimer, check if all fields are filled
+    // (If time ran out, we might skip this check or partial is 0.)
+    if (!autoFromTimer && gameType === "WordBlitzLocal") {
+      for (const q of questions) {
+        if (!answers[q.question_id] || !answers[q.question_id].trim()) {
+          setStatus(`❌ Please fill all answers before submitting!`);
+          return;
+        }
       }
     }
 
     try {
-      const res = await fetch(`${API_BASE_URL}/submit_all`, {
+      const resp = await fetch(`${API_BASE_URL}/submit_all`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           room,
-          username: gameType === "WordBlitzLocal" 
-            ? (players[0]?.username || "LocalHost") // or whichever player's turn it is
-            : loggedInUser,
+          username: gameType === "WordBlitzLocal" ? localPlayerName : loggedInUser,
           answers,
         }),
       });
-      const data = await res.json();
+      const data = await resp.json();
       if (data.error) {
         setStatus("❌ " + data.error);
       } else {
         setStatus("✅ " + data.message);
-        // You can update local scores or data.results if you want real-time scoring
+        // If local => end the turn & go to next player
+        if (gameType === "WordBlitzLocal") {
+          // Reload scores from the server
+          await reloadPlayersScores();
+          advanceLocalTurn();
+        } else {
+          // Online => just poll state to see updated scores
+          fetchGameState();
+        }
       }
     } catch (err) {
       console.error(err);
-      setStatus("❌ Server error");
+      setStatus("❌ Server error submitting answers");
     }
   };
 
-  // ----------------------------------------------------------------------------
-  // 8. If the game is Over: let host decide to continue or not
-  // ----------------------------------------------------------------------------
+  // Reload just the players/scores from get_state
+  const reloadPlayersScores = async () => {
+    try {
+      const resp = await fetch(`${API_BASE_URL}/get_state?room=${room}`);
+      const data = await resp.json();
+      if (!data.error && data.players) {
+        setPlayers(data.players);
+      }
+    } catch (err) {
+      console.error("Error reloading players:", err);
+    }
+  };
+
+  // Move to next local player or end if that was last
+  const advanceLocalTurn = () => {
+    const nextIndex = currentLocalPlayerIndex + 1;
+    if (nextIndex >= players.length) {
+      // All players have gone => game over
+      setGameOver(true);
+      setStatus("All local players finished! Final scores below.");
+      // Optionally reload final scoreboard
+      reloadPlayersScores();
+    } else {
+      // Move to next player
+      setCurrentLocalPlayerIndex(nextIndex);
+      setLocalTimeLeft(timeLimit);
+      // Clear answers
+      const blankAnswers = {};
+      questions.forEach((q) => {
+        blankAnswers[q.question_id] = "";
+      });
+      setAnswers(blankAnswers);
+      setStatus(`Now it's ${players[nextIndex].username}'s turn!`);
+    }
+  };
+
+  // --------------------------------------------------------------------------
+  // 8. GAME OVER => "Play Again?"
+  // --------------------------------------------------------------------------
   const handleContinueGame = () => {
-    // Because your backend doesn't provide a "new round" in the same room,
-    // we simply reset states so the user can create or join another game.
-    setStatus("Create or join a new game!");
+    setStatus("");
+    setRoom("");
+    setGameType("WordBlitzLocal");
     setInRoom(false);
     setGameStarted(false);
     setGameOver(false);
-    setRoom("");
+    setIsCreator(false);
     setPlayers([]);
     setQuestions([]);
     setAnswers({});
+    setPlayerNames([""]);
+    setCurrentLocalPlayerIndex(0);
+    setLocalTimeLeft(timeLimit);
   };
 
-  // ----------------------------------------------------------------------------
-  // 9. Submit Custom Questions
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // 9. Add Custom Questions
+  // --------------------------------------------------------------------------
   const submitCustomQuestions = async () => {
     if (!customSetName) {
       return setStatus("❌ Please enter a set name!");
@@ -372,20 +440,28 @@ const WordBlitz = () => {
       setIsModalOpen(false);
       setCustomSetName("");
       setCustomQuestions(Array(10).fill(""));
-    } catch (error) {
-      console.error(error);
-      setStatus("❌ Server error while adding custom questions");
+    } catch (err) {
+      console.error(err);
+      setStatus("❌ Server error adding custom questions");
     }
   };
 
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   // RENDERING
-  // ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Show which local player is up:
+  const currentLocalPlayerName =
+    gameType === "WordBlitzLocal" &&
+    currentLocalPlayerIndex < players.length
+      ? players[currentLocalPlayerIndex].username
+      : "";
+
   return (
     <Layout>
       <div className="word-blitz-container">
         <h1>🔥 WordBlitz</h1>
 
+        {/* Not in a game => create local or online */}
         {!inRoom && (
           <div style={{ margin: "10px 0", color: "black" }}>
             <h2>Create a Game</h2>
@@ -410,7 +486,7 @@ const WordBlitz = () => {
               </label>
             </div>
 
-            {/* ROOM input */}
+            {/* Room input */}
             <input
               type="text"
               placeholder="Enter Room Name"
@@ -418,19 +494,19 @@ const WordBlitz = () => {
               onChange={(e) => setRoom(e.target.value)}
             />
 
-            {/* If local, collect player names */}
+            {/* If local, gather all player names */}
             {gameType === "WordBlitzLocal" && (
               <div style={{ marginTop: "10px" }}>
                 <p>Enter Player Names (local, same device):</p>
-                {playerNames.map((pname, index) => (
+                {playerNames.map((pname, idx) => (
                   <input
-                    key={index}
+                    key={idx}
                     type="text"
                     style={{ display: "block", margin: "5px 0" }}
                     value={pname}
                     onChange={(e) => {
                       const arr = [...playerNames];
-                      arr[index] = e.target.value;
+                      arr[idx] = e.target.value;
                       setPlayerNames(arr);
                     }}
                   />
@@ -444,7 +520,7 @@ const WordBlitz = () => {
               </div>
             )}
 
-            {/* Only the creator sets time limit */}
+            {/* Time limit */}
             <div style={{ marginTop: "10px" }}>
               <label style={{ marginRight: "5px" }}>Time Limit (seconds):</label>
               <input
@@ -462,7 +538,7 @@ const WordBlitz = () => {
           </div>
         )}
 
-        {/* If user wants to join an existing online game, show open games */}
+        {/* If user wants to join an existing online game */}
         {!inRoom && gameType === "WordBlitzOnline" && (
           <div style={{ margin: "10px 0", color: "black" }}>
             <h2>Join an Existing Online Game</h2>
@@ -475,7 +551,7 @@ const WordBlitz = () => {
               <ul>
                 {openGames.map((g) => (
                   <li key={g.game_id} style={{ margin: "5px 0", color: "black" }}>
-                    Room: <strong>{g.room}</strong> (Players waiting: {g.players.length})
+                    Room: <strong>{g.room}</strong> (Players: {g.players.length})
                     <button
                       onClick={() => joinExistingGame(g.room)}
                       style={{ marginLeft: "10px" }}
@@ -489,7 +565,7 @@ const WordBlitz = () => {
           </div>
         )}
 
-        {/* Add Custom Questions Button (Only show if not in a room) */}
+        {/* Add custom questions button */}
         {!inRoom && (
           <button
             className="add-questions-button"
@@ -499,8 +575,6 @@ const WordBlitz = () => {
             ➕ Add Custom Questions
           </button>
         )}
-
-        {/* Modal for Adding Custom Questions */}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
@@ -519,36 +593,32 @@ const WordBlitz = () => {
                       placeholder={`Question ${index + 1}`}
                       value={q}
                       onChange={(e) => {
-                        const newQuestions = [...customQuestions];
-                        newQuestions[index] = e.target.value;
-                        setCustomQuestions(newQuestions);
+                        const arr = [...customQuestions];
+                        arr[index] = e.target.value;
+                        setCustomQuestions(arr);
                       }}
                     />
                   </div>
                 ))}
               </div>
               <button onClick={submitCustomQuestions}>Submit Custom Questions</button>
-              <button
-                className="close-button"
-                onClick={() => setIsModalOpen(false)}
-              >
+              <button className="close-button" onClick={() => setIsModalOpen(false)}>
                 Close
               </button>
             </div>
           </div>
         )}
 
-        {/* Waiting Room (online only) */}
+        {/* Online waiting room */}
         {inRoom && !gameStarted && gameType === "WordBlitzOnline" && (
           <div style={{ marginTop: "20px", color: "black" }}>
             <h2>Waiting Room: {room}</h2>
             <p>Players in this game:</p>
             <ul>
               {players.map((p, i) => (
-                <li key={i}>{p.username || p}</li>
+                <li key={i}>{p.username}</li>
               ))}
             </ul>
-            {/* Only the creator can start the game */}
             {isCreator && (
               <button onClick={startGame} style={{ marginTop: "10px" }}>
                 Start Game
@@ -557,11 +627,21 @@ const WordBlitz = () => {
           </div>
         )}
 
-        {/* Game in Progress */}
+        {/* Game in progress */}
         {gameStarted && !gameOver && (
           <div style={{ marginTop: "20px", color: "black" }}>
             <h2>Room: {room}</h2>
-            <h3>Time Left: {timeLeft}</h3>
+
+            {gameType === "WordBlitzLocal" ? (
+              <>
+                <h3>
+                  Current Player: {currentLocalPlayerName} | Time Left: {localTimeLeft}
+                </h3>
+              </>
+            ) : (
+              <p>Online mode (polling server for time left)...</p>
+            )}
+
             <h4>Players:</h4>
             <ul>
               {players.map((p, i) => (
@@ -592,16 +672,16 @@ const WordBlitz = () => {
               ))}
             </div>
 
-            <button className="submit-button" onClick={submitAllAnswers}>
-              Submit All Answers
+            <button className="submit-button" onClick={() => submitAllAnswers(false)}>
+              Submit Answers
             </button>
           </div>
         )}
 
-        {/* Game Over Screen (time ran out) */}
+        {/* Game Over */}
         {gameOver && (
           <div style={{ marginTop: "20px", color: "black" }}>
-            <h2>Time's Up! Final Scores:</h2>
+            <h2>Final Scores:</h2>
             <ul>
               {players.map((p, i) => (
                 <li key={i}>

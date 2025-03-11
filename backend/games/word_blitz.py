@@ -213,12 +213,21 @@ def get_state():
         remaining = game.time_limit - elapsed
         time_left = max(int(remaining), 0)
 
+    # Return each player as {username, score}
+    player_data = []
+    for p in players:
+        player_data.append({
+            "username": p.username,
+            "score": p.score  # <-- Now we include the player's actual score
+        })
+
     return jsonify({
         "started": game.started,
-        "players": [p.username for p in players],  # Return array of usernames or objects
+        "players": player_data,
         "questions": assigned,
         "time_left": time_left
     }), 200
+
 
 
 @word_blitz_bp.route("/submit", methods=["POST"])
