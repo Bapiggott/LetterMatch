@@ -42,14 +42,15 @@ header .logo-div box-icon{
 header box-icon {
   fill: var(--header-color-highlight)
 }
-header a {
+header a, .mimic-header-link {
   color: white;
   font-weight: 600;
 }
-header a, header .logo-div div{
+header a, header .logo-div div, .mimic-header-link{
   transition: 0.1s ease color;
 }
-header a:hover, header .logo-div:hover div{
+header a:hover, header .logo-div:hover div, .mimic-header-link:hover {
+  cursor: pointer;
   color:var(--header-color-hightlight-brightened);
   fill: var(--header-color-hightlight-brightened)
 }
@@ -165,6 +166,10 @@ header .call-to-action-div box-icon {
   display: flex;
   flex-direction: column;
  }
+ .hamburger-menu > li {
+  margin-top: 15px;
+ }
+
  /* End of Header */
 
  

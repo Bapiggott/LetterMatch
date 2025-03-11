@@ -134,9 +134,10 @@ const Header = () => {
                             <a href="/home"><li>Home</li></a>
                             <a href='/games'><li>Games</li></a>
                             <a href="/friends"><li>Friends</li></a>  
-                            <a href="/profile"><li>Profile</li></a>                            <a href="/profile"><li>Profile</li></a>
+                            <a href="/profile"><li>Profile</li></a>
                             <a href="/settings"><li>Settings</li></a>
-                            <a href="#" onClick={handleLogout} ><li>Logout</li></a>
+                            <a href="#" onClick={handleLogout}s ><li>Logout</li></a>
+                            <li className="mimic-header-link" onClick={() => setIsHamburgerMenuOpen(!isHamburgerMenuOpen)}>Close</li>
                         </ul>
                     )}
                 </nav>
