@@ -298,6 +298,9 @@ const WordBlitz = () => {
       setStatus("❌ Server error");
     }
   };
+  // ----------------------------------------------------------------------------
+  // 9. Submit Custom Questions
+  // ----------------------------------------------------------------------------
 
   const submitCustomQuestions = async () => {
     if (!customSetName) return setStatus("❌ Please enter a set name!");
@@ -329,7 +332,7 @@ const WordBlitz = () => {
             - or (if online) join an existing open game
         */}
         {!inRoom && (
-            <div style={{ margin: "10px 0" }}>
+            <div style={{ margin: "10px 0", color: "black" }}>
             <h2>Create a Game</h2>
             <div style={{ marginBottom: "10px" }}>
                 <label>
@@ -406,7 +409,7 @@ const WordBlitz = () => {
 
         {/* If user wants to join an existing online game, show open games */}
         {!inRoom && gameType === "WordBlitzOnline" && (
-            <div style={{ margin: "10px 0" }}>
+            <div style={{ margin: "10px 0", color: "black" }}>
             <h2>Join an Existing Online Game</h2>
             <button onClick={fetchOpenGames} style={{ marginBottom: "5px" }}>
                 Refresh Open Games
@@ -416,7 +419,7 @@ const WordBlitz = () => {
             ) : (
                 <ul>
                 {openGames.map((g) => (
-                    <li key={g.game_id} style={{ margin: "5px 0" }}>
+                    <li key={g.game_id} style={{ margin: "5px 0",color: "black"  }}>
                     Room: <strong>{g.room}</strong> (Players waiting: {g.players.length})
                     <button
                         onClick={() => joinExistingGame(g.room)}
@@ -478,7 +481,7 @@ const WordBlitz = () => {
 
         {/* Waiting Room (if inRoom but not started) */}
         {inRoom && !gameStarted && (
-            <div style={{ marginTop: "20px" }}>
+            <div style={{ marginTop: "20px",color: "black"  }}>
             <h2>Waiting Room: {room}</h2>
             <p>Players in this game:</p>
             <ul>
@@ -491,7 +494,7 @@ const WordBlitz = () => {
 
             {/* Only the creator can start the game (online mode) */}
             {isCreator && gameType === "WordBlitzOnline" && (
-                <button onClick={startGame} style={{ marginTop: "10px" }}>
+                <button onClick={startGame} style={{ marginTop: "10px"}}>
                 Start Game
                 </button>
             )}
@@ -500,7 +503,7 @@ const WordBlitz = () => {
 
         {/* Game Started */}
         {gameStarted && (
-            <div style={{ marginTop: "20px" }}>
+            <div style={{ marginTop: "20px" ,color: "black" }}>
             <h2>Room: {room}</h2>
             <h3>Time Left: {timeLeft}</h3>
 

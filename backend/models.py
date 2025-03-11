@@ -66,6 +66,7 @@ class Word_blitz(db.Model):
     username = db.Column(db.String, nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False) 
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    word_correct = db.Column(db.Boolean, default=False)
 
 
 class GameQuestionBlitz(db.Model):
