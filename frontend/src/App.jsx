@@ -11,10 +11,10 @@ import ProfilePage from './components/ProfilePage/Profile'
 import AboutPage from './components/AboutPage/AboutPage';
 import GamesPage from './components/GamesPage/GamesPage';
 
-//Letter match routes
+// Letter match routes
 import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
-import LM_LocalPlayer from './components/LetterMatchPage/LM_LocalPlayer';
-import LM_onlineMode from './components/LetterMatchPage/LM_onlineMode';
+// import LM_LocalPlayer from './components/LetterMatchPage/LM_LocalPlayer';
+// import LM_onlineMode from './components/LetterMatchPage/LM_onlineMode';
 
 
 import 'boxicons'
