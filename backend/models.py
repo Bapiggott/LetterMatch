@@ -47,7 +47,7 @@ class Word(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     username = db.Column(db.String, nullable=False)  # Allows non-registered players
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)
+    #question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)
 
 
 class QuestionSet_blitz(db.Model):
