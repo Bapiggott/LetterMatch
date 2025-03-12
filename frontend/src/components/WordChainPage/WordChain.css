@@ -4,9 +4,15 @@
     color: white;
     padding: 20px;
     border-radius: 10px;
-}
-
-button {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .word-chain-container h1 {
+    margin-bottom: 20px;
+  }
+  
+  .word-chain-container button {
     background-color: #4CAF50;
     color: white;
     padding: 10px;
@@ -14,15 +20,21 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-}
-
-button:hover {
+  }
+  
+  .word-chain-container button:hover {
     background-color: #45a049;
-}
-
-input {
+  }
+  
+  .word-chain-container input {
     padding: 10px;
     margin: 5px;
     border-radius: 5px;
     border: 1px solid #ccc;
-}
+  }
+  
+  .status-message {
+    margin-top: 10px;
+    color: #fba;
+  }
+  

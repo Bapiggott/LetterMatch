@@ -123,47 +123,49 @@ const LM_singlePlayer = () => {
     };
 
     return (
-        <div>
-            <p style={{ color: "White", fontSize: "30px", textAlign: "center" }}>
-            🧩 Letter Match
-            </p>
-            
-            <p style={{ color: "White", fontSize: "20px", textAlign: "left" }}>
-            Click to pick a letter or type Random for a surprise letter:
-            </p>
+        <Layout>
+            <div>
+                <p style={{ color: "black", fontSize: "30px", textAlign: "center" }}>
+                🧩 Letter Match
+                </p>
+                
+                <p style={{ color: "black", fontSize: "20px", textAlign: "left" }}>
+                Click to pick a letter or type Random for a surprise letter:
+                </p>
 
-            <button onClick={handlePrompt} style={{ backgroundColor: "blue", color: "white" }}>Letter Button</button>
+                <button onClick={handlePrompt} style={{ backgroundColor: "blue", color: "black" }}>Letter Button</button>
 
-            <p style={{ color: "white", textAlign: "center" }}>
-                Selected Letter: {getLetter}
-            </p>
+                <p style={{ color: "black", textAlign: "center" }}>
+                    Selected Letter: {getLetter}
+                </p>
 
-            <p style={{ color: "red", fontSize: "20px", textAlign: "center" }}>
-            Time Left: {timeLimit} seconds
-            </p>
+                <p style={{ color: "red", fontSize: "20px", textAlign: "center" }}>
+                Time Left: {timeLimit} seconds
+                </p>
 
 
-            <button onClick={namePrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a Name</button>
-            <button onClick={placePrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a Geographical Location</button>
-            <button onClick={animalPrompt} style={{ backgroundColor: "blue", color: "white" }}>Type an Animal</button>
-            <button onClick={FoodPrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a Food</button>
-            <button onClick={thingPrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a thing</button> 
-
-          
-            <p style={{ color: "White", fontSize: "20px", textAlign: "left" }}>
-            Click when done, before time runs out: 
-            </p>
-            <button onClick={handleSubmit} style={{ backgroundColor: "blue", color: "white", marginTop: "3px", marginBottom: "10px" }}>Submit</button>
- 
-
-         
+                <button onClick={namePrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a Name</button>
+                <button onClick={placePrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a Geographical Location</button>
+                <button onClick={animalPrompt} style={{ backgroundColor: "blue", color: "white" }}>Type an Animal</button>
+                <button onClick={FoodPrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a Food</button>
+                <button onClick={thingPrompt} style={{ backgroundColor: "blue", color: "white" }}>Type a thing</button> 
 
             
+                <p style={{ color: "black", fontSize: "20px", textAlign: "left" }}>
+                Click when done, before time runs out: 
+                </p>
+                <button onClick={handleSubmit} style={{ backgroundColor: "blue", color: "white", marginTop: "3px", marginBottom: "10px" }}>Submit</button>
+    
+
             
 
+                
+                
 
 
-        </div>
+
+            </div>
+        </Layout>
     );
 };
 
