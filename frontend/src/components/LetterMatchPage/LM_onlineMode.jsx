@@ -7,8 +7,7 @@ const LM_onlineMode = () => {
     return (
         <Layout>
             <div>
-                <h2>About</h2>
-                {/* Your form code goes here */}
+                
             </div>
         </Layout>
     );
