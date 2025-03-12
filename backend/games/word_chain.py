@@ -1,9 +1,14 @@
 import traceback
 from flask import Blueprint, request, jsonify
-from setup.extensions import db
+from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 from models import Game, Player, Word
+from threading import Timer
 
+db = SQLAlchemy()
 word_chain_bp = Blueprint('word_chain', __name__)
+
+active_timers = {}
 
 @word_chain_bp.route("/create", methods=["POST"])
 def create_word_chain():
@@ -73,5 +78,118 @@ def submit_word_chain():
 
     except Exception as e:
         print(f"Error in submit_word_chain: {e}")
+        traceback.print_exc()
+        return jsonify({"error": "Server error"}), 500
+
+active_timers = {}
+
+@word_chain_bp.route("/kick_player", methods=["POST"])
+def kick_player():
+    """Allows the game admin to remove a player from the room."""
+    try:
+        data = request.get_json()
+        room = data['room']
+        admin_username = data['admin_username']
+        player_to_kick = data['username']
+
+        game = Game.query.filter_by(room=room, game_type="WordChain").first()
+        if not game:
+            return jsonify({"error": "Room does not exist"}), 404
+
+        # The first player in the room is the admin
+        admin = Player.query.filter_by(game_id=game.id).order_by(Player.id.asc()).first()
+        if not admin or admin.username != admin_username:
+            return jsonify({"error": "Only the admin can kick players"}), 403
+
+        # Check if the player exists
+        player = Player.query.filter_by(username=player_to_kick, game_id=game.id).first()
+        if not player:
+            return jsonify({"error": f"Player '{player_to_kick}' is not in the game"}), 404
+
+        # Remove the player
+        db.session.delete(player)
+        db.session.commit()
+
+        # Updated player list
+        players = [p.username for p in game.players]
+        return jsonify({"message": f"Player '{player_to_kick}' was kicked out", "players": players}), 200
+
+    except Exception as e:
+        print(f"Error in kick_player: {e}")
+        traceback.print_exc()
+        return jsonify({"error": "Server error"}), 500
+
+
+@word_chain_bp.route("/start_timer", methods=["POST"])
+def start_timer():
+    """Starts a timer for the game round."""
+    try:
+        data = request.get_json()
+        room = data['room']
+        admin_username = data['admin_username']
+        duration = data.get('duration', 30)  # Default to 30 seconds
+
+        game = Game.query.filter_by(room=room, game_type="WordChain").first()
+        if not game:
+            return jsonify({"error": "Room does not exist"}), 404
+
+        # Only admin can start/stop the timer
+        admin = Player.query.filter_by(game_id=game.id).order_by(Player.id.asc()).first()
+        if not admin or admin.username != admin_username:
+            return jsonify({"error": "Only the admin can start the timer"}), 403
+
+        # If a timer is already running, cancel it
+        if room in active_timers:
+            active_timers[room].cancel()
+
+        # Function to end turn after timer expires
+        def timer_expired():
+            del active_timers[room]  # Remove from active timers
+            print(f"Time's up for {room}!")  # Placeholder for handling turn end
+
+        # Start the timer
+        timer = Timer(duration, timer_expired)
+        timer.start()
+        active_timers[room] = timer
+
+        return jsonify({"message": f"Timer started for {duration} seconds"}), 200
+
+    except Exception as e:
+        print(f"Error in start_timer: {e}")
+        traceback.print_exc()
+        return jsonify({"error": "Server error"}), 500
+
+
+@word_chain_bp.route("/veto_word", methods=["POST"])
+def veto_word():
+    """Allows an admin to remove an invalid word from the game."""
+    try:
+        data = request.get_json()
+        room = data['room']
+        admin_username = data['admin_username']
+        word_to_veto = data['word']
+
+        game = Game.query.filter_by(room=room, game_type="WordChain").first()
+        if not game:
+            return jsonify({"error": "Room does not exist"}), 404
+
+        # Only admin can veto words
+        admin = Player.query.filter_by(game_id=game.id).order_by(Player.id.asc()).first()
+        if not admin or admin.username != admin_username:
+            return jsonify({"error": "Only the admin can veto words"}), 403
+
+        # Check if the word exists
+        word = Word.query.filter_by(game_id=game.id, word=word_to_veto).first()
+        if not word:
+            return jsonify({"error": f"Word '{word_to_veto}' not found in the game"}), 404
+
+        # Remove the word
+        db.session.delete(word)
+        db.session.commit()
+
+        return jsonify({"message": f"Word '{word_to_veto}' was vetoed"}), 200
+
+    except Exception as e:
+        print(f"Error in veto_word: {e}")
         traceback.print_exc()
         return jsonify({"error": "Server error"}), 500
