@@ -87,9 +87,9 @@ const LetterMatch = () => {
             <div className="letter-match-container">
                 <h1 style={{ color: "white" }}>🔗 Letter Match Game</h1>
                 <div className="mode-selection">
-                    <button onClick={() => setGameMode("single")}>Play Single Player</button>
-                    <button onClick={() => setGameMode("online")}>Play Online</button>
-                    <button onClick={() => setGameMode("local")}>Local Multiplayer</button>
+                    <button onClick={() => setGameMode("single")} style={{ backgroundColor: "blue", color: "white" }}>Play Single Player</button>
+                    <button onClick={() => setGameMode("online")} style={{ backgroundColor: "blue", color: "white" }}>Play Online</button>
+                    <button onClick={() => setGameMode("local")}style={{ backgroundColor: "blue", color: "white" }}>Local Multiplayer</button>
                 </div>
 
                 {gameMode && (
@@ -103,17 +103,22 @@ const LetterMatch = () => {
                             <div>
                                 <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
                                 <input type="text" placeholder="Enter Player Name" value={newLocalPlayer} onChange={(e) => setNewLocalPlayer(e.target.value)} />
-                                <button onClick={addLocalPlayer}>Add Local Player</button>
+                                <button onClick={addLocalPlayer} style={{ backgroundColor: "blue", color: "white" }} > Add Local Player</button>
                                 <ul>{localPlayers.map((p, index) => <li key={index}>{p} <button onClick={() => removeLocalPlayer(index)}>Remove</button></li>)}</ul>
+
+                               
                
                             </div>
                         ) : (
-                            <button onClick={joinGame}>Join Online Game</button>
+                            <button onClick={joinGame} style={{ backgroundColor: "blue", color: "white" }} >Join Online Game</button>
+                         
+
                         )}
 
                       
 
-                        <button onClick={createGame}>Create Game</button>
+                        <button onClick={createGame} style={{ backgroundColor: "blue", color: "white" }}>Create Game</button>
+
                     </div>
                 )}
             </div>
