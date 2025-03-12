@@ -12,6 +12,9 @@ const WordChain = () => {
     const [gameMode, setGameMode] = useState(""); // "local" or "online"
     const [localPlayers, setLocalPlayers] = useState([]);
     const [newLocalPlayer, setNewLocalPlayer] = useState("");
+    const [timer, setTimer] = useState(null);
+    const [timeLeft, setTimeLeft] = useState(30);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         if (room) {
@@ -89,6 +92,51 @@ const WordChain = () => {
             setNewLocalPlayer("");
         }
     };
+
+    const startTimer = () => {
+        setTimeLeft(30);
+        if (timer) clearInterval(timer);
+        const newTimer = setInterval(() => {
+            setTimeLeft(prev => {
+                if (prev <= 1) {
+                    clearInterval(newTimer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        setTimer(newTimer);
+    };
+
+    const stopTimer = () => {
+        if (timer) clearInterval(timer);
+        setTimer(null);
+    };
+
+    const kickPlayer = async (player) => {
+        if (!isAdmin) return;
+        const response = await fetch(`${API_BASE_URL}/kick_player`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ room, player }),
+        });
+        const data = await response.json();
+        setStatus(data.message || data.error);
+        setPlayers(players.filter(p => p !== player));
+    };
+
+    const vetoWord = async (word) => {
+        if (!isAdmin) return;
+        const response = await fetch(`${API_BASE_URL}/veto_word`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ room, word }),
+        });
+        const data = await response.json();
+        setStatus(data.message || data.error);
+        setWordChain(wordChain.filter(w => w !== word));
+    };
+
 
     return (
         <Layout>
