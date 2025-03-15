@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React</title>
+
+    <!-- This script loads the color theme -->
+    <script>
+      (function() {
+          const colorTheme = localStorage.getItem("color-theme") || "default";
+          document.documentElement.setAttribute("data-color-theme", colorTheme);
+      })();
+  </script>
+
   </head>
   <body>
     <div id="root"></div>

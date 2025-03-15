@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { API_URL } from "../../config";
-import { getUsername, getToken, removeToken, removeUsername } from '../../LocalStorageUtils';
+import LocalStorageUtils from "../../LocalStorageUtils";
 
 const Header = () => {
     const MAX_HAMBURGER_SCREEN_SIZE = 800
@@ -21,13 +21,13 @@ const Header = () => {
 
     useEffect(() => {
         // Check if a token is present in localStorage
-        const token = getToken()
+        const token = LocalStorageUtils.getToken()
         setIsLoggedIn(!!token); 
     }, []);
 
     const handleLogout = () => {
-        removeToken()
-        removeUsername()
+        LocalStorageUtils.removeToken()
+        LocalStorageUtils.removeUsername()
         setIsLoggedIn(false);
         window.location.href = "/login";
     };
@@ -73,7 +73,7 @@ const Header = () => {
                         {isLoggedIn ? (
                             <>
                                 <div>
-                                    <span className="hello-user-span">hi, { getUsername() || "Unknown" }</span>
+                                    <span className="hello-user-span">hi, { LocalStorageUtils.getUsername() || "Unknown" }</span>
                                 </div>
                                 <div className="user-icon-div" ref={userMenuRef}>
                                     <box-icon onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} name='user-circle' ></box-icon>

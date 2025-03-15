@@ -11,6 +11,7 @@ import ProfilePage from './components/ProfilePage/Profile'
 import AboutPage from './components/AboutPage/AboutPage';
 import GamesPage from './components/GamesPage/GamesPage';
 import PrivateRoute from './PrivateRoute';
+import SettingsPage from './components/SettingsPage/SettingsPage';
 
 // Letter match routes
 import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
@@ -40,6 +41,7 @@ const App = () => {
                     <Route path="/singlePlayer" element={<LM_singlePlayer />} />
                     <Route element={<PrivateRoute />}>
                         <Route path="/Friends" element={<FriendsPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
                     </Route>
                     <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../Layout/Layout';
 import './Friends.css';
 import { API_URL } from '../../config';
-import { getUsername, getToken } from '../../LocalStorageUtils';
+import LocalStorageUtils from '../../LocalStorageUtils';
 
 const Friends = () => {
 
-    const token = getToken()
-    const username = getUsername()
+    const token = LocalStorageUtils.getToken()
+    const username = LocalStorageUtils.getUsername()
 
     const [addFriendUsername, setAddFriendUsername] = useState("");
     const [addFriendMessage, setAddFriendMessage] = useState("");
@@ -57,7 +57,7 @@ const Friends = () => {
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    username: getUsername(),
+                    username: username,
                     addFriendUsername: addFriendUsername
                 })
             });

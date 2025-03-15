@@ -1,27 +1,46 @@
-const TOKEN_STORAGE_NAME = "token"
-const USERNAME_STORAGE_NAME = "username"
-const COLOR_THEME_STORAGE_NAME = "color-theme"
+class LocalStorageUtils {
+    static TOKEN_STORAGE_NAME = "token"
+    static USERNAME_STORAGE_NAME = "username"
+    static COLOR_THEME_STORAGE_NAME = "color-theme"
 
-// Token
+    // Token
+    static getToken() {
+        return localStorage.getItem(this.TOKEN_STORAGE_NAME)
+    }
 
-export const getToken = () => localStorage.getItem(TOKEN_STORAGE_NAME)
+    static setToken(token) {
+        localStorage.setItem(this.TOKEN_STORAGE_NAME, token)
+    }
 
-export const setToken = (token) => localStorage.setItem(TOKEN_STORAGE_NAME, token)
+    static removeToken() {
+        localStorage.removeItem(this.TOKEN_STORAGE_NAME)
+    }
 
-export const removeToken = () => localStorage.removeItem(TOKEN_STORAGE_NAME)
+    // Username
+    static getUsername() {
+        return localStorage.getItem(this.USERNAME_STORAGE_NAME)
+    }
 
-// Username
+    static setUsername(username) {
+        localStorage.setItem(this.USERNAME_STORAGE_NAME, username)
+    }
 
-export const getUsername = () => localStorage.getItem(USERNAME_STORAGE_NAME)
+    static removeUsername() {
+        localStorage.removeItem(this.USERNAME_STORAGE_NAME)
+    }
 
-export const setUsername = (username) => localStorage.setItem(USERNAME_STORAGE_NAME, username)
+    // Color Theme
+    static getColorTheme() {
+        return localStorage.getItem(this.COLOR_THEME_STORAGE_NAME)
+    }
 
-export const removeUsername = () => localStorage.removeItem(USERNAME_STORAGE_NAME)
+    static setColorTheme(colorTheme) {
+        localStorage.setItem(this.COLOR_THEME_STORAGE_NAME, colorTheme)
+    }
 
-// Color Theme
+    static removeColorTheme() {
+        localStorage.removeItem(this.COLOR_THEME_STORAGE_NAME)
+    }
+}
 
-export const getColorTheme = () => localStorage.getItem(COLOR_THEME_STORAGE_NAME)
-
-export const setColorTheme = (colorTheme) => localStorage.setItem(COLOR_THEME_STORAGE_NAME, colorTheme)
-
-export const removeColorTheme = () => localStorage.removeItem(COLOR_THEME_STORAGE_NAME)
+export default LocalStorageUtils;

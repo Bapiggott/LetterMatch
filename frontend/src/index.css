@@ -1,5 +1,5 @@
 
-* {
+:root{
   --header-color-highlight: rgb(0, 119, 255);
   --header-color-hightlight-brightened: rgb(80, 162, 255);
   
@@ -11,6 +11,12 @@
   --footer-text-color: var(--header-text-color);
   --main-text-color: #333;
 
+}
+
+[data-color-theme="jungle"]{
+  --header-bg-color: rgb(2, 54, 2);
+  --header-color-highlight: rgb(69, 199, 97);
+  --header-color-hightlight-brightened: rgb(71, 216, 102);
 }
 
 
