@@ -2,6 +2,7 @@ import traceback
 from flask import Blueprint, request, jsonify
 from setup.extensions import db
 from models import User, Friendship
+from utils.auth_utils import get_user_from_req
 
 friends_bp = Blueprint('friends', __name__)
 
@@ -44,5 +45,35 @@ def add_friend():
 
     except Exception as e:
         print(f"Error in add_friend: {e}")
+        traceback.print_exc()
+        return jsonify({"message": "Server error"}), 500
+
+
+
+@friends_bp.route("/get-all", methods=["GET"])
+def get_all_friends():
+    try:
+        user = get_user_from_req(request)
+        username = user.username
+        
+        friendships = Friendship.query.filter((Friendship.username_1 == username) |
+                                              (Friendship.username_2 == username)
+                                              ).all()
+        
+        users = set()
+
+        for friendship in friendships:
+            users.add(friendship.username_1)
+            users.add(friendship.username_2)
+
+        users.discard(username)
+
+        return jsonify({
+                        "message": "Success",
+                        "friends": list(users)
+                       }), 201
+
+    except Exception as e:
+        print(f"Error in get_all_friends: {e}")
         traceback.print_exc()
         return jsonify({"message": "Server error"}), 500

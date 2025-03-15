@@ -10,6 +10,7 @@ import FriendsPage from './components/FriendsPage/Friends';
 import ProfilePage from './components/ProfilePage/Profile'
 import AboutPage from './components/AboutPage/AboutPage';
 import GamesPage from './components/GamesPage/GamesPage';
+import PrivateRoute from './PrivateRoute';
 
 // Letter match routes
 import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
@@ -33,13 +34,13 @@ const App = () => {
                     <Route path="/lettermatch" element={<LetterMatchPage />} />
                     <Route path="/wordblitz" element={<WordBlitzPage />} />
                     <Route path="/wordchain" element={<WordChainPage />} />
-                    <Route path="/Friends" element={<FriendsPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/games" element={<GamesPage />} />
                     <Route path="/about" element={<AboutPage />} />
-
                     <Route path="/singlePlayer" element={<LM_singlePlayer />} />
-
+                    <Route element={<PrivateRoute />}>
+                        <Route path="/Friends" element={<FriendsPage />} />
+                    </Route>
                     <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
             </Router>

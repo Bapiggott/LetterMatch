@@ -62,7 +62,7 @@ def login():
                            current_app.config['SECRET_KEY'], algorithm='HS256')
 
         return jsonify({"message": "Login Successful", "token": token, 
-                        "user": {"id": user.id, "email": user.email, "role": user.role, "date_created": user.date_created}}), 200
+                        "user": {"id": user.id, "username": user.username, "email": user.email, "role": user.role, "date_created": user.date_created}}), 200
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         print(traceback.format_exc())
@@ -124,3 +124,5 @@ def get_current_user():
         return jsonify({"message": "Session expired. Please log in again."}), 401
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid session. Please log in again."}), 401
+
+

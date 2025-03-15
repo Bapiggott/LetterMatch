@@ -41,28 +41,6 @@ app.register_blueprint(friends_bp, url_prefix="/friends")
 def home():
     return jsonify({"message": "Backend is running!"})
 
-# The below function will only work if both users have already 
-# been added to the database
-@app.route("/add-friend", methods=["POST"])
-def add_friend():
-    try:
-
-        data = request.get_json() 
-
-        username = data.get('username')
-        addFriendUsername = data.get('addFriendUsername')
-
-        print(f"About to add friendship between {addFriendUsername} and {username}.")
-
-        friendship = Friendship(username_1=username, username_2=addFriendUsername)
-        db.session.add(friendship)
-        db.session.commit()
-
-        return jsonify({"message": "Friend successfully added"}), 200
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": "Failed to add friend"}), 400
 
 """if __name__ == "__main__":
     with app.app_context():  # Ensure app context is set

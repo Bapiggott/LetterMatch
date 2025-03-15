@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { API_URL } from "../../config";
+import { getUsername, getToken } from '../../CookieUtils';
 
 const Header = () => {
     const MAX_HAMBURGER_SCREEN_SIZE = 800
@@ -8,7 +9,6 @@ const Header = () => {
     const [isHamburgerMenuOpen, setIsHamburgerMenuOpen] = useState(false)
     const userMenuRef = useRef(null);
     const hamburgerMenuRef = useRef(null)
-    const [loggedInUser, setLoggedInUser] = useState(null);
     const [showHamburger, setShowHamburger] = useState(window.innerWidth <= MAX_HAMBURGER_SCREEN_SIZE);
 
     useEffect(() => {
@@ -31,33 +31,6 @@ const Header = () => {
         setIsLoggedIn(false);
         window.location.href = "/login";
     };
-
-    useEffect(() => {
-        // Fetch logged-in user from session storage or API
-        const fetchUser = async () => {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                console.error("Error fetching user");
-                return;
-            }
-            try {
-                const response = await fetch(`${API_URL}/auth/me`, {
-                    method: "GET",
-                    headers: { "Authorization": `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setLoggedInUser(data.username);
-                } else {
-                    console.error("Error fetching user");
-                }
-            } catch (error) {
-                console.error("Error fetching user:", error);
-            }
-        };
-
-        fetchUser();
-    }, []);
 
 
 
@@ -100,7 +73,7 @@ const Header = () => {
                         {isLoggedIn ? (
                             <>
                                 <div>
-                                    <span className="hello-user-span">hi, { loggedInUser || "Unknown" }</span>
+                                    <span className="hello-user-span">hi, { getUsername() || "Unknown" }</span>
                                 </div>
                                 <div className="user-icon-div" ref={userMenuRef}>
                                     <box-icon onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} name='user-circle' ></box-icon>
