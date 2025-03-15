@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Layout from '../Layout/Layout';
 import './Friends.css';
 import { API_URL } from '../../config';
-import { getUsername, getToken } from '../../CookieUtils';
+import { getUsername, getToken } from '../../LocalStorageUtils';
 
 const Friends = () => {
 

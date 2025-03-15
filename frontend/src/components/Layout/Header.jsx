@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { API_URL } from "../../config";
-import { getUsername, getToken } from '../../CookieUtils';
+import { getUsername, getToken, removeToken, removeUsername } from '../../LocalStorageUtils';
 
 const Header = () => {
     const MAX_HAMBURGER_SCREEN_SIZE = 800
@@ -21,13 +21,13 @@ const Header = () => {
 
     useEffect(() => {
         // Check if a token is present in localStorage
-        const token = localStorage.getItem("token");
+        const token = getToken()
         setIsLoggedIn(!!token); 
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("username"); 
+        removeToken()
+        removeUsername()
         setIsLoggedIn(false);
         window.location.href = "/login";
     };
