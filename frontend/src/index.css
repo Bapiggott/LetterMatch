@@ -16,7 +16,7 @@
 [data-color-theme="jungle"]{
   --header-bg-color: #265B0F;
   --header-color-highlight: #d4fc0b; /* #86DC3D  */
-  --header-color-hightlight-brightened: #d4fc0b;
+  --header-color-hightlight-brightened: #eaff83;
   --main-bg-color: #d1ffb7;
 }
 
@@ -106,6 +106,7 @@ header .logo {
   border-radius: 10px;
   transform: all 0.1s ease;
   font-weight: 600;
+  color: var(--header-color-highlight);
  }
  header .call-to-action-div a:hover *, .header-style-btn:hover{
   color:var(--header-color-hightlight-brightened);
