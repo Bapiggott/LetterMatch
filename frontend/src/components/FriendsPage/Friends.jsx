@@ -77,20 +77,24 @@ const Friends = () => {
 
     return (
         <Layout>
-        <div className='friends-list'>
-            <ul>
-                {friends.length > 0 ? (
-                friends.map((friend, index) => (
-                    //Remove inline styling later
-                    <li style={{ color:"black"}} key={index}>{friend}</li>
-                ))
-                ) : (
-                <p>No friends found</p>
-                )}
-            </ul>
-        </div>
-            <div className="friends-container">
+            <div>
                 <h1>Friends</h1>
+            </div>
+            <div className='friends-list'>
+                <h2>Friends List</h2>
+                {/* Remove inline styling later */}
+                <ul style={{ color:"black"}}>
+                    {friends.length > 0 ? (
+                    friends.map((friend, index) => (
+                        <li key={index}>{friend}</li>
+                    ))
+                    ) : (
+                    <p>No friends found</p>
+                    )}
+                </ul>
+            </div>
+            <div className="friends-container">
+                <h2>Add a Friend</h2>
                 <p className="logged-in-user">Logged in as: <b>{username || "Loading..."}</b></p>
 
                 <div className="friends-form">

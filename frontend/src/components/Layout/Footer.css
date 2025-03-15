@@ -1,10 +1,17 @@
 .footer {
-    background-color: black;
-    color: white;
+    background-color: var(--footer-bg-color);
+    color: var(--footer-text-color);
     padding: 0px;
     position: relative;
     width: 100%;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+footer * {
+    font-weight: 600;
+  }
 
 .toggle-btn {
     position: absolute;
