@@ -14,9 +14,10 @@
 }
 
 [data-color-theme="jungle"]{
-  --header-bg-color: rgb(2, 54, 2);
-  --header-color-highlight: rgb(69, 199, 97);
-  --header-color-hightlight-brightened: rgb(71, 216, 102);
+  --header-bg-color: #265B0F;
+  --header-color-highlight: #d4fc0b; /* #86DC3D  */
+  --header-color-hightlight-brightened: #d4fc0b;
+  --main-bg-color: #d1ffb7;
 }
 
 
@@ -136,7 +137,7 @@ header .call-to-action-div box-icon {
     top: 100%;
     left: 50%; 
     transform: translateX(-50%); 
-    background: var(--main-bg-color);
+    background: var(--header-bg-color);
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
