@@ -1,0 +1,29 @@
+.profile-container {
+    max-width: 500px;
+    margin: 20px auto;
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 6px;
+  }
+  
+  .profile-data {
+    margin-top: 10px;
+  }
+  
+  .profile-item {
+    margin-bottom: 8px;
+  }
+  
+  .upload-section {
+    margin-top: 15px;
+  }
+  
+  .status-message {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  .profile-pic img {
+    border-radius: 50%;
+  }
+  

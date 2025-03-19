@@ -8,6 +8,10 @@ class User(db.Model):
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.Integer, default=1)  # Regular user = role 1
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    profile_pic = db.Column(db.String, nullable=True)
+    games_played = db.Column(db.Integer, default=0)
+    games_won = db.Column(db.Integer, default=0)
+    profile_pic_base64 = db.Column(db.Text, nullable=True)
 
     friendships_1 = db.relationship('Friendship', foreign_keys='Friendship.username_1', backref='user_1', lazy=True)
     friendships_2 = db.relationship('Friendship', foreign_keys='Friendship.username_2', backref='user_2', lazy=True)

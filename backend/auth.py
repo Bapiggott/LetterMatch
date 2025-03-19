@@ -125,4 +125,22 @@ def get_current_user():
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid session. Please log in again."}), 401
 
+def get_current_user_username():
+    token = request.headers.get("Authorization")
+    if not token:
+        return None
+
+    try:
+        token = token.split(" ")[1]  # Remove "Bearer " prefix
+        decoded_token = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = User.query.get(decoded_token['user_id'])
+
+        if not user:
+            return None
+
+        return user.username
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
 
