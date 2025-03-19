@@ -34,6 +34,34 @@ const SettingsPage = () => {
                         <input type="radio" value="jungle" name="color-theme" checked={colorTheme === "jungle"} onChange={() => changeColorTheme("jungle")}/>
                         Jungle
                     </label>
+                    <label>
+                        <input type="radio" value="ocean" name="color-theme" checked={colorTheme === "ocean"} onChange={() => changeColorTheme("ocean")}/>
+                        Ocean
+                    </label>
+                    <label>
+                        <input type="radio" value="desert" name="color-theme" checked={colorTheme === "desert"} onChange={() => changeColorTheme("desert")}/>
+                        Desert
+                    </label>
+                    <label>
+                        <input type="radio" value="arctic" name="color-theme" checked={colorTheme === "arctic"} onChange={() => changeColorTheme("arctic")}/>
+                        Arctic
+                    </label>
+                    <label>
+                        <input type="radio" value="fire" name="color-theme" checked={colorTheme === "fire"} onChange={() => changeColorTheme("fire")}/>
+                        Fire
+                    </label>
+                    <label>
+                        <input type="radio" value="space" name="color-theme" checked={colorTheme === "space"} onChange={() => changeColorTheme("space")}/>
+                        Space
+                    </label>
+                    <label>
+                        <input type="radio" value="darkmode" name="color-theme" checked={colorTheme === "darkmode"} onChange={() => changeColorTheme("darkmode")}/>
+                        DarkMode
+                    </label>
+                    {/* <label>
+                        <input type="radio" value="lightmode" name="color-theme" checked={colorTheme === "lightmode"} onChange={() => changeColorTheme("lightmode")}/>
+                        LightMode
+                    </label>*/}
                 </div>
             </div>
         </Layout>

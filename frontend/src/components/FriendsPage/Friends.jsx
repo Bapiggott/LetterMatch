@@ -5,23 +5,22 @@ import { API_URL } from '../../config';
 import LocalStorageUtils from '../../LocalStorageUtils';
 
 const Friends = () => {
+    const token = LocalStorageUtils.getToken();
+    const username = LocalStorageUtils.getUsername();
 
-    const token = LocalStorageUtils.getToken()
-    const username = LocalStorageUtils.getUsername()
-
-    const [addFriendUsername, setAddFriendUsername] = useState("");
-    const [addFriendMessage, setAddFriendMessage] = useState("");
-    const [friends, setFriends] = useState([])
+    const [friendUsername, setFriendUsername] = useState("");
+    const [friendMessage, setFriendMessage] = useState("");
+    const [friends, setFriends] = useState([]);
 
     useEffect(() => {
         fetchFriends();
-    }, []); 
+    }, []);
 
     const fetchFriends = async () => {
         try {
             const response = await fetch(`${API_URL}/friends/get-all`, {
                 method: "GET",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 }
@@ -29,8 +28,7 @@ const Friends = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(response.friends)
-                setFriends(data.friends); 
+                setFriends(data.friends);
             } else {
                 console.error("Error fetching friends: ", response.statusText);
             }
@@ -38,41 +36,39 @@ const Friends = () => {
             console.error("Error fetching friends:", error);
         }
     };
-    
 
-
-
-    const addFriend = async (event) => {
+    const handleFriendAction = async (event, action) => {
         event.preventDefault();
-        try {
-            if (!token) {
-                setAddFriendMessage("❌ You must be logged in to add a friend.");
-                return;
-            }
+        if (!token) {
+            setFriendMessage("❌ You must be logged in to perform this action.");
+            return;
+        }
 
-            const response = await fetch(`${API_URL}/friends/add`, {
+        const endpoint = action === "add" ? "add" : "remove";
+        try {
+            const response = await fetch(`${API_URL}/friends/${endpoint}`, {
                 method: "POST",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    username: username,
-                    addFriendUsername: addFriendUsername
+                    username,
+                    [`${action}FriendUsername`]: friendUsername
                 })
             });
 
             const data = await response.json();
             if (response.ok) {
-                setAddFriendMessage(`✅ ${addFriendUsername} has been added as a friend!`);
+                setFriendMessage(`✅ ${friendUsername} has been ${action}ed successfully!`);
+                fetchFriends();
             } else {
-                setAddFriendMessage(`❌ ${data.message}`);
+                setFriendMessage(`❌ ${data.message}`);
             }
         } catch (error) {
             console.error("Error:", error);
-            setAddFriendMessage("❌ Failed to add friend.");
+            setFriendMessage(`❌ Failed to ${action} friend.`);
         }
-        fetchFriends()
     };
 
     return (
@@ -80,39 +76,39 @@ const Friends = () => {
             <div>
                 <h1>Friends</h1>
             </div>
-            <div className='friends-list'>
+            <div className="friends-list">
                 <h2>Friends List</h2>
-                {/* Remove inline styling later */}
-                <ul style={{ color:"black"}}>
+                <ul>
                     {friends.length > 0 ? (
-                    friends.map((friend, index) => (
-                        <li key={index}>{friend}</li>
-                    ))
+                        friends.map((friend, index) => <li key={index}>{friend}</li>)
                     ) : (
-                    <p>No friends found</p>
+                        <p>No friends found</p>
                     )}
                 </ul>
             </div>
             <div className="friends-container">
-                <h2>Add a Friend</h2>
+                <h2>Manage Friends</h2>
                 <p className="logged-in-user">Logged in as: <b>{username || "Loading..."}</b></p>
 
                 <div className="friends-form">
-                    <form onSubmit={addFriend} method='POST'>
-                        <label htmlFor="add-friend-name">Friend to add:</label>
+                    <form>
+                        <label htmlFor="friend-name">Enter Friend's Username:</label>
                         <input 
-                            onChange={(event) => setAddFriendUsername(event.target.value)} 
-                            id='add-friend-name' 
-                            type="text" 
-                            name="addFriendUsername"
+                            id='friend-name' 
+                            type="text"
+                            name="friendUsername"
                             placeholder="Enter username..."
+                            value={friendUsername}
+                            onChange={(event) => setFriendUsername(event.target.value)}
                         />
-                        <button type='submit'>Add Friend</button>
+                        <div className="button-group">
+                            <button onClick={(event) => handleFriendAction(event, "add")}>Add Friend</button>
+                            <button onClick={(event) => handleFriendAction(event, "remove")} className="remove-btn">Remove Friend</button>
+                        </div>
                     </form>
-                    {addFriendMessage && <p className="friend-message">{addFriendMessage}</p>}
+                    {friendMessage && <p className="friend-message">{friendMessage}</p>}
                 </div>
             </div>
-            
         </Layout>
     );
 };

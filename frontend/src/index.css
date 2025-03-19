@@ -19,6 +19,54 @@
   --header-color-hightlight-brightened: #eaff83;
   --main-bg-color: #d1ffb7;
 }
+[data-color-theme="ocean"]{
+  --header-bg-color: #0E3F5A;
+  --header-color-highlight: #00b3e6;
+  --header-color-hightlight-brightened: #00d8ff;
+  --main-bg-color: #b3e0ff;
+}
+[data-color-theme="desert"]{
+  --header-bg-color: #8B4513;
+  --header-color-highlight: #ffcc00;
+  --header-color-hightlight-brightened: #ffdb4d;
+  --main-bg-color: #ffe0b2;
+}
+[data-color-theme="arctic"]{
+  --header-bg-color: #1C2833;
+  --header-color-highlight: #00b3e6;
+  --header-color-hightlight-brightened: #00d8ff;
+  --main-bg-color: #b3e0ff;
+}
+[data-color-theme="fire"]{
+  --header-bg-color: #8B0000;
+  --header-color-highlight: #ffcc00;
+  --header-color-hightlight-brightened: #ffdb4d;
+  --main-bg-color: #ffe0b2;
+}
+[data-color-theme="default"]{
+  --header-bg-color: #1a1a1a;
+  --header-color-highlight: rgb(0, 119, 255);
+  --header-color-hightlight-brightened: rgb(80, 162, 255);
+  --main-bg-color: #f8f9fa;
+}
+[data-color-theme="lightmode"]{
+  --header-bg-color: #1a1a1a;
+  --header-color-highlight: rgb(0, 119, 255);
+  --header-color-hightlight-brightened: rgb(80, 162, 255);
+  --main-bg-color: #f8f9fa;
+}
+[data-color-theme="space"]{
+  --header-bg-color: #000000;
+  --header-color-highlight: #ffffff;
+  --header-color-hightlight-brightened: #ffffff;
+  --main-bg-color: #000000;
+}
+[data-color-theme="darkmode"]{
+  --header-bg-color: #ffffff43;
+  --header-color-highlight: rgb(0, 119, 255);
+  --header-color-hightlight-brightened: rgb(80, 162, 255);
+  --main-bg-color: #000000;
+}
 
 
 body > div {

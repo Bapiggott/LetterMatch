@@ -54,6 +54,12 @@ input:focus {
     border-color: #007bff;
 }
 
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
 button {
     padding: 12px;
     background-color: #28a745;
@@ -63,16 +69,20 @@ button {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 100%;
+    flex: 1;
+    margin: 5px;
 }
 
 button:hover {
     background-color: #218838;
 }
 
-button:disabled {
-    background-color: #aaa;
-    cursor: not-allowed;
+.remove-btn {
+    background-color: #dc3545;
+}
+
+.remove-btn:hover {
+    background-color: #c82333;
 }
 
 .friend-message {

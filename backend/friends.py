@@ -48,7 +48,49 @@ def add_friend():
         traceback.print_exc()
         return jsonify({"message": "Server error"}), 500
 
+@friends_bp.route("/remove", methods=["POST"])
+def remove_friend():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        remove_friend_username = data.get('removeFriendUsername')
 
+        if not username or not remove_friend_username:
+            return jsonify({"message": "Missing input data"}), 400
+
+        if username == remove_friend_username:
+            return jsonify({"message": "You cannot remove yourself as a friend!"}), 400
+
+        user = User.query.filter_by(username=username).first()
+        friend = User.query.filter_by(username=remove_friend_username).first()
+
+        if not user:
+            return jsonify({"message": "User not found"}), 400
+
+        if not friend:
+            return jsonify({"message": "Friend username does not exist"}), 400
+
+        friendship = Friendship.query.filter(
+            (Friendship.username_1 == username) & (Friendship.username_2 == remove_friend_username)
+        ).first()
+
+        if not friendship:
+            return jsonify({"message": "Friendship does not exist"}), 400
+        db.session.delete(friendship)
+        friendship = Friendship.query.filter(
+            (Friendship.username_1 == remove_friend_username) & (Friendship.username_2 == username)
+        ).first()
+        if not friendship:
+            return jsonify({"message": "Friendship does not exist"}), 400
+        db.session.delete(friendship)
+        db.session.commit()
+
+        return jsonify({"message": f"{remove_friend_username} removed as a friend!"}), 201
+
+    except Exception as e:
+        print(f"Error in remove_friend: {e}")
+        traceback.print_exc()
+        return jsonify({"message": "Server error"}), 500
 
 @friends_bp.route("/get-all", methods=["GET"])
 def get_all_friends():
