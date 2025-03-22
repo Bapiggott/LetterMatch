@@ -3,8 +3,15 @@ import Layout from '../Layout/Layout';
 import './Friends.css';
 import { API_URL } from '../../config';
 import LocalStorageUtils from '../../LocalStorageUtils';
+import { useAppContext } from "../../ContextProvider";
+
 
 const Friends = () => {
+
+    const { 
+        createChat
+    } = useAppContext();
+
   const token = LocalStorageUtils.getToken();
   const username = LocalStorageUtils.getUsername();
 
@@ -135,9 +142,8 @@ const Friends = () => {
             friends.map((friend, index) => (
               <li key={index}>
                 {friend}{" "}
-                <button onClick={() => handleViewProfile(friend)}>
-                  View Profile
-                </button>
+                <button onClick={() => createChat(LocalStorageUtils.getUsername(), friend)}>Chat</button>
+                <button onClick={() => handleViewProfile(friend)}>View Profile</button>
               </li>
             ))
           ) : (

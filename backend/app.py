@@ -16,7 +16,7 @@ from friends import friends_bp  # Import the new friends module
 from setup.seed_data import seed_question_sets # Import seed function
 from profile_user import profile_bp
 import jwt
-from chat import chat_bp
+from chat import chat_bp, get_active_chat_details
 
 
 app = Flask(__name__)
@@ -69,5 +69,58 @@ def get_jwt_token(request):
 with app.app_context():
     db.create_all()  # Ensure all tables exist
     seed_question_sets()
+
+
+
+# Chat Websockets
+# to be moved later
+
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from models import User, Message, Chat, ChatParticipant
+socketio = SocketIO(app, cors_allowed_origins="*") 
+
+
+@socketio.on('create_chat')
+def create_chat(data):
+    sender_username = data['sender_username']
+    recipient_username = data['recipient_username']
+
+    sender = User.query.filter_by(username=sender_username).first()
+    recipient = User.query.filter_by(username=recipient_username).first()
+
+    sender_id = sender.id
+    recipient_id = recipient.id
+
+    chats_with_sender = Chat.query.join(ChatParticipant).filter(ChatParticipant.user_id == sender_id).all()
+    chat = None
+    for c in chats_with_sender:
+        recipient_participant = ChatParticipant.query.filter_by(chat_id=c.id, user_id=recipient_id).first()
+        if recipient_participant:
+            chat = c
+            break
+
+    if not chat:
+        chat = Chat()
+        db.session.add(chat)
+        db.session.commit()
+        participant_1 = ChatParticipant(chat_id=chat.id, user_id=sender_id, chat_active=True)
+        participant_2 = ChatParticipant(chat_id=chat.id, user_id=recipient_id, chat_active=True)
+        print(f"Creating chat for sender: {sender_id}, recipient: {recipient_id}")
+        db.session.add(participant_1)
+        db.session.add(participant_2)
+        db.session.commit()
+
+    room_name = f"{chat.id}"
+    
+    join_room(room_name)
+
+    emit('joined_room', {'room_name': room_name}, room=sender_id)
+    emit('joined_room', {'room_name': room_name}, room=recipient_id)
+
+    chat_details = get_active_chat_details(chat.id, sender_id)
+
+    emit('chat_created', {'chat_details': chat_details}, room=room_name)
+
+
 if __name__ == "__main__": 
-    app.run(debug=True, port=5000)
+    socketio.run(app, debug=True, port=5000)

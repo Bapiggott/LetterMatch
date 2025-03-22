@@ -2,11 +2,22 @@ import React from 'react';
 import { useState, useRef, useEffect } from "react";
 import { API_URL } from '../../config';
 import LocalStorageUtils from '../../LocalStorageUtils';
-const Chat = () => {
-    const [isChatMenuOpen, setIsChatMenuOpen] = useState(false);
-    const [chatFocus, setChatFocus] = useState(null)
-    const [chats, setChats] = useState([]);
+import { useAppContext } from "../../ContextProvider";
+import { io } from 'socket.io-client';
 
+
+const Chat = () => {
+    const { 
+        isChatMenuOpen, 
+        setIsChatMenuOpen, 
+        chatFocus, 
+        setChatFocus, 
+        chats, 
+        setChats,
+        createChat
+    } = useAppContext();
+
+    // Get All Chats
     useEffect(() => {
         const fetchChats = async () => {
             try {
@@ -30,6 +41,7 @@ const Chat = () => {
     
         fetchChats();
     }, []);
+
     
 
     return (
@@ -38,12 +50,12 @@ const Chat = () => {
             <div className='chat-corner-icon' onClick={() => setIsChatMenuOpen(!isChatMenuOpen)}><box-icon name='message-dots'></box-icon></div>
 
             {(isChatMenuOpen && chatFocus == null) && (
-            <div className="chat-menu">
+            <div className="chat-menu all-chats-view">
                 <ul>
 
                 {chats.length > 0 ? (
                 chats.map((chat) => (
-                  <li key={chat.chat_id}>
+                  <li key={chat.chat_id} onClick={() => setChatFocus(chat)}>
                     <div>{chat.username}</div>
                     <div>{chat.messages[chat.messages.length - 1]?.message_body.slice(0, 15)}</div>
                     <box-icon name='x'></box-icon>
@@ -57,8 +69,28 @@ const Chat = () => {
             )}
 
             {(isChatMenuOpen && chatFocus != null) && (
-                <></>
+            <div className="chat-menu chat-focus-view">
+                <box-icon name="arrow-back" onClick={() => setChatFocus(null)}></box-icon>
+                <h6>{chatFocus.username}</h6>
+                <div className='messages-div'>
+                    {chatFocus.messages && chatFocus.messages.length > 0 ? (
+                    chatFocus.messages.map((message) => (
+                        <div>
+                            <span>{message.username}</span>
+                            <p>{message.message_body}</p>
+                        </div>
+                    ))
+                    ) : (
+                    <span>There are no messages yet.</span>
+                    )}
+                </div>
+                <form>
+                    <input type="text" name="message_body" required/>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
             )}
+
 
         </div>
     </>

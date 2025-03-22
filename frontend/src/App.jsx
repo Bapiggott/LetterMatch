@@ -12,6 +12,7 @@ import AboutPage from './components/AboutPage/AboutPage';
 import GamesPage from './components/GamesPage/GamesPage';
 import PrivateRoute from './PrivateRoute';
 import SettingsPage from './components/SettingsPage/SettingsPage';
+import { ContextProvider } from './ContextProvider';
 
 // Letter match routes
 import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
@@ -25,7 +26,7 @@ import 'boxicons'
 
 const App = () => {
     return (
-        <>
+        <ContextProvider>
             <Router>
                 <Routes>
                     <Route path="/login" element={<LoginForm />} />
@@ -46,7 +47,7 @@ const App = () => {
                     <Route path="*" element={<div>404 Not Found</div>} />
                 </Routes>
             </Router>
-        </>
+        </ContextProvider>
     );
 };
 
