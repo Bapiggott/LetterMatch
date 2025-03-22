@@ -63,9 +63,21 @@
 }
 [data-color-theme="darkmode"]{
   --header-bg-color: #ffffff43;
-  --header-color-highlight: rgb(0, 119, 255);
-  --header-color-hightlight-brightened: rgb(80, 162, 255);
+  --header-color-highlight: rgb(47, 0, 255);
+  --header-color-hightlight-brightened: rgb(109, 255, 80);
   --main-bg-color: #000000;
+}
+[data-color-theme="puzzle"]{
+  --header-bg-color: #05070a;
+  --header-color-highlight: #00ff62; 
+  --header-color-hightlight-brightened: rgb(33, 255, 13);
+  --main-bg-color: none;
+}
+[data-color-theme="puzzle"] main {
+  background-image: url("paper-patterns-213695_1920.jpg");
+  background-size: cover;
+  background-position: center; 
+  background-repeat: no-repeat;
 }
 
 
@@ -235,6 +247,47 @@ header .call-to-action-div box-icon {
   margin-top: 15px;
  }
  /* End of Header */
+
+ /* Start of Chat */
+ .chat-div{
+  position: relative;
+ }
+ .chat-corner-icon{
+  width: 100px;
+  height: 100px;
+  background-color: #00ff62;
+  z-index: 100;
+  position: fixed;
+  bottom: 20px; 
+  right: 20px; 
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+ }
+ .chat-corner-icon:hover{
+  scale: 1.02;
+ }
+ .chat-corner-icon box-icon{
+  height: 50px;
+  width: 50px;
+  fill: white;
+ }
+ .chat-menu{
+  position: fixed;
+  bottom: 130px;
+  right: 20px;
+  background-color: white;
+  width: 300px;
+  height: 400px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  z-index: 99; 
+
+ }
+ /* End of Chat */
 
  
 

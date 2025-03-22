@@ -62,6 +62,10 @@ const SettingsPage = () => {
                         <input type="radio" value="lightmode" name="color-theme" checked={colorTheme === "lightmode"} onChange={() => changeColorTheme("lightmode")}/>
                         LightMode
                     </label>*/}
+                    {/* <label>
+                        <input type="radio" value="puzzle" name="color-theme" checked={colorTheme === "puzzle"} onChange={() => changeColorTheme("puzzle")}/>
+                        Puzzle
+                    </label> */}
                 </div>
             </div>
         </Layout>

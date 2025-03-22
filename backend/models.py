@@ -83,3 +83,19 @@ class GameQuestionBlitz(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('question_blitz.id'), nullable=False)
     letter = db.Column(db.String(1), nullable=False)  # Single letter
     question = db.relationship("Question_blitz", lazy=True)
+
+class Chat(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+class ChatParticipant(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    chat_active = db.Column(db.Boolean, default=False)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
+    sender_id = db.Column(db.Integer, nullable=False)
+    message_body = db.Column(db.String, nullable=False)
+    read = db.Column(db.Boolean, default=False)

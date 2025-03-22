@@ -15,7 +15,7 @@ footer * {
 
 .toggle-btn {
     position: absolute;
-    right: 20px;
+    right: 140px; /* right: 20px; */
     bottom: 10px;
     font-size: 0.7rem; 
     padding: 2px 5px;  

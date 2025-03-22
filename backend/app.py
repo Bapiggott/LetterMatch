@@ -15,6 +15,8 @@ from games.word_blitz import word_blitz_bp
 from friends import friends_bp  # Import the new friends module
 from setup.seed_data import seed_question_sets # Import seed function
 from profile_user import profile_bp
+import jwt
+from chat import chat_bp
 
 
 app = Flask(__name__)
@@ -29,6 +31,7 @@ db.init_app(app)
 migrate = Migrate(app, db)
 #socketio.init_app(app)
 
+
 # Register Blueprints
 app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(word_chain_bp, url_prefix="/word_chain")
@@ -36,6 +39,7 @@ app.register_blueprint(word_blitz_bp, url_prefix="/word_blitz")
 # app.register_blueprint(letter_match_bp, url_prefix="/letter_match")
 app.register_blueprint(friends_bp, url_prefix="/friends")
 app.register_blueprint(profile_bp, url_prefix="/profile")
+app.register_blueprint(chat_bp, url_prefix="/chat")
 
     
 # Routes
