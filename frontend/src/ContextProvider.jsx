@@ -2,6 +2,7 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { io } from 'socket.io-client';
 import { API_URL } from "./config";
+import LocalStorageUtils from "./LocalStorageUtils";
 
 const AppContext = createContext();
 
@@ -31,6 +32,14 @@ export const ContextProvider = ({ children }) => {
                 console.log("Socket is not connected");
             }
         };
+
+        const createMessage = (senderUsername, recipientUsername, messageBody) => {
+            if (socket) {
+                socket.emit("create_message", { sender_username: senderUsername, recipient_username: recipientUsername, message_body: messageBody });
+            } else {
+                console.log("Socket is not connected");
+            }
+        };
         
 
 
@@ -40,10 +49,45 @@ export const ContextProvider = ({ children }) => {
               socket.on("chat_created", (data) => {
                 console.log("Chat Created:", data);
                 setChatFocus(data.chat_details);
-                setIsChatMenuOpen(true)
+                setIsChatMenuOpen(true);
+                fetchChats();
               });
+              socket.on("message_created", (data) => {
+                console.log("New Message:", data);
+                fetchChats();
+              })
             }
           }, [socket]);
+
+          const fetchChats = async () => {
+            try {
+                const response = await fetch(`${API_URL}/chat/get-chats`, {
+                    method: "GET",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Authorization": `Bearer ${LocalStorageUtils.getToken()}`
+                    }
+                  });
+                if (!response.ok) {
+                    console.log("Error getting chats")
+                }
+                const data = await response.json();
+                console.log(data)
+                setChats(data);
+
+                if (chatFocus) {
+                    const updatedChat = data.find(chat => chat.chat_id == chatFocus.chat_id);
+                    if (updatedChat) {
+                        setChatFocus(updatedChat);
+                    } else {
+                        setChatFocus(null); 
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+            }
+
+        };
 
 
 
@@ -54,7 +98,9 @@ export const ContextProvider = ({ children }) => {
             chatFocus, setChatFocus,
             chats, setChats,
             socket, setSocket,
-            createChat
+            createChat,
+            createMessage,
+            fetchChats
          }}>
             {children}
         </AppContext.Provider>

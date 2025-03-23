@@ -276,7 +276,6 @@ header .call-to-action-div box-icon {
   fill: white;
  }
  .chat-menu{
-  overflow-y: auto;
   position: fixed;
   bottom: 130px;
   right: 20px;
@@ -287,6 +286,9 @@ header .call-to-action-div box-icon {
   padding: 10px;
   z-index: 99;
  }
+ .all-chats-view{
+  overflow-y: auto;
+ }
  .chat-focus-view{
   display: flex;
   flex-direction: column;
@@ -294,10 +296,10 @@ header .call-to-action-div box-icon {
  .chat-focus-view .messages-div{
   overflow-y: auto;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end; 
+  flex-direction: column-reverse;
   flex: 1;
  }
+
  /* End of Chat */
 
  

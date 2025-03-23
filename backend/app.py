@@ -110,7 +110,7 @@ def create_chat(data):
         db.session.add(participant_2)
         db.session.commit()
 
-    room_name = f"{chat.id}"
+    room_name = chat.id
     
     join_room(room_name)
 
@@ -120,6 +120,35 @@ def create_chat(data):
     chat_details = get_active_chat_details(chat.id, sender_id)
 
     emit('chat_created', {'chat_details': chat_details}, room=room_name)
+
+@socketio.on('create_message')
+def create_message(data):
+    sender_username = data['sender_username']
+    recipient_username = data['recipient_username']
+    message_body = data['message_body']
+
+    sender = User.query.filter_by(username=sender_username).first()
+    recipient = User.query.filter_by(username=recipient_username).first()
+
+    sender_id = sender.id
+    recipient_id = recipient.id
+
+    chats_with_sender = Chat.query.join(ChatParticipant).filter(ChatParticipant.user_id == sender_id).all()
+    chat = None
+    for c in chats_with_sender:
+        recipient_participant = ChatParticipant.query.filter_by(chat_id=c.id, user_id=recipient_id).first()
+        if recipient_participant:
+            chat = c
+            break
+
+    db.session.add(Message(chat_id=chat.id, sender_id=sender_id, message_body=message_body, read=False))
+    db.session.commit()
+
+    room_name = chat.id
+
+    join_room(room_name)
+
+    emit('message_created', {'sender_username': sender_username, 'message_body': message_body}, room=room_name)
 
 
 if __name__ == "__main__": 

@@ -1,9 +1,7 @@
 import React from 'react';
-import { useState, useRef, useEffect } from "react";
-import { API_URL } from '../../config';
-import LocalStorageUtils from '../../LocalStorageUtils';
+import { useEffect, useState } from "react";
 import { useAppContext } from "../../ContextProvider";
-import { io } from 'socket.io-client';
+import LocalStorageUtils from '../../LocalStorageUtils';
 
 
 const Chat = () => {
@@ -13,34 +11,26 @@ const Chat = () => {
         chatFocus, 
         setChatFocus, 
         chats, 
-        setChats,
-        createChat
+        createMessage,
+        fetchChats
     } = useAppContext();
 
-    // Get All Chats
+    const [inputtedMessage, setInputtedMessage] = useState("");
+
+
     useEffect(() => {
-        const fetchChats = async () => {
-            try {
-                const response = await fetch(`${API_URL}/chat/get-chats`, {
-                    method: "GET",
-                    headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${LocalStorageUtils.getToken()}`
-                    }
-                  });
-                if (!response.ok) {
-                    console.log("Error getting chats")
-                }
-                const data = await response.json();
-                console.log(data)
-                setChats(data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-    
         fetchChats();
-    }, []);
+    }, [chatFocus]);
+
+    const handleMessageSubmit = (event) => {
+        event.preventDefault()
+        createMessage(
+          LocalStorageUtils.getUsername(), 
+          chatFocus.username, 
+          inputtedMessage
+        )
+        setInputtedMessage(""); 
+      };
 
     
 
@@ -75,7 +65,7 @@ const Chat = () => {
                 <div className='messages-div'>
                     {chatFocus.messages && chatFocus.messages.length > 0 ? (
                     chatFocus.messages.map((message) => (
-                        <div>
+                        <div key={message.message_id}>
                             <span>{message.username}</span>
                             <p>{message.message_body}</p>
                         </div>
@@ -84,9 +74,9 @@ const Chat = () => {
                     <span>There are no messages yet.</span>
                     )}
                 </div>
-                <form>
-                    <input type="text" name="message_body" required/>
-                    <button type="submit">Send</button>
+                <form onSubmit={handleMessageSubmit}>
+                    <input value={inputtedMessage} onChange={(e) => setInputtedMessage(e.target.value)} type="text" name="message_body" required/>
+                    <button type="submit">Send <box-icon name='paper-plane'></box-icon></button>
                 </form>
             </div>
             )}

@@ -37,6 +37,7 @@ def get_active_chat_details(chat_id, end_user_id):
             number_of_unread_message = number_of_unread_message + 1
         sender = User.query.get(message.sender_id) 
         messages.append({
+            'message_id': message.id,
             'message_body': message.message_body,
             'username': sender.username,
             'read': message.read
