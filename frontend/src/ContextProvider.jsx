@@ -43,21 +43,28 @@ export const ContextProvider = ({ children }) => {
         
 
 
-        
-          useEffect(() => {
+        useEffect(() => {
             if (socket) {
-              socket.on("chat_created", (data) => {
-                console.log("Chat Created:", data);
-                setChatFocus(data.chat_details);
-                setIsChatMenuOpen(true);
-                fetchChats();
-              });
-              socket.on("message_created", (data) => {
-                console.log("New Message:", data);
-                fetchChats();
-              })
+                socket.on("chat_created", (data) => {
+                    console.log("Chat Created:", data);
+                    setChats(data.chat_details);
+                    setChatFocus(data.new_chat)
+                    setIsChatMenuOpen(true);
+                });
+        
+                socket.on("message_created", (data) => {
+                    console.log("Update Chats:", data);
+                    setChats(data.chat_details);
+                    const updatedChat = data.chat_details.find(chat => chat.chat_id == chatFocus?.chat_id);
+                    if (updatedChat) {
+                        setChatFocus(updatedChat);
+                    } else {
+                        setChatFocus(null); 
+                    }
+                })
             }
-          }, [socket]);
+        }, [socket, chatFocus])
+        
 
           const fetchChats = async () => {
             try {
@@ -74,15 +81,7 @@ export const ContextProvider = ({ children }) => {
                 const data = await response.json();
                 console.log(data)
                 setChats(data);
-
-                if (chatFocus) {
-                    const updatedChat = data.find(chat => chat.chat_id == chatFocus.chat_id);
-                    if (updatedChat) {
-                        setChatFocus(updatedChat);
-                    } else {
-                        setChatFocus(null); 
-                    }
-                }
+        
             } catch (error) {
                 console.error(error);
             }

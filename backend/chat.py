@@ -15,14 +15,20 @@ def get_chats():
     user = get_user_from_req(request)
     user_id = user.id
 
-    chat_activity = ChatParticipant.query.filter((ChatParticipant.user_id == user_id) & (ChatParticipant.chat_active == True)).all()
+    chat_details = get_all_active_chat_details_as_array(user_id)
+
+    return jsonify(chat_details)
+
+
+def get_all_active_chat_details_as_array(end_user_id):
+    chat_activity = ChatParticipant.query.filter((ChatParticipant.user_id == end_user_id) & (ChatParticipant.chat_active == True)).all()
 
     chat_details = []
 
     for activity in chat_activity:
         chat_id = activity.chat_id
-        chat_details.append(get_active_chat_details(chat_id, user_id))
-    return jsonify(chat_details)
+        chat_details.append(get_active_chat_details(chat_id, end_user_id))
+    return chat_details
 
 
 

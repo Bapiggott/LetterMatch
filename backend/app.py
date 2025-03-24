@@ -16,7 +16,7 @@ from friends import friends_bp  # Import the new friends module
 from setup.seed_data import seed_question_sets # Import seed function
 from profile_user import profile_bp
 import jwt
-from chat import chat_bp, get_active_chat_details
+from chat import chat_bp, get_active_chat_details, get_all_active_chat_details_as_array
 
 
 app = Flask(__name__)
@@ -117,9 +117,10 @@ def create_chat(data):
     emit('joined_room', {'room_name': room_name}, room=sender_id)
     emit('joined_room', {'room_name': room_name}, room=recipient_id)
 
-    chat_details = get_active_chat_details(chat.id, sender_id)
+    chat_details = get_all_active_chat_details_as_array(sender.id)
+    new_chat_details = get_active_chat_details(chat.id, sender.id)
 
-    emit('chat_created', {'chat_details': chat_details}, room=room_name)
+    emit('chat_created', {'chat_details': chat_details, 'new_chat': new_chat_details}, room=room_name)
 
 @socketio.on('create_message')
 def create_message(data):
@@ -142,13 +143,16 @@ def create_message(data):
             break
 
     db.session.add(Message(chat_id=chat.id, sender_id=sender_id, message_body=message_body, read=False))
-    db.session.commit()
+    db.session.commit()  
+    
+    chat_details = get_all_active_chat_details_as_array(sender.id)
+
 
     room_name = chat.id
 
     join_room(room_name)
 
-    emit('message_created', {'sender_username': sender_username, 'message_body': message_body}, room=room_name)
+    emit('message_created',  {'chat_details': chat_details} , room=room_name)
 
 
 if __name__ == "__main__": 

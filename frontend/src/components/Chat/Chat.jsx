@@ -20,7 +20,7 @@ const Chat = () => {
 
     useEffect(() => {
         fetchChats();
-    }, [chatFocus]);
+}, []);
 
     const handleMessageSubmit = (event) => {
         event.preventDefault()
