@@ -1,3 +1,141 @@
+/* Container for all the games - desktop mode */
+.all-games-div {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 50px 0;
+    flex-wrap: wrap;
+}
+
+
+/* flip card container */
+.flip-card {
+    width: 400px; 
+    height: 300px;
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border-radius: 3px;
+}
+
+/* inside - flip card */
+.flip-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s;
+}
+
+/* hover and flip */
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* card - front and back */
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 7px;
+    box-shadow: -3px 3px 7px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--header-text-color);
+}
+
+/* front side */
+.flip-card-front {
+    background-color: var(--header-bg-color);
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* img at front */
+.flip-card-front img {
+   display: none;
+}
+
+/* text style for front */
+.flip-card-front h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2rem;
+    background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+
+/* back side */
+.flip-card-back {
+    background-color: var(--header-bg-color);
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* button style */
+.btn-div {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.game-image-div h2 {
+    text-align: center;
+}
+
+/* tablets */
+@media screen and (max-width: 1200px) {
+    .all-games-div {
+        flex-direction: column;
+    }
+}
+
+/* last two for smaller screens - mobile 1 col */
+@media screen and (max-width: 768px) {
+    .all-games-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .flip-card {
+        width: 90%;
+        max-width: 350px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .flip-card {
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+
 
 .all-games-div {
     display: flex;
@@ -6,24 +144,8 @@
     margin-top: 50px;
     margin-bottom: 50px;
 }
-.game-div {
-    margin: 20px 30px;
-    padding: 30px 40px;
-    box-shadow: -3px 3px 7px rgba(0, 0, 0, 0.3);
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    justify-content: center;
-    width: 400px;
-    min-height: 300px;
-    border-radius: 7px;
-    color: var(--header-text-color);
-}
 
-.btn-div {
-    text-align: center;
-    margin-top: 30px;
-}
+
 
 .letter-match-div, .word-blitz-div , .word-chain-div{
 
@@ -48,13 +170,3 @@
     z-index: 2;
 }
 
-.game-image-div h2{
-    text-align: center;
-}
-
-@media screen and (max-width: 1200px) {
-    .all-games-div {
-        flex-direction: column;
-    }
-    
-}
