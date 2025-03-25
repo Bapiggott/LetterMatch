@@ -10,8 +10,8 @@
 
 /* flip card container */
 .flip-card {
-    width: 400px; 
-    height: 300px;
+    width: 500px; 
+    height: 500px;
     perspective: 1000px;
     display: flex;
     flex-direction: column;
@@ -76,9 +76,9 @@
     transform: translate(-50%, -50%);
     color: white;
     font-size: 2rem;
-    background: rgba(0, 0, 0, 0.6); /* Semi-transparent black */
-    padding: 10px 20px;
-    border-radius: 5px;
+   
+   
+  
 }
 
 
@@ -104,7 +104,7 @@
 }
 
 .game-image-div h2 {
-    text-align: center;
+    text-align: left;
 }
 
 /* tablets */
@@ -168,5 +168,18 @@
 
 .game-image-div * {
     z-index: 2;
+}
+
+/* removing bullet points on list */
+.compact-list {
+    list-style-type: none;  
+    padding: 0;             
+    margin: 0;             
+}
+
+.compact-list li {
+    display: flex;
+    align-items: center;    
+    margin-bottom: 10px;     
 }
 
