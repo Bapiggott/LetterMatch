@@ -1,3 +1,5 @@
+import eventlet
+eventlet.monkey_patch()
 import traceback
 """import eventlet
 import eventlet.wsgi
@@ -79,7 +81,7 @@ with app.app_context():
 
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from models import User, Message, Chat, ChatParticipant
-socketio = SocketIO(app, cors_allowed_origins="*") 
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet") 
 
 
 @socketio.on('create_chat')
