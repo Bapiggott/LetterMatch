@@ -252,6 +252,9 @@ header .call-to-action-div box-icon {
  .chat-div{
   position: relative;
  }
+ .chat-div * {
+  list-style: none;
+ }
  .chat-corner-icon{
   width: 100px;
   height: 100px;
@@ -322,7 +325,7 @@ header .call-to-action-div box-icon {
  .chat-focus-view form button * {
   fill: white;
  }
- .chat-focus-view .username-heading{
+ .chat-div h6{
   font-size: 1.2rem;
   margin: 15px 0;
   text-align: center;
@@ -338,6 +341,37 @@ header .call-to-action-div box-icon {
 }
 .chat-message-div.them-message {
   background-image: radial-gradient(circle, rgba(94, 107, 240, 0.3) 60%, rgba(71, 43, 209, 0.2) 90%, rgba(97, 71, 209, 0.1) 100%);
+}
+.all-chats-view .chat-li{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.05rem;
+  padding: 5px 22px;
+}
+.all-chats-view .chat-li box-icon{
+  fill: red;
+  height: 40px;
+  width: 40px;
+}
+.all-chats-view .chat-li .last-message{
+  opacity: 50%;
+  margin-left: 20px;
+}
+.all-chats-view .chat-li .username{
+  font-weight: 600;
+}
+.all-chats-view .chat-li > div {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  cursor: pointer;
+}
+.all-chats-view ul{
+  padding: 0 38px;
+}
+.chat-div .back-btn{
+  cursor: pointer;
 }
 
  /* End of Chat */

@@ -43,13 +43,20 @@ const Chat = () => {
 
             {(isChatMenuOpen && chatFocus == null) && (
             <div className="chat-menu all-chats-view">
+              
+                <h6>Chats</h6>
+
                 <ul>
 
                 {chats.length > 0 ? (
                 chats.map((chat) => (
-                  <li key={chat.chat_id} onClick={() => setChatFocus(chat)}>
-                    <div>{chat.username}</div>
-                    <div>{chat.messages[0]?.message_body.slice(0, 15)}</div>
+                  <li className='chat-li' key={chat.chat_id}>
+                    <div onClick={() => setChatFocus(chat)}>
+                      <div className='username'>{chat.username}</div>
+                      <div className='last-message'>  {chat.messages[0]?.message_body.slice(0, 12)}{chat.messages[0]?.message_body.length > 15 ? " . . . " : null}
+
+                      </div>
+                    </div>
                     <box-icon name='x'></box-icon>
                   </li>
                 ))
@@ -62,8 +69,8 @@ const Chat = () => {
 
             {(isChatMenuOpen && chatFocus != null) && (
             <div className="chat-menu chat-focus-view">
-                <box-icon name="arrow-back" onClick={() => setChatFocus(null)}></box-icon>
-                <h6 className='username-heading'>{chatFocus.username}</h6>
+                <box-icon className="back-btn" name="arrow-back" onClick={() => setChatFocus(null)}></box-icon>
+                <h6>{chatFocus.username}</h6>
                 <div className='messages-div'>
                     {chatFocus.messages && chatFocus.messages.length > 0 ? (
                     chatFocus.messages.map((message) => (
