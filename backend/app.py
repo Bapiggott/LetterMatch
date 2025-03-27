@@ -86,14 +86,21 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 @socketio.on('create_chat')
 def create_chat(data):
-    sender_username = data['sender_username']
+    token = data.get('token')
+    if not token:
+        emit('error', {'message': 'Missing token'})
+        return
+
+    sender_user = get_user_from_token(token)  
+    if not sender_user:
+        emit('error', {'message': 'Invalid token'})
+        return
+    
     recipient_username = data['recipient_username']
+    recipient_user = User.query.filter_by(username=recipient_username).first()
 
-    sender = User.query.filter_by(username=sender_username).first()
-    recipient = User.query.filter_by(username=recipient_username).first()
-
-    sender_id = sender.id
-    recipient_id = recipient.id
+    sender_id = sender_user.id
+    recipient_id = recipient_user.id
 
     chats_with_sender = Chat.query.join(ChatParticipant).filter(ChatParticipant.user_id == sender_id).all()
     chat = None
@@ -121,35 +128,41 @@ def create_chat(data):
     emit('joined_room', {'room_name': room_name}, room=sender_id)
     emit('joined_room', {'room_name': room_name}, room=recipient_id)
 
-    chat_details = get_all_active_chat_details_as_array(sender.id)
-    new_chat_details = get_active_chat_details(chat.id, sender.id)
+    chat_details = get_all_active_chat_details_as_array(sender_user.id)
+    new_chat_details = get_active_chat_details(chat.id, sender_user.id)
 
     emit('chat_created', {'chat_details': chat_details, 'new_chat': new_chat_details}, room=room_name)
 
 @socketio.on('create_message')
 def create_message(data):
-    sender_username = data['sender_username']
+
+    token = data.get('token')
+    if not token:
+        emit('error', {'message': 'Missing token'})
+        return
+
+    sender_user = get_user_from_token(token)  
+    if not sender_user:
+        emit('error', {'message': 'Invalid token'})
+        return
+    
     recipient_username = data['recipient_username']
     message_body = data['message_body']
 
-    sender = User.query.filter_by(username=sender_username).first()
-    recipient = User.query.filter_by(username=recipient_username).first()
+    recipient_user = User.query.filter_by(username=recipient_username).first()
 
-    sender_id = sender.id
-    recipient_id = recipient.id
-
-    chats_with_sender = Chat.query.join(ChatParticipant).filter(ChatParticipant.user_id == sender_id).all()
+    chats_with_sender = Chat.query.join(ChatParticipant).filter(ChatParticipant.user_id == sender_user.id).all()
     chat = None
     for c in chats_with_sender:
-        recipient_participant = ChatParticipant.query.filter_by(chat_id=c.id, user_id=recipient_id).first()
+        recipient_participant = ChatParticipant.query.filter_by(chat_id=c.id, user_id=recipient_user.id).first()
         if recipient_participant:
             chat = c
             break
 
-    db.session.add(Message(chat_id=chat.id, sender_id=sender_id, message_body=message_body, read=False))
+    db.session.add(Message(chat_id=chat.id, sender_id=sender_user.id, message_body=message_body, read=False))
     db.session.commit()  
     
-    chat_details = get_all_active_chat_details_as_array(sender.id)
+    chat_details = get_all_active_chat_details_as_array(sender_user.id)
 
 
     room_name = chat.id
@@ -157,6 +170,34 @@ def create_message(data):
     join_room(room_name)
 
     emit('message_created',  {'chat_details': chat_details} , room=room_name)
+
+
+
+from flask_socketio import join_room, emit
+from utils.auth_utils import get_user_from_token
+from chat import get_all_active_chat_details_as_array 
+
+@socketio.on('join_chat_rooms')
+def join_chat_rooms(data):
+    token = data.get('token')
+    if not token:
+        emit('error', {'message': 'Missing token'})
+        return
+
+    user = get_user_from_token(token)  
+    if not user:
+        emit('error', {'message': 'Invalid token'})
+        return
+
+    chat_details = get_all_active_chat_details_as_array(user.id)
+
+    room_ids = []
+    for chat in chat_details:
+        room_id = chat['chat_id'] 
+        join_room(room_id)
+        room_ids.append(room_id)
+
+    emit('joined_chat_rooms', {'rooms': room_ids}, room=request.sid)
 
 
 if __name__ == "__main__": 

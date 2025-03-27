@@ -14,7 +14,9 @@ def get_user_from_req(req: Request) -> User:
         return None
     
     token = token_bearer_str.split(" ")[1]  # Remove "Bearer " prefix
+    return get_user_from_token(token)
+
+def get_user_from_token(token: str) -> User:
     decoded_token = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user = User.query.get(decoded_token['user_id'])
-
     return user

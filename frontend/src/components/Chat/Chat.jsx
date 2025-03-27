@@ -63,12 +63,12 @@ const Chat = () => {
             {(isChatMenuOpen && chatFocus != null) && (
             <div className="chat-menu chat-focus-view">
                 <box-icon name="arrow-back" onClick={() => setChatFocus(null)}></box-icon>
-                <h6>{chatFocus.username}</h6>
+                <h6 className='username-heading'>{chatFocus.username}</h6>
                 <div className='messages-div'>
                     {chatFocus.messages && chatFocus.messages.length > 0 ? (
                     chatFocus.messages.map((message) => (
-                        <div key={message.message_id}>
-                            <span>{message.username}</span>
+                        <div className='chat-message-div' key={message.message_id}>
+                            <span>{message.username} </span>
                             <p>{message.message_body}</p>
                         </div>
                     ))
@@ -78,7 +78,7 @@ const Chat = () => {
                 </div>
                 <form onSubmit={handleMessageSubmit}>
                     <input value={inputtedMessage} onChange={(e) => setInputtedMessage(e.target.value)} type="text" name="message_body" required/>
-                    <button type="submit">Send <box-icon name='paper-plane'></box-icon></button>
+                    <button type="submit"><box-icon name='paper-plane'></box-icon></button>
                 </form>
             </div>
             )}
