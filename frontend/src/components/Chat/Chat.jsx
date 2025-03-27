@@ -67,7 +67,7 @@ const Chat = () => {
                 <div className='messages-div'>
                     {chatFocus.messages && chatFocus.messages.length > 0 ? (
                     chatFocus.messages.map((message) => (
-                        <div className='chat-message-div' key={message.message_id}>
+                        <div className={'chat-message-div ' + (message.username == LocalStorageUtils.getUsername() ? 'you' : 'them')} key={message.message_id}>
                             <span>{message.username} </span>
                             <p>{message.message_body}</p>
                         </div>
