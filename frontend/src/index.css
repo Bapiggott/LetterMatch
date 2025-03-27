@@ -333,10 +333,10 @@ header .call-to-action-div box-icon {
   padding: 10px 20px ;
   display: flex;
  }
-.chat-message-div.you {
+.chat-message-div.you-message {
   background-image: radial-gradient(circle, rgba(107, 240, 94, 0.3) 60%, rgba(17, 209, 0, 0.2) 90%, rgba(43, 209, 28, 0.1) 100%);
 }
-.chat-message-div.them {
+.chat-message-div.them-message {
   background-image: radial-gradient(circle, rgba(94, 107, 240, 0.3) 60%, rgba(71, 43, 209, 0.2) 90%, rgba(97, 71, 209, 0.1) 100%);
 }
 
