@@ -142,7 +142,7 @@ const Friends = () => {
             friends.map((friend, index) => (
               <li key={index}>
                 {friend}{" "}
-                <button onClick={() => createChat(LocalStorageUtils.getUsername(), friend)}>Chat</button>
+                <button onClick={() => createChat(friend)}>Chat</button>
                 <button onClick={() => handleViewProfile(friend)}>View Profile</button>
               </li>
             ))

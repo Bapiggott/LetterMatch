@@ -15,34 +15,28 @@ export const ContextProvider = ({ children }) => {
 
 
         useEffect(() => {
-            const socket = io(API_URL);
-            setSocket(socket);
-        
+            const newSocket = io(API_URL, {
+              auth: {
+                token: LocalStorageUtils.getToken(),
+              },
+            });
+          
+            setSocket(newSocket);
+          
+            newSocket.on("connect", () => {
+              console.log("Socket connected:", newSocket.id);
+              newSocket.emit("join_chat_rooms", { token: LocalStorageUtils.getToken() });
+            });
+          
+            newSocket.on("joined_chat_rooms", (data) => {
+              console.log("Joined rooms:", data.rooms);
+            });
+    
             return () => {
-                socket.close();
+              newSocket.disconnect();
             };
-          }, []);
-
-
-
-        const createChat = (senderUsername, recipientUsername) => {
-            if (socket) {
-                socket.emit("create_chat", { sender_username: senderUsername, recipient_username: recipientUsername });
-            } else {
-                console.log("Socket is not connected");
-            }
-        };
-
-        const createMessage = (senderUsername, recipientUsername, messageBody) => {
-            if (socket) {
-                socket.emit("create_message", { sender_username: senderUsername, recipient_username: recipientUsername, message_body: messageBody });
-            } else {
-                console.log("Socket is not connected");
-            }
-        };
+        }, []);
         
-
-
         useEffect(() => {
             if (socket) {
                 socket.on("chat_created", (data) => {
@@ -53,17 +47,35 @@ export const ContextProvider = ({ children }) => {
                 });
         
                 socket.on("message_created", (data) => {
-                    console.log("Update Chats:", data);
+                    let focusedChatId = chatFocus?.chat_id || null 
                     setChats(data.chat_details);
-                    const updatedChat = data.chat_details.find(chat => chat.chat_id == chatFocus?.chat_id);
-                    if (updatedChat) {
-                        setChatFocus(updatedChat);
-                    } else {
-                        setChatFocus(null); 
+                    if(focusedChatId){
+                        console.log("focused", focusedChatId)
+                        const focusedChat = data.chat_details.find(chat => chat.chat_id === focusedChatId);
+                        setChatFocus(focusedChat)
                     }
                 })
             }
         }, [socket, chatFocus])
+
+
+        const createChat = (recipientUsername) => {
+            if (socket) {
+                socket.emit("create_chat", { recipient_username: recipientUsername, token: LocalStorageUtils.getToken() });
+            } else {
+                console.log("Socket is not connected");
+            }
+        };
+
+        const createMessage = (senderUsername, recipientUsername, messageBody) => {
+            if (socket) {
+                socket.emit("create_message", { sender_username: senderUsername, recipient_username: recipientUsername, message_body: messageBody, token: LocalStorageUtils.getToken() });
+            } else {
+                console.log("Socket is not connected");
+            }
+        };
+        
+
         
 
           const fetchChats = async () => {

@@ -20,7 +20,9 @@ const Chat = () => {
 
     useEffect(() => {
         fetchChats();
-}, []);
+    }, []);
+
+
 
     const handleMessageSubmit = (event) => {
         event.preventDefault()
@@ -47,7 +49,7 @@ const Chat = () => {
                 chats.map((chat) => (
                   <li key={chat.chat_id} onClick={() => setChatFocus(chat)}>
                     <div>{chat.username}</div>
-                    <div>{chat.messages[chat.messages.length - 1]?.message_body.slice(0, 15)}</div>
+                    <div>{chat.messages[0]?.message_body.slice(0, 15)}</div>
                     <box-icon name='x'></box-icon>
                   </li>
                 ))
