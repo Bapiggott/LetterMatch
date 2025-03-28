@@ -299,6 +299,13 @@ header .call-to-action-div box-icon {
   height: 27px;
   border-radius: 3px;
 }
+.unread-chat-messages-div-container{
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .corner-icons-div{
   cursor: pointer;
 }
@@ -379,7 +386,7 @@ header .call-to-action-div box-icon {
   justify-content: space-between;
   align-items: center;
   font-size: 1.05rem;
-  padding: 5px 22px;
+  padding: 5px 0px;
 }
 .all-chats-view .chat-li box-icon{
   fill: red;
@@ -387,9 +394,17 @@ header .call-to-action-div box-icon {
   width: 40px;
   cursor: pointer;
 }
+.all-chats-view .x-icon-div{
+  width: 50px;
+  padding-right: 10px;
+}
+
 .all-chats-view .chat-li .last-message{
   opacity: 50%;
   margin-left: 20px;
+  width: 95px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .all-chats-view .chat-li .username{
   font-weight: 600;
@@ -401,7 +416,7 @@ header .call-to-action-div box-icon {
   cursor: pointer;
 }
 .all-chats-view ul{
-  padding: 0 38px;
+  padding: 0 20px;
 }
 .chat-div .back-btn{
   cursor: pointer;

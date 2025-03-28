@@ -88,16 +88,20 @@ const Chat = () => {
                 chats.map((chat) => (
                   <li className='chat-li' key={chat.chat_id}>
                     <div onClick={() => {setFocusedChatId(chat.chat_id); readChat(chat.chat_id);}}>
-                      {chat.unread_message_count > 0 && (
-                        <div className='unread-chat-messages-div'>{chat.unread_message_count}</div>
+                      <div className='unread-chat-messages-div-container'>
+                        {chat.unread_message_count > 0 && (
+                          <div className='unread-chat-messages-div'>{chat.unread_message_count}</div>
 
-                      )}
+                        )}
+                      </div>
                       <div className='username'>{chat.username}</div>
                       <div className='last-message'>  {chat.messages[0]?.message_body.slice(0, 12)}{chat.messages[0]?.message_body.length > 15 ? " . . . " : null}
 
                       </div>
                     </div>
-                    <box-icon name='x' onClick={() => removeChat(chat.chat_id)}></box-icon>
+                    <div className='x-icon-div'>
+                      <box-icon name='x' onClick={() => removeChat(chat.chat_id)}></box-icon>
+                    </div>
                   </li>
                 ))
               ) : (
