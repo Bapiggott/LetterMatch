@@ -353,6 +353,7 @@ header .call-to-action-div box-icon {
   fill: red;
   height: 40px;
   width: 40px;
+  cursor: pointer;
 }
 .all-chats-view .chat-li .last-message{
   opacity: 50%;

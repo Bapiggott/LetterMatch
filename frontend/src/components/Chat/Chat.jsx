@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../ContextProvider";
 import LocalStorageUtils from '../../LocalStorageUtils';
+import { API_URL } from '../../config';
 
 
 const Chat = () => {
@@ -34,6 +35,28 @@ const Chat = () => {
         setInputtedMessage(""); 
       };
 
+      const removeChat = async (chatId) => {
+        try {
+          const response = await fetch(`${API_URL}/chat/remove-chat`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${LocalStorageUtils.getToken()}`
+              },
+              body: JSON.stringify({ chat_id: chatId }) 
+            });
+          if (!response.ok) {
+              console.log("Error removing chat")
+          }
+          const data = await response.json();
+          console.log(data)
+          fetchChats()
+  
+      } catch (error) {
+          console.error(error);
+      }
+      }
+
     
 
     return (
@@ -57,7 +80,7 @@ const Chat = () => {
 
                       </div>
                     </div>
-                    <box-icon name='x'></box-icon>
+                    <box-icon name='x' onClick={() => removeChat(chat.chat_id)}></box-icon>
                   </li>
                 ))
               ) : (

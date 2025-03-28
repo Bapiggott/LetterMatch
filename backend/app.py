@@ -22,6 +22,7 @@ import jwt
 from chat import chat_bp, get_active_chat_details, get_all_active_chat_details_as_array
 
 
+
 app = Flask(__name__)
 
 # Configuration
@@ -82,6 +83,7 @@ with app.app_context():
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from models import User, Message, Chat, ChatParticipant
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet") 
+from utils.auth_utils import get_user_from_req
 
 
 @socketio.on('create_chat')
@@ -98,6 +100,10 @@ def create_chat(data):
     
     recipient_username = data['recipient_username']
     recipient_user = User.query.filter_by(username=recipient_username).first()
+
+    if sender_user.id == recipient_user.id:
+        emit('error', {'message': 'Recipient and sender have matching ids'})
+        return
 
     sender_id = sender_user.id
     recipient_id = recipient_user.id
@@ -119,6 +125,10 @@ def create_chat(data):
         print(f"Creating chat for sender: {sender_id}, recipient: {recipient_id}")
         db.session.add(participant_1)
         db.session.add(participant_2)
+        db.session.commit()
+    else: 
+        sender_participant = ChatParticipant.query.filter_by(chat_id=chat.id, user_id=sender_id).first()
+        sender_participant.chat_active = True
         db.session.commit()
 
     room_name = chat.id
@@ -198,6 +208,8 @@ def join_chat_rooms(data):
         room_ids.append(room_id)
 
     emit('joined_chat_rooms', {'rooms': room_ids}, room=request.sid)
+
+
 
 
 if __name__ == "__main__": 

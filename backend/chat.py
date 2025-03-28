@@ -54,3 +54,19 @@ def get_active_chat_details(chat_id, end_user_id):
         'messages': messages,
         'number_of_unread_messsages': number_of_unread_message
     }
+
+
+@chat_bp.route('/remove-chat', methods=['POST'])
+def remove_chat():
+    user = get_user_from_req(request)
+    user_id = user.id
+
+    data = request.get_json() 
+    chat_id = data.get("chat_id")
+
+    participant = ChatParticipant.query.filter_by(chat_id=chat_id, user_id=user_id).first()
+
+    participant.chat_active = False
+    db.session.commit()
+
+    return jsonify({"message": "Successfully deactivated chat"})
