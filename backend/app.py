@@ -86,6 +86,9 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 from utils.auth_utils import get_user_from_req
 
 
+username_to_sid = {} 
+
+
 @socketio.on('create_chat')
 def create_chat(data):
     token = data.get('token')
@@ -172,14 +175,19 @@ def create_message(data):
     db.session.add(Message(chat_id=chat.id, sender_id=sender_user.id, message_body=message_body, read=False))
     db.session.commit()  
     
-    chat_details = get_all_active_chat_details_as_array(sender_user.id)
+    all_chat_details = get_all_active_chat_details_as_array(sender_user.id)
 
+    new_chat_details = get_active_chat_details(chat.id, sender_user.id)
 
     room_name = chat.id
+    recipient_sid = username_to_sid.get(recipient_username)
+    
+    if recipient_sid:
+        join_room(room_name, sid=recipient_sid)
 
-    join_room(room_name)
+    join_room(room_name, sid=request.sid)
 
-    emit('message_created',  {'chat_details': chat_details} , room=room_name)
+    emit('message_created',  {'all_chat_details': all_chat_details, 'new_chat_details': new_chat_details} , room=room_name)
 
 
 
@@ -198,6 +206,10 @@ def join_chat_rooms(data):
     if not user:
         emit('error', {'message': 'Invalid token'})
         return
+
+    username = user.username
+    sid = request.sid
+    username_to_sid[username] = sid
 
     chat_details = get_all_active_chat_details_as_array(user.id)
 
