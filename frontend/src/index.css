@@ -270,7 +270,25 @@ header .call-to-action-div box-icon {
   justify-content: center;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
  }
- .chat-corner-icon:hover{
+ .unread-message-alert-div{
+  width: 35px;
+  height: 35px;
+  background-color: #ff0000;
+  z-index: 100;
+  position: fixed;
+  bottom: 20px; 
+  right: 90px; 
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+.corner-icons-div{
+  cursor: pointer;
+}
+.corner-icons-div:hover .chat-corner-icon{
   scale: 1.02;
  }
  .chat-corner-icon box-icon{
@@ -374,6 +392,7 @@ header .call-to-action-div box-icon {
 .chat-div .back-btn{
   cursor: pointer;
 }
+
 
  /* End of Chat */
 

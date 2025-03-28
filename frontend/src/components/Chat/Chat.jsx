@@ -1,5 +1,5 @@
 import React from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAppContext } from "../../ContextProvider";
 import LocalStorageUtils from '../../LocalStorageUtils';
 import { API_URL } from '../../config';
@@ -9,15 +9,17 @@ const Chat = () => {
     const { 
         isChatMenuOpen, 
         setIsChatMenuOpen, 
-        chatFocus, 
-        setChatFocus, 
+        focusedChatId, 
+        setFocusedChatId, 
         chats, 
         createMessage,
-        fetchChats
+        fetchChats, 
+        getFocusedChat,
+        totalUnreadMessages,
+        readChat
     } = useAppContext();
-
+    
     const [inputtedMessage, setInputtedMessage] = useState("");
-
 
     useEffect(() => {
         fetchChats();
@@ -27,9 +29,10 @@ const Chat = () => {
 
     const handleMessageSubmit = (event) => {
         event.preventDefault()
+
         createMessage(
           LocalStorageUtils.getUsername(), 
-          chatFocus.username, 
+          getFocusedChat().username, 
           inputtedMessage
         )
         setInputtedMessage(""); 
@@ -52,19 +55,29 @@ const Chat = () => {
           console.log(data)
           fetchChats()
   
-      } catch (error) {
-          console.error(error);
+        } catch (error) {
+            console.error(error);
+        }
       }
-      }
+
 
     
 
     return (
     <>
         <div className='chat-div'>
-            <div className='chat-corner-icon' onClick={() => setIsChatMenuOpen(!isChatMenuOpen)}><box-icon name='message-dots'></box-icon></div>
 
-            {(isChatMenuOpen && chatFocus == null) && (
+          <div className='corner-icons-div' onClick={() => setIsChatMenuOpen(!isChatMenuOpen)}>
+            <div className='chat-corner-icon'><box-icon name='message-dots'></box-icon></div>
+
+            {chats && chats.length > 0 && totalUnreadMessages > 0 &&(
+              <div className='unread-message-alert-div'>
+                <span>{totalUnreadMessages < 100 ? totalUnreadMessages : "99+"}</span>
+              </div>
+            )}
+          </div>
+
+            {(isChatMenuOpen && focusedChatId == null) && (
             <div className="chat-menu all-chats-view">
               
                 <h6>Chats</h6>
@@ -74,7 +87,11 @@ const Chat = () => {
                 {chats.length > 0 ? (
                 chats.map((chat) => (
                   <li className='chat-li' key={chat.chat_id}>
-                    <div onClick={() => setChatFocus(chat)}>
+                    <div onClick={() => {setFocusedChatId(chat.chat_id); readChat(chat.chat_id);}}>
+                      {chat.unread_message_count > 0 && (
+                        <div className='unread-chat-messages-div'>{chat.unread_message_count}</div>
+
+                      )}
                       <div className='username'>{chat.username}</div>
                       <div className='last-message'>  {chat.messages[0]?.message_body.slice(0, 12)}{chat.messages[0]?.message_body.length > 15 ? " . . . " : null}
 
@@ -90,13 +107,13 @@ const Chat = () => {
             </div>
             )}
 
-            {(isChatMenuOpen && chatFocus != null) && (
+            {(isChatMenuOpen && focusedChatId && getFocusedChat()) && (
             <div className="chat-menu chat-focus-view">
-                <box-icon className="back-btn" name="arrow-back" onClick={() => setChatFocus(null)}></box-icon>
-                <h6>{chatFocus.username}</h6>
+                <box-icon className="back-btn" name="arrow-back" onClick={() => setFocusedChatId(null)}></box-icon>
+                <h6>{getFocusedChat().username}</h6>
                 <div className='messages-div'>
-                    {chatFocus.messages && chatFocus.messages.length > 0 ? (
-                    chatFocus.messages.map((message) => (
+                    {getFocusedChat().messages && getFocusedChat().messages.length > 0 ? (
+                    getFocusedChat().messages.map((message) => (
                         <div className={'chat-message-div ' + (message.username == LocalStorageUtils.getUsername() ? 'you-message' : 'them-message')} key={message.message_id}>
                             <span>{message.username} </span>
                             <p>{message.message_body}</p>

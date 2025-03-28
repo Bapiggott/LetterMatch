@@ -36,23 +36,23 @@ def get_active_chat_details(chat_id, end_user_id):
     other_user = ChatParticipant.query.filter(ChatParticipant.chat_id == chat_id, ChatParticipant.user_id != end_user_id).first()
     other_username = User.query.get(other_user.user_id).username
     recent_messages = Message.query.filter(Message.chat_id == chat_id).order_by(Message.id.desc()).limit(99).all()
-    number_of_unread_message = 0
+    unread_messages = 0
     messages = []
     for message in recent_messages:
-        if message.read == False:
-            number_of_unread_message = number_of_unread_message + 1
+        if message.read == False and int(message.sender_id) != int(end_user_id):
+            unread_messages += 1
         sender = User.query.get(message.sender_id) 
         messages.append({
             'message_id': message.id,
             'message_body': message.message_body,
             'username': sender.username,
-            'read': message.read
+            'read': message.read,
         })
     return {
         'chat_id': chat_id,
         'username': other_username,
         'messages': messages,
-        'number_of_unread_messsages': number_of_unread_message
+        'unread_message_count': unread_messages
     }
 
 
@@ -70,3 +70,20 @@ def remove_chat():
     db.session.commit()
 
     return jsonify({"message": "Successfully deactivated chat"})
+
+@chat_bp.route('/mark-chat-read', methods=['POST'])
+def mark_read_chat():
+    user = get_user_from_req(request)
+    user_id = user.id
+    data = request.get_json() 
+    chat_id = data.get("chat_id")
+
+    messages = Message.query.filter_by(chat_id=chat_id, read=False).all()
+    if len(messages) > 0:
+        for message in messages:
+            if message.sender_id != user_id:
+                message.read = True
+        db.session.commit()
+
+    return jsonify({"message": "Successfully marked messages as read"})
+

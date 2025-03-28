@@ -9,9 +9,11 @@ const AppContext = createContext();
 export const ContextProvider = ({ children }) => {
 
         const [isChatMenuOpen, setIsChatMenuOpen] = useState(false);
-        const [chatFocus, setChatFocus] = useState(null)
+        const [focusedChatId, setFocusedChatId] = useState(null)
         const [chats, setChats] = useState([]);
         const [socket, setSocket] = useState(null);
+        const getFocusedChat = () => chats.find(chat => chat.chat_id == focusedChatId);
+        const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
 
 
         useEffect(() => {
@@ -42,21 +44,15 @@ export const ContextProvider = ({ children }) => {
                 socket.on("chat_created", (data) => {
                     console.log("Chat Created:", data);
                     setChats(data.chat_details);
-                    setChatFocus(data.new_chat)
+                    setFocusedChatId(data.new_chat.chat_id)
                     setIsChatMenuOpen(true);
                 });
         
                 socket.on("message_created", (data) => {
-                    let focusedChatId = chatFocus?.chat_id || null 
-                    setChats(data.chat_details);
-                    if(focusedChatId){
-                        console.log("focused", focusedChatId)
-                        const focusedChat = data.chat_details.find(chat => chat.chat_id === focusedChatId);
-                        setChatFocus(focusedChat)
-                    }
+                    fetchChats()
                 })
             }
-        }, [socket, chatFocus])
+        }, [socket, focusedChatId])
 
 
         const createChat = (recipientUsername) => {
@@ -76,42 +72,89 @@ export const ContextProvider = ({ children }) => {
         };
         
 
-        
-
-          const fetchChats = async () => {
+        const fetchChats = async () => {
             try {
                 const response = await fetch(`${API_URL}/chat/get-chats`, {
                     method: "GET",
                     headers: {
-                      "Content-Type": "application/json",
-                      "Authorization": `Bearer ${LocalStorageUtils.getToken()}`
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${LocalStorageUtils.getToken()}`
                     }
-                  });
+                    });
                 if (!response.ok) {
                     console.log("Error getting chats")
                 }
                 const data = await response.json();
                 console.log(data)
+
                 setChats(data);
-        
             } catch (error) {
                 console.error(error);
             }
 
         };
 
+        const readChat = async (chatId) => {
+        try {
+            const response = await fetch(`${API_URL}/chat/mark-chat-read`, {
+                method: "POST",
+                headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${LocalStorageUtils.getToken()}`
+                },
+                body: JSON.stringify({ chat_id: chatId }) 
+            });
+            if (!response.ok) {
+                console.log("Error marking chat as read")
+            }
+            const data = await response.json();
+            console.log(data)
+            fetchChats()
+    
+        } catch (error) {
+            console.error(error);
+        }
+        }
+
+    useEffect(() => {
+        if (getFocusedChat() == undefined) {
+            setFocusedChatId(null);
+        }
+
+        if (focusedChatId) {
+            const focusedChat = getFocusedChat();
+            if (focusedChat) {
+                const focusedChatUnreadMessages = focusedChat.unread_message_count;
+    
+                if (focusedChatUnreadMessages > 0) {
+                    readChat(focusedChatId)
+                }
+            }
+        }
+
+        if (chats.length > 0){
+            const newTotal = chats.reduce((total, chat) => total + chat.unread_message_count, 0);
+            console.log(newTotal)
+            console.log(chats)
+            setTotalUnreadMessages(newTotal);
+        }
+
+        }, [chats]);
 
 
 
     return (
         <AppContext.Provider value={{ 
             isChatMenuOpen, setIsChatMenuOpen,
-            chatFocus, setChatFocus,
+            focusedChatId, setFocusedChatId,
             chats, setChats,
             socket, setSocket,
             createChat,
             createMessage,
-            fetchChats
+            fetchChats, 
+            getFocusedChat,
+            totalUnreadMessages, setTotalUnreadMessages,
+            readChat
          }}>
             {children}
         </AppContext.Provider>
