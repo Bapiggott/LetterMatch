@@ -269,21 +269,35 @@ header .call-to-action-div box-icon {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  fill: white;
+ }
+ .chat-corner-icon box-icon{
+  width: 60px;
+  height: 60px;
+ }
+ .unread-message-alert-div,
+ .unread-chat-messages-div{
+  background-color: #ff0000;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
  }
  .unread-message-alert-div{
   width: 35px;
   height: 35px;
-  background-color: #ff0000;
   z-index: 100;
   position: fixed;
   bottom: 20px; 
   right: 90px; 
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
+
+}
+.unread-chat-messages-div{
+  width: 27px;
+  height: 27px;
+  border-radius: 3px;
 }
 .corner-icons-div{
   cursor: pointer;
@@ -291,7 +305,7 @@ header .call-to-action-div box-icon {
 .corner-icons-div:hover .chat-corner-icon{
   scale: 1.02;
  }
- .chat-corner-icon box-icon{
+ .chat-corner-icon box-icons{
   height: 50px;
   width: 50px;
   fill: white;
