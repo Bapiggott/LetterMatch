@@ -169,6 +169,7 @@ def create_message(data):
     for c in chats_with_sender:
         recipient_participant = ChatParticipant.query.filter_by(chat_id=c.id, user_id=recipient_user.id).first()
         if recipient_participant:
+            recipient_participant.chat_active = True
             chat = c
             break
 
@@ -179,15 +180,20 @@ def create_message(data):
 
     new_chat_details = get_active_chat_details(chat.id, sender_user.id)
 
+    new_message_details = {
+        'message_body': message_body,
+        'username': sender_user.username
+    }
+
     room_name = chat.id
     recipient_sid = username_to_sid.get(recipient_username)
-    
+
     if recipient_sid:
         join_room(room_name, sid=recipient_sid)
 
     join_room(room_name, sid=request.sid)
 
-    emit('message_created',  {'all_chat_details': all_chat_details, 'new_chat_details': new_chat_details} , room=room_name)
+    emit('message_created',  {'all_chat_details': all_chat_details, 'new_chat_details': new_chat_details, 'new_message_details': new_message_details} , room=room_name)
 
 
 

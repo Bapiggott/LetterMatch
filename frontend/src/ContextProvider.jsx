@@ -1,5 +1,5 @@
 
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 import { io } from 'socket.io-client';
 import { API_URL } from "./config";
 import LocalStorageUtils from "./LocalStorageUtils";
@@ -15,6 +15,8 @@ export const ContextProvider = ({ children }) => {
         const getFocusedChat = () => chats.find(chat => chat.chat_id == focusedChatId);
         const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
 
+        const newMessageSound = new Audio("/message-sound-low-vol.mp3");
+        newMessageSound.volume = 0.7;
 
         useEffect(() => {
             const newSocket = io(API_URL, {
@@ -49,6 +51,9 @@ export const ContextProvider = ({ children }) => {
                 });
         
                 socket.on("message_created", (data) => {
+                    if(data.new_message_details.username != LocalStorageUtils.getUsername()){
+                        newMessageSound.play();
+                    }
                     fetchChats()
                 })
             }
