@@ -126,7 +126,7 @@ export const ContextProvider = ({ children }) => {
             setFocusedChatId(null);
         }
 
-        if (focusedChatId) {
+        if (focusedChatId && isChatMenuOpen) {
             const focusedChat = getFocusedChat();
             if (focusedChat) {
                 const focusedChatUnreadMessages = focusedChat.unread_message_count;
