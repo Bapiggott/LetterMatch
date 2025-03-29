@@ -128,7 +128,7 @@ const Chat = () => {
                     )}
                 </div>
                 <form onSubmit={handleMessageSubmit}>
-                    <input value={inputtedMessage} onChange={(e) => setInputtedMessage(e.target.value)} type="text" name="message_body" required/>
+                    <input value={inputtedMessage} onChange={(e) => setInputtedMessage(e.target.value)} type="text" name="message_body" autocomplete="off" required/>
                     <button type="submit"><box-icon name='paper-plane'></box-icon></button>
                 </form>
             </div>

@@ -193,6 +193,7 @@ const Friends = () => {
               placeholder="Enter username..."
               value={friendUsername}
               onChange={(event) => setFriendUsername(event.target.value)}
+              autocomplete="off"
             />
             <div className="button-group">
               <button onClick={(event) => handleFriendAction(event, "add")}>
