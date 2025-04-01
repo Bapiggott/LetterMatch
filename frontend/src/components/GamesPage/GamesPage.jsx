@@ -16,6 +16,7 @@ const GamesPage = () => {
                 <div className="all-games-div">
                     {/* Game 1 - Letter Match */}
                     <div className="flip-card">
+                   
                         <div className="flip-card-inner">
                             <div className="flip-card-front">
                                 <h1>Letter Match</h1>

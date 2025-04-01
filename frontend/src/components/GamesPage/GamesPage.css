@@ -86,9 +86,15 @@
     transform: translate(-50%, -50%);
     color: white;
     font-size: 2rem;
+    font-family: 'Comic Sans Ms', serif; 
+    
    
    
   
+}
+
+h1 {
+    font-family: 'Comic Sans Ms', serif; 
 }
 
 
