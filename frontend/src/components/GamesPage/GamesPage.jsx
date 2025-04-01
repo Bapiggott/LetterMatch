@@ -9,7 +9,7 @@ const GamesPage = () => {
     return (
         <Layout>
             <div>
-
+        
                 <section>
                     <h1> 🏁 Wanna be a Letter Master? Select a Challenge! 🏁 </h1>
                 </section>
