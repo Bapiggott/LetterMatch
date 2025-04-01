@@ -8,18 +8,23 @@ import './GamesPage.css';
 const GamesPage = () => {
     return (
         <Layout>
+              <h1 style={{ backgroundColor: 'var(--header-bg-color)', color: 'white', fontSize: '3rem' }}>🎮 GAMES 🎮</h1> 
+            
             <div>
         
                 <section>
                     <h1> 🏁 Wanna be a Letter Master? Select a Challenge! 🏁 </h1>
+                     
                 </section>
                 <div className="all-games-div">
                     {/* Game 1 - Letter Match */}
                     <div className="flip-card">
-                   
+            
                         <div className="flip-card-inner">
+                            
                             <div className="flip-card-front">
-                                <h1>Letter Match</h1>
+                            <div className="flip-card" style={{ backgroundImage: 'url("/images/letterMatch_coverImg.png")' }}></div>
+                                <h1 style={{ backgroundColor: 'black', color: 'white', fontSize: '3rem' }}>Letter Match</h1>
                             </div>
                             <div className="flip-card-back small-card">
                                 <h2>Can you Beat the Clock? ⏳</h2>
@@ -46,7 +51,8 @@ const GamesPage = () => {
                     <div className="flip-card">
                         <div className="flip-card-inner">
                             <div className="flip-card-front">
-                                <h1>Word Blitz</h1>
+                            <div className="flip-card" style={{ backgroundImage: 'url("/images/wordBlitz.png")' }}></div> 
+                                <h1 style={{ backgroundColor: 'black', color: 'white', fontSize: '3rem' }}>Word Blitz</h1>
                                 <img src="word-blitz.jpg" />
                                 </div>
                                 <div className="flip-card-back">
@@ -71,7 +77,8 @@ const GamesPage = () => {
                     <div className="flip-card">
                         <div className="flip-card-inner">
                             <div className="flip-card-front">
-                                    <h1>Word Chain</h1>
+                            <div className="flip-card" style={{ backgroundImage: 'url("/images/wordChain.png")' }}></div>
+                            <h1 style={{ backgroundColor: 'black', color: 'white', fontSize: '3rem' }}>Word Chain</h1>
                                     <img src="word-chain.jpg" />
                                 </div>
                                 <div className="flip-card-back">
