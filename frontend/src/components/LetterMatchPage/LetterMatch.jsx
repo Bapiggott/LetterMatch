@@ -63,9 +63,6 @@ const LetterMatch = () => {
         setStatus(data.message || data.error);
     };
 
-
-
-
     const addLocalPlayer = () => {
         if (newLocalPlayer && !localPlayers.includes(newLocalPlayer)) {
             setLocalPlayers([...localPlayers, newLocalPlayer]);
@@ -73,59 +70,138 @@ const LetterMatch = () => {
         }
     };
 
-
-    //helps to remove local player in case if a local user changes their mind 
     const removeLocalPlayer = (index) => {
-        setLocalPlayers(prevVal => prevVal.filter((_,i) => i != index));
-        
+        setLocalPlayers(prevVal => prevVal.filter((_, i) => i !== index));
     };
-
-
 
     return (
         <Layout>
-            <div className="letter-match-container">
-                <h1 style={{ color: "white" }}>🔗 Letter Match Game</h1>
-                <div className="mode-selection">
-                    <button onClick={() => setGameMode("single")} style={{ backgroundColor: "blue", color: "white" }}>Play Single Player</button>
-                    <button onClick={() => setGameMode("online")} style={{ backgroundColor: "blue", color: "white" }}>Play Online</button>
-                    <button onClick={() => setGameMode("local")}style={{ backgroundColor: "blue", color: "white" }}>Local Multiplayer</button>
+            <p style={{ backgroundColor: 'var(--header-bg-color)', color: 'white', fontSize: '3rem', fontFamily: "'Comic Sans MS', sans-serif", textAlign: 'center' }}>
+                Welcome to Letter Match 💌
+            </p>
+
+            <div className="letter-match-menu-container">
+                {/* Instructions */}
+                <div className="instruction_img">
+                    <p>
+                        ✨You get a letter ✨ <br /> 
+                        ✨You must match that with: ✨ <br /> 
+                        ✅ A Name, ✅ City or Country, ✅ Animal, <br />
+                        ✅ Thing, ✅ Food <br /><br />
+                        .. all starting with the same letter ✨
+                    </p>
                 </div>
 
-                {gameMode && (
-                    <div className="game-setup">
+                {/* Create a Game */}
+                <div className="Create-game-banner">
+                    <p> --- Create a Game 📝 --- </p>
+                </div>
 
-                       
-                     {gameMode === "single" ? (
-                            <a href="/singlePlayer">Start Single Player Game </a>
-                          
-                        ): gameMode === "local" ? (
-                            <div>
-                                <input type="text" placeholder="Enter Room Name" value={room} onChange={(e) => setRoom(e.target.value)} />
-                                <input type="text" placeholder="Enter Player Name" value={newLocalPlayer} onChange={(e) => setNewLocalPlayer(e.target.value)} />
-                                <button onClick={addLocalPlayer} style={{ backgroundColor: "blue", color: "white" }} > Add Local Player</button>
-                                <ul>{localPlayers.map((p, index) => <li key={index}>{p} <button onClick={() => removeLocalPlayer(index)}>Remove</button></li>)}</ul>
+                <div className="game-mode-container">
+                    <h1 style={{ color: "black" }}>🎮 Game Mode 🎮</h1>
 
-                               
-               
-                            </div>
-                        ) : (
-                            <button onClick={joinGame} style={{ backgroundColor: "blue", color: "white" }} >Join Online Game</button>
-                         
-
-                        )}
-
-                      
-
-                        <button onClick={createGame} style={{ backgroundColor: "blue", color: "white" }}>Create Game</button>
-
+                    {/* Radio buttons to select game mode */}
+                    <div className="mode-selection">
+                        <label>
+                            <input 
+                                type="radio" 
+                                name="gameMode" 
+                                value="single" 
+                                checked={gameMode === "single"} 
+                                onChange={() => setGameMode("single")} 
+                            /> 
+                            Play Single Player
+                        </label>
+                        <label>
+                            <input 
+                                type="radio" 
+                                name="gameMode" 
+                                value="online" 
+                                checked={gameMode === "online"} 
+                                onChange={() => setGameMode("online")} 
+                            /> 
+                            Play Online
+                        </label>
+                        <label>
+                            <input 
+                                type="radio" 
+                                name="gameMode" 
+                                value="local" 
+                                checked={gameMode === "local"} 
+                                onChange={() => setGameMode("local")} 
+                            /> 
+                            Local Multiplayer
+                        </label>
                     </div>
-                )}
+
+                    {/* Game Setup */}
+                    {gameMode && (
+                        <div className="mode-selection">
+                            {gameMode === "single" ? (
+                                <>
+                                    {/* Create Game button */}
+                                    <button 
+                                        style={{ backgroundColor: 'var(--header-bg-color)', color: 'white' }} 
+                                        onClick={() => window.location.href = '/singlePlayer'} // goes to single player
+                                    >
+                                        Start Single Player Game
+                                    </button>
+                                </>
+                            ) : gameMode === "local" ? (
+                                <div>
+                                 
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter Player Name" 
+                                        value={newLocalPlayer} 
+                                        onChange={(e) => setNewLocalPlayer(e.target.value)} 
+                                    />
+                                    <button 
+                                        onClick={addLocalPlayer} 
+                                        style={{ backgroundColor: 'var(--header-bg-color)', color: "white" }}
+                                    >
+                                        Add Local Player
+                                    </button>
+                                    <ul>
+                                        {localPlayers.map((p, index) => (
+                                            <li key={index}>
+                                                {p} 
+                                                <button onClick={() => removeLocalPlayer(index)}>
+                                                    Remove
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+
+                                    <button 
+                                        onClick={joinGame} 
+                                        style={{ backgroundColor: 'var(--header-bg-color)', color: "white"}}
+                                    >
+                                        Create Game
+                                    </button>
+                                </div>
+                            ) : gameMode === "online" ? (
+                                <div>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Enter Room Name" 
+                                        value={room} 
+                                        onChange={(e) => setRoom(e.target.value)} 
+                                    />
+                                    <button 
+                                        onClick={joinGame} 
+                                        style={{ backgroundColor: 'var(--header-bg-color)', color: "white" }}
+                                    >
+                                        Join Online Game
+                                    </button>
+                                </div>
+                            ) : null}
+                        </div>
+                    )}
+                </div>
             </div>
         </Layout>
     );
-    
-}
-    
+};
 
 export default LetterMatch;

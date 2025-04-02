@@ -1,29 +1,188 @@
 
-.letter-match-container {
+/* Container for background img */
+.letter-match-menu-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 50px 0;
+    flex-wrap: wrap;
+    background-image: url("/images/notebookSeniorProj.png");
+    background-repeat: repeat;
+    background-size: cover;
+    padding-top: 20px;
+}
+
+/* instruction img */
+.instruction_img {
+    background-image: url("/images/Instruction.png");  
+    background-size: cover;
+    background-position: center;
+    height: 300px;  
+    width: 100%;   
+    display: flex;
+    justify-content: center;
+    align-items: center;
     text-align: center;
-    background-color: #222;
     color: white;
+    font-family: 'Comic Sans MS', sans-serif;
+    font-size: 1.5rem;
+    margin: 20px;
+    margin-bottom: 30px;
+}
+
+/* for instruction text */
+.instruction_img p {
+    background-color: rgba(0, 0, 0, 0.5); /* transparent background */
+    border-radius: 10px;  /* Rounded corners */
+    padding: 20px 20px;
+}
+
+/* create a Game Container */
+.Create-game-banner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    margin-top: 40px;
+  
+} 
+
+.Create-game-banner p {
+    background-color: var(--header-bg-color);
+    color: white;
+    font-size: 3rem;
+    font-family: 'Comic Sans MS', sans-serif;
+    text-align: center;
+    width: 100%;
+    padding: 10px 20px;
+    margin-bottom: 40px;
+}
+
+/* Background for game mode */
+.game-mode-container {
+    background-image: url("/images/Instruction.png"); 
+    background-size: cover;  
+    background-position: center;
+    padding: 20px;  
+    border-radius: 15px;  
+
+}
+
+.mode-selection {
+    background-color: rgba(0, 0, 0, 0.5); /* transparent background */
+    border-radius: 10px;  
     padding: 20px;
-    border-radius: 10px;
+    display: flex; /* to put in row format*/
+    gap: 90px; /* Space between radio buttons */
+    margin-top: 20px; 
+    margin-bottom: 20px;
 }
 
-button {
-    background-color: #4CAF50;
+.mode-selection label {
+    font-size: 1.2rem;
     color: white;
-    padding: 10px;
-    margin: 5px;
-    border: none;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #45a049;
+    font-family: 'Comic Sans MS', sans-serif;
+    display: inline-flex; 
+    align-items: center; 
+   
 }
 
 input {
     padding: 10px;
-    margin: 5px;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    width: 250px; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/*Local Multiplayer List */
+ul {
+    list-style-type: none;
+    padding: 0;
+    color: white;
+    text-align: left;
+    
+    
+}
+
+li button {
+    background-color: var(--header-bg-color);
+    font-size: 0.9rem;
+    padding: 10px;
+    margin-left: 20px;
+    
+}
+
+button:hover {
+    background-color: var(--header-bg-color);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+.game-setup {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    align-items: center;
+}
+
+input[type="text"] {
+    padding: 10px;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    width: 250px; 
+    border: 1px solid #ccc;
     border-radius: 5px;
 }
 
+button {
+    padding: 10px 20px;
+    background-color: blue;
+    color: white;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: darkblue;
+}
+
+/* List of Local Players */
+
+/*
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+
+li button {
+    background-color: red;
+    font-size: 0.9rem;
+    padding: 5px 10px;
+}
+
+
+
+*/
 
