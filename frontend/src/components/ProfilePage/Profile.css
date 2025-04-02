@@ -1,29 +1,304 @@
 .profile-container {
-    max-width: 500px;
-    margin: 20px auto;
-    background: #f8f8f8;
-    padding: 20px;
-    border-radius: 6px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e3e9f2 100%);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-title {
+  color: #4a90e2;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-message {
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.status-message.error {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+  border: 1px dashed #e74c3c;
+}
+
+.status-message.success {
+  background-color: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+  border: 1px dashed #27ae60;
+}
+
+.profile-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.tab-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
+  background-color: #f0f8ff;
+  color: #4a90e2;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab-button:hover {
+  background-color: #e1f0ff;
+  transform: translateY(-2px);
+}
+
+.tab-button.active {
+  background: linear-gradient(to right, #4a90e2, #9b59b6);
+  color: white;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.profile-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-pic-container {
+  flex-shrink: 0;
+}
+
+.profile-pic {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 5px solid #4a90e2;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.default-profile-pic {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #4a90e2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  border: 5px solid #9b59b6;
+}
+
+.profile-info {
+  flex-grow: 1;
+}
+
+.profile-item {
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.profile-label {
+  font-weight: bold;
+  color: #4a90e2;
+  margin-right: 10px;
+}
+
+.profile-value {
+  color: #333;
+}
+
+.upload-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.upload-title {
+  color: #4a90e2;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.upload-controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.file-upload-button {
+  background-color: #9b59b6;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-upload-button:hover {
+  background-color: #8e44ad;
+  transform: scale(1.05);
+}
+
+.file-input {
+  display: none;
+}
+
+.upload-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-button:hover {
+  background-color: #357abd;
+  transform: scale(1.05);
+}
+
+.file-selected {
+  text-align: center;
+  margin-top: 10px;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+/* Game History Styles */
+.game-history {
+  background-color: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.history-title {
+  color: #4a90e2;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.no-games {
+  text-align: center;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.game-card {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 5px solid #4a90e2;
+  transition: all 0.3s;
+}
+
+.game-card.won {
+  border-left: 5px solid #2ecc71;
+  background-color: rgba(46, 204, 113, 0.05);
+}
+
+.game-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.game-date {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.winner-badge {
+  background-color: #2ecc71;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.game-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.game-room, .game-players, .game-score {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
   }
   
-  .profile-data {
-    margin-top: 10px;
+  .profile-title {
+    font-size: 2rem;
   }
   
-  .profile-item {
-    margin-bottom: 8px;
+  .profile-tabs {
+    flex-direction: column;
+    align-items: center;
   }
   
-  .upload-section {
-    margin-top: 15px;
+  .tab-button {
+    width: 100%;
+    justify-content: center;
   }
   
-  .status-message {
-    margin-top: 10px;
-    font-weight: bold;
+  .game-details {
+    flex-direction: column;
+    gap: 5px;
   }
-  
-  .profile-pic img {
-    border-radius: 50%;
-  }
-  
+}

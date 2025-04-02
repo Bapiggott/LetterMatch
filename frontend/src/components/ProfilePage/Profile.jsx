@@ -6,17 +6,16 @@ import './Profile.css';
 
 const Profile = () => {
   const token = LocalStorageUtils.getToken();
-  const username = LocalStorageUtils.getUsername(); 
-  // for demonstration, we assume you store the current username in localStorage
-
+  const username = LocalStorageUtils.getUsername();
   const [profileData, setProfileData] = useState(null);
+  const [gameHistory, setGameHistory] = useState([]);
   const [status, setStatus] = useState("");
-
-  // For new picture upload
   const [selectedFile, setSelectedFile] = useState(null);
+  const [activeTab, setActiveTab] = useState('profile');
 
   useEffect(() => {
     fetchProfile();
+    fetchGameHistory();
   }, []);
 
   const fetchProfile = async () => {
@@ -25,14 +24,11 @@ const Profile = () => {
       return;
     }
     try {
-      // If you are fetching your own user data, no "?username=..."
-      // If you want to fetch a friend, do "?username=FriendName"
       const res = await fetch(`${API_URL}/profile`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
-          // If your server reads username from "X-Username"
           "X-Username": username
         }
       });
@@ -46,6 +42,24 @@ const Profile = () => {
     } catch (err) {
       console.error("Error fetching profile:", err);
       setStatus("❌ Server error");
+    }
+  };
+
+  const fetchGameHistory = async () => {
+    try {
+      const res = await fetch(`${API_URL}/games/history?username=${username}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "X-Username": username
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setGameHistory(data.games || []);
+      }
+    } catch (err) {
+      console.error("Error fetching game history:", err);
     }
   };
 
@@ -67,8 +81,6 @@ const Profile = () => {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,
-          // no "Content-Type" here because we're sending multipart/form-data
-          // or if your server doesn't require token, remove it
           "X-Username": username
         },
         body: formData
@@ -78,7 +90,6 @@ const Profile = () => {
         setStatus(`❌ ${data.error || "Upload failed"}`);
       } else {
         setStatus("✅ " + data.message);
-        // re-fetch the profile to see updated base64
         fetchProfile();
       }
     } catch (err) {
@@ -87,55 +98,122 @@ const Profile = () => {
     }
   };
 
-  // Build data URL if we have base64
-  // Typically images are .png or .jpeg
-  // We'll guess "image/png" for demonstration. If you want correct type,
-  // store user.profile_pic_mime in DB as well
   const getDataUrl = () => {
     if (!profileData?.profile_pic_base64) return null;
     return `data:image/png;base64,${profileData.profile_pic_base64}`;
   };
 
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
     <Layout>
       <div className="profile-container">
-        <h2>My Profile</h2>
-        {status && <p className="status-message">{status}</p>}
+        <div className="profile-header">
+          <h1 className="profile-title">🌟 My Awesome Profile 🌟</h1>
+          {status && <p className={`status-message ${status.includes('❌') ? 'error' : 'success'}`}>{status}</p>}
+        </div>
 
-        {profileData && (
-          <div className="profile-data">
-            <div className="profile-item">
-              <strong>Username:</strong> {profileData.username}
-            </div>
-            <div className="profile-item">
-              <strong>Email:</strong> {profileData.email}
-            </div>
-            <div className="profile-item">
-              <strong>Base64 Picture:</strong>
-              {profileData.profile_pic_base64
-                ? <span> (length: {profileData.profile_pic_base64.length} chars)</span>
-                : <span> None</span>
-              }
+        <div className="profile-tabs">
+          <button 
+            className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+            onClick={() => setActiveTab('profile')}
+          >
+            👤 My Profile
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'games' ? 'active' : ''}`}
+            onClick={() => setActiveTab('games')}
+          >
+            🎮 Game History
+          </button>
+        </div>
+
+        {activeTab === 'profile' && profileData && (
+          <div className="profile-content">
+            <div className="profile-card">
+              <div className="profile-pic-container">
+                {profileData.profile_pic_base64 ? (
+                  <img
+                    src={getDataUrl()}
+                    alt="Profile"
+                    className="profile-pic"
+                  />
+                ) : (
+                  <div className="default-profile-pic">👾</div>
+                )}
+              </div>
+
+              <div className="profile-info">
+                <div className="profile-item">
+                  <span className="profile-label">🦸 Username:</span>
+                  <span className="profile-value">{profileData.username}</span>
+                </div>
+                <div className="profile-item">
+                  <span className="profile-label">📧 Email:</span>
+                  <span className="profile-value">{profileData.email}</span>
+                </div>
+                <div className="profile-item">
+                  <span className="profile-label">🤝 Friends:</span>
+                  <span className="profile-value">{profileData.friend_count || 0}</span>
+                </div>
+                <div className="profile-item">
+                  <span className="profile-label">🏆 Games Won:</span>
+                  <span className="profile-value">{profileData.games_won || 0}</span>
+                </div>
+                <div className="profile-item">
+                  <span className="profile-label">🎮 Games Played:</span>
+                  <span className="profile-value">{profileData.games_played || 0}</span>
+                </div>
+              </div>
             </div>
 
-            {/* Display the pic if we have base64 */}
-            {profileData.profile_pic_base64 && (
-              <div className="profile-pic">
-                <img
-                  src={getDataUrl()}
-                  alt="Profile"
-                  style={{ width: "120px", height: "120px", borderRadius: "50%" }}
-                />
+            <div className="upload-section">
+              <h3 className="upload-title">🖼️ Update My Picture</h3>
+              <div className="upload-controls">
+                <label className="file-upload-button">
+                  📁 Choose File
+                  <input type="file" onChange={handleFileChange} className="file-input" />
+                </label>
+                <button onClick={handleUpload} className="upload-button">
+                  🚀 Upload
+                </button>
+              </div>
+              {selectedFile && (
+                <p className="file-selected">Selected: {selectedFile.name}</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'games' && (
+          <div className="game-history">
+            <h3 className="history-title">⏳ My Game Adventures</h3>
+            {gameHistory.length === 0 ? (
+              <p className="no-games">No games played yet. Let's play one!</p>
+            ) : (
+              <div className="games-list">
+                {gameHistory.map((game, index) => (
+                  <div key={index} className={`game-card ${game.winner === username ? 'won' : ''}`}>
+                    <div className="game-header">
+                      <span className="game-date">{formatDate(game.created_at)}</span>
+                      {game.winner === username && (
+                        <span className="winner-badge">🏆 Winner!</span>
+                      )}
+                    </div>
+                    <div className="game-details">
+                      <span className="game-room">🏠 Room: {game.room_name}</span>
+                      <span className="game-players">👥 Players: {game.players.join(', ')}</span>
+                      <span className="game-score">🎯 Your Score: {game.scores[username] || 0}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
         )}
-
-        <div className="upload-section">
-          <h4>Upload New Picture</h4>
-          <input type="file" onChange={handleFileChange} />
-          <button onClick={handleUpload}>Upload</button>
-        </div>
       </div>
     </Layout>
   );

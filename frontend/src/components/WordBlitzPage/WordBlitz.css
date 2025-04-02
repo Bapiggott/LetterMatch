@@ -439,6 +439,7 @@
     background-color: #f8f9fa;
     border-radius: 8px;
     font-size: 1.1rem;
+    color: #4a90e2;
   }
   
   .start-game-btn {
@@ -587,6 +588,7 @@
     outline: none;
     transition: all 0.3s;
     background-color: #f8f9fa;
+    color: #333;
   }
   
   .word-input:focus {
