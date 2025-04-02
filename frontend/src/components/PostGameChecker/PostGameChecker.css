@@ -1,0 +1,240 @@
+.postgame-checker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.7);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+.postgame-checker-modal {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  width: 750px;
+  max-width: 90%;
+  padding: 25px;
+  border-radius: 15px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border: 3px solid #4a90e2;
+}
+
+.checker-title {
+  color: #4a90e2;
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.close-button {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  border: none;
+  background: #ff6b6b;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.close-button:hover {
+  background: #ff4757;
+  transform: scale(1.1);
+}
+
+.checker-table {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.checker-row {
+  border: 2px solid #ddd;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.checker-row:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.correct-answer {
+  border-left: 5px solid #2ecc71;
+  background-color: rgba(46, 204, 113, 0.05);
+}
+
+.incorrect-answer {
+  border-left: 5px solid #e74c3c;
+  background-color: rgba(231, 76, 60, 0.05);
+}
+
+.player-info, .question-info, .answer-info {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.player-label, .question-label, .answer-label, .ai-label, .final-label {
+  font-weight: bold;
+  color: #4a90e2;
+}
+
+.player-name {
+  color: #e67e22;
+  font-weight: bold;
+}
+
+.ai-feedback {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 3px solid #9b59b6;
+}
+
+.ai-judgement {
+  margin-bottom: 5px;
+}
+
+.ai-explanation {
+  font-style: italic;
+  color: #555;
+}
+
+.correct-text {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.incorrect-text {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.final-judgement {
+  margin: 10px 0;
+  padding: 8px;
+  background-color: #f1f8e9;
+  border-radius: 8px;
+  font-size: 1.1rem;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.action-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ai-check-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.ai-check-btn:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.vote-btn {
+  background-color: #9b59b6;
+  color: white;
+}
+
+.vote-btn:hover {
+  background-color: #8e44ad;
+  transform: scale(1.05);
+}
+
+.override-correct-btn {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.override-correct-btn:hover {
+  background-color: #27ae60;
+  transform: scale(1.05);
+}
+
+.override-incorrect-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.override-incorrect-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.vote-pending {
+  color: #f39c12;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.close-checker-btn {
+  margin-top: 20px;
+  padding: 12px 25px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.close-checker-btn:hover {
+  background-color: #357abd;
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  margin: 10px 0;
+  font-weight: bold;
+  border: 1px dashed #e74c3c;
+}

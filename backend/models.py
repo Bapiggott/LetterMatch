@@ -99,3 +99,43 @@ class Message(db.Model):
     sender_id = db.Column(db.Integer, nullable=False)
     message_body = db.Column(db.String, nullable=False)
     read = db.Column(db.Boolean, default=False)
+
+class Answer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    question_id = db.Column(db.Integer, nullable=True)  
+    # Depending on your usage, you might or might not always have an associated question_id.
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+
+    # The raw answer text submitted by the user:
+    answer_text = db.Column(db.String, nullable=False)
+
+    # The result from the AI (the entire explanation or short "yes/no" text).
+    ai_result = db.Column(db.Text, nullable=True)
+    # Whether the AI concluded it's correct or incorrect:
+    ai_correct = db.Column(db.Boolean, default=None)
+    explanation = db.Column(db.Text, nullable=True)
+
+    # If a player requests a vote:
+    vote_requested = db.Column(db.Boolean, default=False)
+    # You could also store vote counts or other voting mechanism details here
+    vote_yes = db.Column(db.Integer, default=0)
+    vote_no = db.Column(db.Integer, default=0)
+    # Admin override fields:
+    admin_override = db.Column(db.Boolean, default=False)
+    override_value = db.Column(db.Boolean, default=None)
+    # e.g. override_value = True means “admin says it's definitely correct.”
+
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AnswerVote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answer.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    vote_value = db.Column(db.String, nullable=False)  # "yes" or "no"
+    
+    # Optionally, ensure uniqueness so a user can’t vote more than once
+    __table_args__ = (
+        db.UniqueConstraint('answer_id', 'user_id', name='uniq_answer_user_vote'),
+    )

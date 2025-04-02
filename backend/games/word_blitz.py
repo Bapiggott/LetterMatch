@@ -273,26 +273,120 @@ def submit_answer():
     # Validate if the word starts with the assigned letter
     if not submitted_word or submitted_word[0].upper() != gqb.letter.upper():
         return jsonify({"error": f"Answer must start with '{gqb.letter}'"}), 400
+    
+    letters = GameQuestionBlitz.query.filter_by(game_id=game.id, question_id=question_id).first()
+    if not letters:
+        return jsonify({"error": "Invalid question"}), 400
+    if letters.letter != submitted_word[0].upper():
+       print(f"Answer must start with '{letters.letter}'")
+       word_correct = False
+    else:
+        word_correct = True
+        player.score += 10
+    
 
     # Record the word in Word_blitz
     new_word = Word(
         word=submitted_word,
         game_id=game.id,
         username=username,
-        question_id=question_id
+        question_id=question_id,
+        word_correct=word_correct
     )
     db.session.add(new_word)
 
     # Simple scoring: +10 points
-    player.score += 10
     db.session.commit()
 
     return jsonify({"message": "Answer accepted", "new_score": player.score}), 200
 
-
 @word_blitz_bp.route("/submit_all", methods=["POST"])
 def submit_all_answers():
     """
+    Handles bulk submission of answers.
+    Expected JSON format:
+    {
+      "room": "RoomName",
+      "username": "Username",
+      "answers": {
+          "question_id1": "response1",
+          "question_id2": "response2",
+          ...
+      }
+    }
+    """
+    try:
+        data = request.get_json()
+        #print(f"Data: {data}")
+        if not data:
+            return jsonify({"error": "Invalid request format"}), 400
+
+        room = data.get('room')
+        username = data.get('username')
+        answers = data.get('answers', {})
+        #print(f"Answers: {answers}")
+
+        if not room or not username or not isinstance(answers, dict):
+            return jsonify({"error": "Missing or invalid fields"}), 400
+
+        game = Game.query.filter_by(room=room).first()
+        if not game:
+            return jsonify({"error": "Room does not exist"}), 404
+
+        if not game.started:
+            return jsonify({"error": "Game not started yet"}), 400
+
+        # Check if time limit is exceeded
+        elapsed = (datetime.utcnow() - game.start_time).total_seconds() if game.start_time else 0
+        if elapsed > game.time_limit:
+            return jsonify({"error": "Time is up"}), 400
+
+        # Verify player exists
+        player = Player.query.filter_by(game_id=game.id, username=username).first()
+        if not player:
+            return jsonify({"error": "You are not in this game"}), 403
+
+        results = {}
+        for qid, word in answers.items():
+            #print(f"Processing: {qid} => {word}")
+            word = word.strip()
+
+            gqb = GameQuestionBlitz.query.filter_by(game_id=game.id, question_id=qid).first()
+            if not gqb:
+                results[qid] = {"word": word, "status": "❌ Invalid question"}
+                print(f"Invalid question: {qid}")
+                continue
+
+            # Validate word starts with the required letter
+            """if not word or word[0].upper() != gqb.letter.upper():
+                results[qid] = {"word": word, "status": f"❌ Must start with {gqb.letter}"}
+                print(f"Invalid word: {word}")
+                continue"""
+
+            # Save the valid answer
+            new_word = Word(
+                word=word,
+                game_id=game.id,
+                username=username,
+                question_id=qid
+            )
+            db.session.add(new_word)
+
+            # Update score
+            player.score += 10
+            results[qid] = {"word": word, "status": "✅ Accepted"}
+            #print(f"Accepted: {word}")
+
+        db.session.commit()
+        return jsonify({"message": "All answers submitted!", "results": results, "score": player.score}), 200
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return jsonify({"error": "Server error"}), 500
+"""
+@word_blitz_bp.route("/submit_all", methods=["POST"])
+def submit_all_answers():
+    '''
     If your UI collects all answers at once, do it in bulk.
     {
       "room": "MyOnlineRoom",
@@ -303,9 +397,10 @@ def submit_all_answers():
           ...
       }
     }
-    """
+    '''
     try:
         data = request.get_json()
+        print(data)
         room = data.get('room')
         username = data.get('username')
         answers = data.get('answers', {})
@@ -357,8 +452,7 @@ def submit_all_answers():
 
     except Exception as e:
         print(e)
-        return jsonify({"error": "Server error"}), 500
-
+        return jsonify({"error": "Server error"}), 500"""
 
 @word_blitz_bp.route("/add_questions", methods=["POST"])
 def add_questions():
@@ -435,3 +529,187 @@ def add_questions1():
 
     except Exception as e:
         return jsonify({"error": "Server error"}), 500
+""'''# word_blitz_bp.py (or somewhere else)
+@word_blitz_bp.route("/all_answers", methods=["GET"])
+def get_all_answers():
+    """
+    Return all Word_blitz rows for a given game, 
+    along with question prompt if needed.
+    Expects:
+      GET /word_blitz/all_answers?room=MyOnlineRoom
+    """
+    room = request.args.get("room")
+    game = Game.query.filter_by(room=room).first()
+    if not game:
+        #print("Game not found")
+        return jsonify({"error": "Game not found"}), 404
+
+    # Join Word_blitz with the question prompt
+    # (You have `question_id` referencing `Question_blitz.id`).
+    from models import Word_blitz, Question_blitz
+
+    all_words = db.session.query(Word_blitz, Question_blitz).join(
+        Question_blitz, Word_blitz.question_id == Question_blitz.id
+    ).filter(Word_blitz.game_id == game.id).all()
+
+    results = []
+    #print(all_words)
+    for (w, q) in all_words:
+        print(w, q)
+        results.append({
+            "id": w.id,
+            "username": w.username,
+            "questionId": w.question_id,
+            "questionPrompt": q.prompt,
+            "word": w.word,
+            # you might also include w.word_correct or any other fields
+        })
+        #print(results)
+    return jsonify({"answers": results}), 200'''""
+
+'''@word_blitz_bp.route("/all_answers", methods=["GET"])
+def get_all_answers():
+    """
+    Return all Word_blitz rows for a given game_id,
+    plus the question prompt if needed.
+
+    Expects:
+      GET /word_blitz/all_answers?game_id=123
+    """
+    game_id = request.args.get("game_id", type=int)
+    if not game_id:
+        return jsonify({"error": "Missing game_id parameter"}), 400
+
+    game = Game.query.get(game_id)
+    if not game:
+        return jsonify({"error": f"Game {game_id} not found"}), 404
+
+    from models import Word_blitz, Question_blitz
+
+    # Now just query by game_id
+    all_words = (
+        db.session.query(Word_blitz, Question_blitz)
+        .join(Question_blitz, Word_blitz.question_id == Question_blitz.id)
+        .filter(Word_blitz.game_id == game.id)
+        .all()
+    )
+
+    results = []
+    for (w, q) in all_words:
+        results.append({
+            "id": w.id,
+            "username": w.username,
+            "questionId": w.question_id,
+            "questionPrompt": q.prompt,
+            "word": w.word,
+            "word_correct": w.word_correct,
+        })
+
+    return jsonify({"answers": results}), 200'''
+@word_blitz_bp.route("/all_answers", methods=["GET"])
+def get_all_answers():
+    """
+    Return all Word_blitz rows for a given game_id,
+    plus question prompt and the *latest* matching Answer row
+    (which has AI correctness, votes, etc.).
+    """
+    from sqlalchemy import and_, func
+    from models import Game, Word_blitz, Question_blitz, Answer, User
+
+    game_id = request.args.get("game_id", type=int)
+    if not game_id:
+        return jsonify({"error": "Missing game_id"}), 400
+
+    game = Game.query.get(game_id)
+    if not game:
+        return jsonify({"error": f"Game {game_id} not found"}), 404
+
+    # Subquery: For each (game_id, question_id, user_id) in the Answer table,
+    # find the row with the largest "id".
+    latest_answers_subq = (
+        db.session.query(
+            Answer.game_id.label("sub_game_id"),
+            Answer.question_id.label("sub_question_id"),
+            Answer.user_id.label("sub_user_id"),
+            func.max(Answer.id).label("max_answer_id")
+        )
+        .group_by(Answer.game_id, Answer.question_id, Answer.user_id)
+        .subquery()
+    )
+
+    # Now join Word_blitz -> Question_blitz -> User -> subquery -> Answer
+    results_data = (
+        db.session.query(
+            Word_blitz,
+            Question_blitz,
+            Answer
+        )
+        .join(
+            Question_blitz,
+            Word_blitz.question_id == Question_blitz.id
+        )
+        .join(
+            User,
+            Word_blitz.username == User.username
+        )
+        # Join our subquery on (game_id, question_id, user_id)
+        .outerjoin(
+            latest_answers_subq,
+            and_(
+                Word_blitz.game_id == latest_answers_subq.c.sub_game_id,
+                Word_blitz.question_id == latest_answers_subq.c.sub_question_id,
+                User.id == latest_answers_subq.c.sub_user_id
+            )
+        )
+        # Then join the actual Answer table on Answer.id == subquery.max_answer_id
+        # (If subquery is None, a is None)
+        .outerjoin(
+            Answer,
+            Answer.id == latest_answers_subq.c.max_answer_id
+        )
+        .filter(Word_blitz.game_id == game_id)
+        .all()
+    )
+
+    final = []
+    for (w, q, a) in results_data:
+        # 'a' might be None if there's no matching Answer
+        if a:
+            ai_correct = a.ai_correct
+            ai_result = a.ai_result
+            vote_requested = a.vote_requested
+            vote_yes = a.vote_yes
+            vote_no = a.vote_no
+            admin_override = a.admin_override
+            override_value = a.override_value
+            answer_id = a.id
+        else:
+            ai_correct = None
+            ai_result = None
+            vote_requested = False
+            vote_yes = 0
+            vote_no = 0
+            admin_override = False
+            override_value = None
+            answer_id = None
+
+        final.append({
+            "id": w.id,
+            "username": w.username,
+            "questionId": w.question_id,
+            "questionPrompt": q.prompt,
+            "word": w.word,
+            "word_correct": w.word_correct,
+
+            # The single "latest" Answer row for this user+question+game
+            "answerId": answer_id,
+            "aiCorrect": ai_correct,
+            "aiResult": ai_result,
+            "voteRequested": vote_requested,
+            "voteYes": vote_yes,
+            "voteNo": vote_no,
+            "adminOverride": admin_override,
+            "overrideValue": override_value,
+        })
+
+    return jsonify({"answers": final}), 200
