@@ -141,7 +141,7 @@ const Friends = () => {
           {friends.length > 0 ? (
             friends.map((friend, index) => (
               <li key={index}>
-                {friend}{" "}
+                <span className='friend-username'>{friend}{" "}</span>
                 <button onClick={() => createChat(friend)}>Chat</button>
                 <button onClick={() => handleViewProfile(friend)}>View Profile</button>
               </li>
