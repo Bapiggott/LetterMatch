@@ -13,6 +13,7 @@ import GamesPage from './components/GamesPage/GamesPage';
 import PrivateRoute from './PrivateRoute';
 import SettingsPage from './components/SettingsPage/SettingsPage';
 import { ContextProvider } from './ContextProvider';
+import 'boxicons'
 
 // Letter match routes
 import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
@@ -20,7 +21,6 @@ import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
 // import LM_onlineMode from './components/LetterMatchPage/LM_onlineMode';
 
 
-import 'boxicons'
 
 
 

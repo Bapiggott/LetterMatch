@@ -405,9 +405,11 @@ header .call-to-action-div box-icon {
   width: 95px;
   overflow: hidden;
   white-space: nowrap;
+  color: rgba(0, 0, 0, 0.78);
 }
 .all-chats-view .chat-li .username{
   font-weight: 600;
+  color: rgba(0, 0, 0, 0.9);
 }
 .all-chats-view .chat-li > div {
   display: flex;
