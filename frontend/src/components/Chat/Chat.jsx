@@ -105,7 +105,7 @@ const Chat = () => {
                   </li>
                 ))
               ) : (
-                <li>You don't seem to have any active chats.</li>
+                <li style={{ color: 'black' }}>You don't seem to have any active chats.</li>
               )}
                 </ul>
             </div>

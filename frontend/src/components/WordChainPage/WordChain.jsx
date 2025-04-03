@@ -2,49 +2,32 @@ import React, { useState, useEffect, useRef } from "react";
 import "./WordChain.css";
 import Layout from "../Layout/Layout";
 
-// Adjust these to your actual API setup:
 const API_URL = "http://localhost:5000";
 const API_BASE_URL = `${API_URL}/word_chain`;
 
 const WordChain = () => {
-  // Logged-in user (for online)
   const [loggedInUser, setLoggedInUser] = useState("");
-
-  // Current user name used by the server
-  // - In "online" mode, we auto-assign it from `loggedInUser`
-  // - In "local" mode, we let the user type it in
   const [currentUser, setCurrentUser] = useState("");
-
-  // Basic states
   const [room, setRoom] = useState("");
   const [players, setPlayers] = useState([]);
   const [wordChain, setWordChain] = useState([]);
   const [status, setStatus] = useState("");
-  const [gameMode, setGameMode] = useState(""); // "local" or "online"
+  const [gameMode, setGameMode] = useState("");
   const [localPlayers, setLocalPlayers] = useState([]);
   const [newLocalPlayer, setNewLocalPlayer] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ========================
-  //   Local Turn-based State
-  // ========================
-  const [inLocalGame, setInLocalGame] = useState(false);   // Are we playing turn-based locally?
-  const [turnPlayers, setTurnPlayers] = useState([]);       // Which local players are still alive
-  const [currentTurnIndex, setCurrentTurnIndex] = useState(0); // Whose turn is it? Index in turnPlayers
-
-  // Timer-related state (for local & online)
+  // Local game state
+  const [inLocalGame, setInLocalGame] = useState(false);
+  const [turnPlayers, setTurnPlayers] = useState([]);
+  const [currentTurnIndex, setCurrentTurnIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(30);
-  const timerRef = useRef(null); // so we can clear it or handle timeouts in local mode
+  const timerRef = useRef(null);
 
-  // =========================================================================
-  // 1. On mount, fetch the logged-in user from localStorage token
-  // =========================================================================
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        return; // Not logged in => fine for local
-      }
+      if (!token) return;
       try {
         const response = await fetch(`${API_URL}/auth/me`, {
           method: "GET",
@@ -52,7 +35,7 @@ const WordChain = () => {
         });
         if (response.ok) {
           const data = await response.json();
-          setLoggedInUser(data.username); // e.g. {username: "Alice"}
+          setLoggedInUser(data.username);
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -61,19 +44,14 @@ const WordChain = () => {
     fetchUser();
   }, []);
 
-  // Whenever 'gameMode' changes
   useEffect(() => {
     if (gameMode === "online") {
       setCurrentUser(loggedInUser || "");
     } else {
-      // local mode
       setCurrentUser("");
     }
   }, [gameMode, loggedInUser]);
 
-  // =========================================================================
-  // 2. Fetch Game State: GET /word_chain/get_state?room=...
-  // =========================================================================
   const fetchGameState = async (targetRoom) => {
     try {
       const res = await fetch(`${API_BASE_URL}/get_state?room=${targetRoom}`);
@@ -91,15 +69,12 @@ const WordChain = () => {
     }
   };
 
-  // Whenever 'room' changes (or is set), fetch current state:
   useEffect(() => {
     if (room) {
       fetchGameState(room);
     }
   }, [room]);
 
-  // Determine if current user is admin (server logic: first joined = admin).
-  // We'll do a simple check: if the currentUser name matches players[0], we assume admin.
   useEffect(() => {
     if (players.length > 0 && currentUser) {
       setIsAdmin(players[0] === currentUser);
@@ -108,9 +83,6 @@ const WordChain = () => {
     }
   }, [players, currentUser]);
 
-  // =========================================================================
-  // 3. CREATE GAME
-  // =========================================================================
   const createGame = async () => {
     if (!room) {
       setStatus("❌ Please enter a room name!");
@@ -128,7 +100,6 @@ const WordChain = () => {
         setStatus(`❌ ${data.error}`);
       } else {
         setStatus(`✅ ${data.message}`);
-        // Clear players, chain, etc., and refetch
         setPlayers([]);
         setWordChain([]);
         fetchGameState(room);
@@ -139,9 +110,6 @@ const WordChain = () => {
     }
   };
 
-  // =========================================================================
-  // 4. JOIN GAME
-  // =========================================================================
   const joinGame = async () => {
     if (!room) {
       setStatus("❌ Please enter a room name!");
@@ -149,13 +117,11 @@ const WordChain = () => {
     }
 
     if (gameMode === "online") {
-      // In online mode, we rely on `loggedInUser`.
       if (!loggedInUser) {
         setStatus("❌ You must be logged in (token) to join an online game!");
         return;
       }
     } else {
-      // local mode => use `currentUser` from input
       if (!currentUser) {
         setStatus("❌ Please enter a username!");
         return;
@@ -183,9 +149,6 @@ const WordChain = () => {
     }
   };
 
-  // =========================================================================
-  // 5. SUBMIT WORD
-  // =========================================================================
   const submitWord = async () => {
     const wordInput = document.getElementById("wordInput");
     const word = (wordInput.value || "").trim();
@@ -202,14 +165,12 @@ const WordChain = () => {
       }
       usernameToUse = loggedInUser;
     } else if (!inLocalGame) {
-      // local, not turn-based => just currentUser
       if (!currentUser) {
         setStatus("❌ Please enter a username first!");
         return;
       }
       usernameToUse = currentUser;
     } else {
-      // local + turn-based => the current turn's player
       if (!turnPlayers.length) {
         setStatus("❌ No local players in the game!");
         return;
@@ -225,20 +186,17 @@ const WordChain = () => {
       });
       const data = await response.json();
       if (data.error) {
-        // The server says invalid word => eliminate the player
         setStatus(`❌ ${data.error}. ${usernameToUse} is eliminated!`);
         eliminateLocalPlayer(usernameToUse);
       } else {
         setStatus(`✅ ${data.message}`);
-        // Clear input
         wordInput.value = "";
-
-        // If local & turn-based => next player's turn
-        if (inLocalGame) {
+        
+        // Only advance turn if in local game and word was successfully submitted
+        if (inLocalGame && !data.error) {
           advanceToNextTurn();
         }
       }
-      // Refresh the game state
       fetchGameState(room);
     } catch (err) {
       console.error(err);
@@ -246,9 +204,6 @@ const WordChain = () => {
     }
   };
 
-  // =========================================================================
-  // 6. LOCAL PLAYERS: Just a list typed by user, not actually used by server
-  // =========================================================================
   const addLocalPlayer = () => {
     if (newLocalPlayer && !localPlayers.includes(newLocalPlayer)) {
       setLocalPlayers([...localPlayers, newLocalPlayer]);
@@ -256,9 +211,6 @@ const WordChain = () => {
     }
   };
 
-  // =========================================================================
-  // 7. TURN-BASED LOCAL GAME LOGIC
-  // =========================================================================
   const startLocalGame = () => {
     if (players.length === 0) {
       setStatus("❌ No one joined the server game yet.");
@@ -266,17 +218,12 @@ const WordChain = () => {
     }
     setStatus("Local turn-based game started!");
     setInLocalGame(true);
-
-    // Copy the joined players from the server
     setTurnPlayers([...players]);
     setCurrentTurnIndex(0);
-
-    // Start a fresh 30s turn
     startLocalTurnTimer(30);
   };
 
   const startLocalTurnTimer = (duration) => {
-    // Clear existing timer
     if (timerRef.current) clearInterval(timerRef.current);
 
     setTimeLeft(duration);
@@ -295,48 +242,37 @@ const WordChain = () => {
   };
 
   const handleLocalTimeOut = () => {
-    // Current player failed to submit => they're eliminated
     const eliminatedPlayer = turnPlayers[currentTurnIndex];
     setStatus(`❌ Time ran out for ${eliminatedPlayer}! Eliminated.`);
-
     eliminateLocalPlayer(eliminatedPlayer);
   };
 
   const eliminateLocalPlayer = (playerName) => {
-    // Remove from turnPlayers
     const updated = turnPlayers.filter((p) => p !== playerName);
 
     if (updated.length <= 1) {
-      // Game ends
       endLocalGame(updated);
       return;
     }
 
     setTurnPlayers(updated);
-
-    // If the eliminated player had an index <= currentTurnIndex,
-    // we might need to adjust the currentTurnIndex so we don't skip the next player
+    
+    // Adjust turn index if needed
     let newIndex = currentTurnIndex;
     if (currentTurnIndex >= updated.length) {
-      newIndex = 0; // wrap around
+      newIndex = 0;
     }
     setCurrentTurnIndex(newIndex);
-
-    // Start next turn
     startLocalTurnTimer(30);
   };
 
   const advanceToNextTurn = () => {
-    let nextIndex = currentTurnIndex + 1;
-    if (nextIndex >= turnPlayers.length) {
-      nextIndex = 0;
-    }
+    let nextIndex = (currentTurnIndex + 1) % turnPlayers.length;
     setCurrentTurnIndex(nextIndex);
     startLocalTurnTimer(30);
   };
 
   const endLocalGame = (remaining) => {
-    // Stop local timer
     if (timerRef.current) clearInterval(timerRef.current);
     setInLocalGame(false);
 
@@ -349,17 +285,12 @@ const WordChain = () => {
     setCurrentTurnIndex(0);
   };
 
-  // =========================================================================
-  // 8. START TIMER for Online
-  // =========================================================================
   const handleStartTimer = async () => {
-    // If local turn-based => we ignore "server timer"
     if (gameMode === "local") {
       setStatus("You are in local turn-based mode. Use 'Start Local Game'.");
       return;
     }
 
-    // Online
     if (!room) {
       setStatus("❌ No room specified!");
       return;
@@ -369,7 +300,7 @@ const WordChain = () => {
       return;
     }
 
-    const duration = 30; // or let the user pick
+    const duration = 30;
     try {
       const response = await fetch(`${API_BASE_URL}/start_timer`, {
         method: "POST",
@@ -385,7 +316,6 @@ const WordChain = () => {
         setStatus(`❌ ${data.error}`);
       } else {
         setStatus(`✅ ${data.message}`);
-        // We'll do a simple local countdown (not turn-based) for online
         if (timerRef.current) clearInterval(timerRef.current);
         setTimeLeft(duration);
 
@@ -412,9 +342,6 @@ const WordChain = () => {
     timerRef.current = null;
   };
 
-  // =========================================================================
-  // 9. KICK PLAYER
-  // =========================================================================
   const kickPlayer = async (playerToKick) => {
     if (!isAdmin) {
       setStatus("❌ Only admin can kick players!");
@@ -447,9 +374,6 @@ const WordChain = () => {
     }
   };
 
-  // =========================================================================
-  // 10. VETO WORD
-  // =========================================================================
   const vetoWord = async (wordToVeto) => {
     if (!isAdmin) {
       setStatus("❌ Only admin can veto words!");
@@ -483,157 +407,199 @@ const WordChain = () => {
     }
   };
 
-  // Current player in local turn-based
   const currentLocalPlayer = inLocalGame && turnPlayers.length > 0
     ? turnPlayers[currentTurnIndex]
     : null;
 
-  // =========================================================================
-  // UI RENDER
-  // =========================================================================
   return (
     <Layout>
-      <div className="word-chain-container">
-        <h1>🔗 Word Chain Game</h1>
-
-        {/* Mode selection */}
-        <div className="mode-selection">
-          <button onClick={() => setGameMode("online")}>Play Online</button>
-          <button onClick={() => setGameMode("local")}>Local Multiplayer</button>
-        </div>
-
-        {gameMode && (
-          <div className="game-setup">
-            <input
-              type="text"
-              placeholder="Enter Room Name"
-              value={room}
-              onChange={(e) => setRoom(e.target.value)}
-            />
-
-            {/* If local, let user type a username. If online, use loggedInUser. */}
-            {gameMode === "local" && (
+      <div className="word-blitz-container">
+        <h1 className="game-title">🌈✨ Word Chain Game ✨🌈</h1>
+  
+        <div className="game-setup-container">
+          <h2 className="setup-title">🎮 Choose Game Mode</h2>
+          <div className="game-type-selector">
+            <label className="game-type-option">
               <input
-                type="text"
-                placeholder="Your Username"
-                value={currentUser}
-                onChange={(e) => setCurrentUser(e.target.value)}
+                type="radio"
+                name="gameMode"
+                checked={gameMode === "online"}
+                onChange={() => setGameMode("online")}
               />
-            )}
-            {gameMode === "online" && (
-              <p style={{ margin: "5px 0" }}>
-                <strong>Online username:</strong>{" "}
-                {loggedInUser || "Not logged in!"}
-              </p>
-            )}
-
-            {gameMode === "local" && (
-              <div style={{ marginTop: "10px" }}>
+              <span className="game-type-label">🌍 Online Play</span>
+            </label>
+            <label className="game-type-option">
+              <input
+                type="radio"
+                name="gameMode"
+                checked={gameMode === "local"}
+                onChange={() => setGameMode("local")}
+              />
+              <span className="game-type-label">🎲 Local Multiplayer</span>
+            </label>
+          </div>
+  
+          {gameMode && (
+            <div className="game-setup">
+              <div className="room-input-container">
                 <input
                   type="text"
-                  placeholder="Enter Another Local Player"
-                  value={newLocalPlayer}
-                  onChange={(e) => setNewLocalPlayer(e.target.value)}
+                  placeholder="🏠 Enter Room Name"
+                  value={room}
+                  onChange={(e) => setRoom(e.target.value)}
+                  className="room-name-input"
                 />
-                <button onClick={addLocalPlayer}>Add Local Player</button>
-                <ul>
-                  {localPlayers.map((p, index) => (
-                    <li key={index}>{p}</li>
-                  ))}
-                </ul>
               </div>
-            )}
-
-            <div className="setup-buttons">
-              <button onClick={createGame}>Create Game</button>
-              <button onClick={joinGame}>Join Game</button>
-            </div>
-
-            {/* Start local turn-based game button */}
-            {gameMode === "local" && !inLocalGame && (
-              <button
-                style={{ marginTop: "10px" }}
-                onClick={startLocalGame}
-              >
-                Start Local Game
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Players list */}
-        <h2>👥 Players in Room:</h2>
-        <ul>
-          {players.map((p, index) => (
-            <li key={index}>
-              {p}
-              {isAdmin && p !== currentUser && p !== loggedInUser && (
-                <button
-                  style={{ marginLeft: "8px" }}
-                  onClick={() => kickPlayer(p)}
-                >
-                  Kick
+  
+              {gameMode === "local" && (
+                <div className="player-name-input-container">
+                  <input
+                    type="text"
+                    placeholder="👤 Your Username"
+                    value={currentUser}
+                    onChange={(e) => setCurrentUser(e.target.value)}
+                    className="player-name-input"
+                  />
+                </div>
+              )}
+              {gameMode === "online" && (
+                <p className="online-username-display">
+                  <span className="online-username-label">🌐 Online username:</span>{" "}
+                  <span className="online-username-value">
+                    {loggedInUser || "Not logged in!"}
+                  </span>
+                </p>
+              )}
+  
+              {gameMode === "local" && (
+                <div className="local-players-section">
+                  <p className="players-title">👥 Add Local Players:</p>
+                  <div className="add-player-container">
+                    <input
+                      type="text"
+                      placeholder="👤 Player Name"
+                      value={newLocalPlayer}
+                      onChange={(e) => setNewLocalPlayer(e.target.value)}
+                      className="player-name-input"
+                    />
+                    <button onClick={addLocalPlayer} className="add-player-btn">
+                      ➕ Add Player
+                    </button>
+                  </div>
+                  <ul className="players-list">
+                    {localPlayers.map((p, index) => (
+                      <li key={index} className="player-item">
+                        👤 {p}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+  
+              <div className="setup-buttons">
+                <button onClick={createGame} className="create-game-btn">
+                  🚀 Create Game
+                </button>
+                <button onClick={joinGame} className="join-game-btn">
+                  🔗 Join Game
+                </button>
+              </div>
+  
+              {gameMode === "local" && !inLocalGame && (
+                <button onClick={startLocalGame} className="start-game-btn">
+                  🏁 Start Local Game
                 </button>
               )}
-            </li>
-          ))}
-        </ul>
-        {isAdmin && <p>You are the admin.</p>}
-
-        {/* If local turn-based game is active, show whose turn & countdown */}
-        {inLocalGame && turnPlayers.length > 0 && (
-          <div style={{ margin: "10px 0" }}>
-            <h3>Local Turn-Based Game</h3>
-            <p>
-              Current Turn: {currentLocalPlayer} 
-              {"  "}({timeLeft}s left)
-            </p>
-            <p>Active Players: {turnPlayers.join(", ")}</p>
+            </div>
+          )}
+        </div>
+  
+        {players.length > 0 && (
+          <div className="waiting-room-container">
+            <h2 className="waiting-title">👥 Players in Room</h2>
+            <ul className="players-list">
+              {players.map((p, index) => (
+                <li key={index} className="player-item">
+                  👤 {p}
+                  {isAdmin && p !== currentUser && p !== loggedInUser && (
+                    <button
+                      onClick={() => kickPlayer(p)}
+                      className="kick-player-btn"
+                    >
+                      🚫 Kick
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+            {isAdmin && <p className="admin-label">⭐ You are the admin</p>}
           </div>
         )}
-
-        {/* Timer controls for online mode only */}
+  
+        {inLocalGame && turnPlayers.length > 0 && (
+          <div className="game-play-container">
+            <h3 className="current-player-info">
+              🎮 <span className="current-player">{currentLocalPlayer}</span>'s turn! 
+              ⏱️ <span className="time-left">{timeLeft}</span> seconds left
+            </h3>
+            <p className="active-players">Active Players: {turnPlayers.join(", ")}</p>
+          </div>
+        )}
+  
         {gameMode === "online" && (
-          <div className="timer-section">
-            <h3>⏱ Timer: {timeLeft}s</h3>
+          <div className="game-play-container">
+            <h3 className="timer-display">⏱ Timer: {timeLeft}s</h3>
             {isAdmin && (
-              <>
-                <button onClick={handleStartTimer}>Start Timer</button>
-                <button onClick={stopTimer}>Stop Timer</button>
-              </>
+              <div className="timer-controls">
+                <button onClick={handleStartTimer} className="timer-btn">
+                  ▶ Start Timer
+                </button>
+                <button onClick={stopTimer} className="timer-btn">
+                  ⏹ Stop Timer
+                </button>
+              </div>
             )}
           </div>
         )}
-
-        {/* Word chain UI */}
-        <h2>🔗 Word Chain:</h2>
-        {wordChain.length > 0 ? (
-          <ul>
-            {wordChain.map((w, index) => (
-              <li key={index}>
-                {w}
-                {isAdmin && (
-                  <button
-                    style={{ marginLeft: "8px" }}
-                    onClick={() => vetoWord(w)}
-                  >
-                    Veto
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No words yet. Submit one below!</p>
-        )}
-
-        {/* Submit a new word */}
-        <div className="submit-word">
-          <input type="text" placeholder="Enter a word" id="wordInput" />
-          <button onClick={submitWord}>Submit</button>
+  
+        <div className="game-play-container">
+          <h2 className="word-chain-title">🔗 Word Chain</h2>
+          {wordChain.length > 0 ? (
+            <ul className="word-chain-list">
+              {wordChain.map((w, index) => (
+                <li key={index} className="word-chain-item">
+                  {w}
+                  {isAdmin && (
+                    <button
+                      onClick={() => vetoWord(w)}
+                      className="veto-btn"
+                    >
+                      ❌ Veto
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="no-words-message">No words yet. Be the first to submit one!</p>
+          )}
+  
+          <div className="submit-word-container">
+            <input 
+              type="text" 
+              placeholder="✨ Enter a word" 
+              className="word-input" 
+              id="wordInput" 
+            />
+            <button onClick={submitWord} className="submit-word-btn">
+              🚀 Submit
+            </button>
+          </div>
         </div>
-
-        <p className="status-message">{status}</p>
+  
+        <p className={`status-message ${status.includes('Error') ? 'error' : ''}`}>
+          {status}
+        </p>
       </div>
     </Layout>
   );
