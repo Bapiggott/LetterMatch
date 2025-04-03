@@ -1,0 +1,210 @@
+
+
+/* Container for all the games - desktop mode */
+.all-games-div {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 50px 0;
+    flex-wrap: wrap;
+    background-image: url("/images/notebookSeniorProj.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    flex-wrap: wrap;
+    
+   
+    
+}
+
+
+/* flip card container */
+.flip-card {
+    width: 500px; 
+    height: 500px;
+    perspective: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border-radius: 3px;
+}
+
+/* inside - flip card */
+.flip-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s;
+}
+
+/* hover and flip */
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* card - front and back */
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 7px;
+    box-shadow: -3px 3px 7px rgba(34, 14, 185, 0.816);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--header-text-color);
+}
+
+/* front side */
+.flip-card-front {
+    background-color: var(--header-bg-color);
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    /*background-image: url("images/letterMatch_coverImg.png");*/
+   
+}
+
+/* img at front */
+.flip-card-front img {
+   display: none;
+}
+
+/* text style for front */
+.flip-card-front h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 2rem;
+    font-family: 'Comic Sans Ms', serif; 
+}
+
+h1 {
+    font-family: 'Comic Sans Ms', serif; 
+}
+
+
+/* back side */
+.flip-card-back {
+    background-color: var(--header-bg-color);
+    transform: rotateY(180deg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+   
+}
+
+/* button style */
+.btn-div {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.game-image-div h2 {
+    text-align: left;
+}
+
+/* tablets */
+@media screen and (max-width: 1200px) {
+    .all-games-div {
+        flex-direction: column;
+        background-size: 100%; 
+         background-repeat: repeat;
+    }
+
+}
+
+/* last two for smaller screens - mobile 1 col */
+@media screen and (max-width: 768px) {
+    .all-games-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-size: 100%; 
+        background-repeat: repeat;
+    }
+
+    .flip-card {
+        width: 90%;
+        max-width: 350px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .flip-card {
+        width: 100%;
+        max-width: 320px;
+
+    }
+}
+
+
+.all-games-div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    background-size: 100%; 
+    background-repeat: repeat;
+    
+
+    
+}
+
+
+
+.letter-match-div, .word-blitz-div , .word-chain-div{
+
+    background-color: var(--header-bg-color);
+}
+
+.game-image-div{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    border-radius: 3px;
+
+}
+
+.game-image-div * {
+    z-index: 2;
+}
+
+/* removing bullet points on list */
+.compact-list {
+    list-style-type: none;  
+    padding: 0;             
+    margin: 0;             
+}
+
+.compact-list li {
+    display: flex;
+    align-items: center;    
+    margin-bottom: 10px;     
+}
+
