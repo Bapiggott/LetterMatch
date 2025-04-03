@@ -61,6 +61,7 @@
     align-items: center;
     justify-content: center;
     color: var(--header-text-color);
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
 }
 
 /* front side */
@@ -88,11 +89,11 @@
     transform: translate(-50%, -50%);
     color: white;
     font-size: 2rem;
-    font-family: 'Comic Sans Ms', serif; 
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
 }
 
 h1 {
-    font-family: 'Comic Sans Ms', serif; 
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
 }
 
 
@@ -109,6 +110,7 @@ h1 {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
    
 }
 
@@ -206,6 +208,11 @@ h1 {
     display: flex;
     align-items: center;    
     margin-bottom: 10px;     
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
+}
+
+p {
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
 }
 
 
