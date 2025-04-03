@@ -4,22 +4,16 @@ import './Friends.css';
 import { API_URL } from '../../config';
 import LocalStorageUtils from '../../LocalStorageUtils';
 import { useAppContext } from "../../ContextProvider";
-
+import defaultProfilePic from '../../assets/Default_pfp.jpg';
 
 const Friends = () => {
-
-    const { 
-        createChat
-    } = useAppContext();
-
+  const { createChat, setIsChatMenuOpen } = useAppContext();
   const token = LocalStorageUtils.getToken();
   const username = LocalStorageUtils.getUsername();
 
   const [friendUsername, setFriendUsername] = useState("");
   const [friendMessage, setFriendMessage] = useState("");
   const [friends, setFriends] = useState([]);
-
-  // For viewing a friend’s profile in a modal
   const [selectedProfile, setSelectedProfile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -27,7 +21,6 @@ const Friends = () => {
     fetchFriends();
   }, []);
 
-  // 1) Fetch friend list
   const fetchFriends = async () => {
     try {
       const response = await fetch(`${API_URL}/friends/get-all`, {
@@ -48,7 +41,6 @@ const Friends = () => {
     }
   };
 
-  // 2) Add/Remove friend
   const handleFriendAction = async (event, action) => {
     event.preventDefault();
     if (!token) {
@@ -72,7 +64,7 @@ const Friends = () => {
       const data = await response.json();
       if (response.ok) {
         setFriendMessage(`✅ ${friendUsername} has been ${action}ed successfully!`);
-        fetchFriends(); // Refresh list
+        fetchFriends();
       } else {
         setFriendMessage(`❌ ${data.message || "Failed to update friend list"}`);
       }
@@ -82,7 +74,6 @@ const Friends = () => {
     }
   };
 
-  // 3) View a friend’s profile (opens a modal)
   const handleViewProfile = async (friendName) => {
     try {
       const response = await fetch(`${API_URL}/profile?username=${friendName}`, {
@@ -94,7 +85,6 @@ const Friends = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        // data might have fields like { username, email, friend_count, profile_pic, profile_pic_base64, games_won, games_played }
         setSelectedProfile(data);
         setIsModalOpen(true);
       } else {
@@ -106,109 +96,173 @@ const Friends = () => {
     }
   };
 
+  const handleStartChat = (friendUsername) => {
+    createChat(friendUsername);
+    setIsChatMenuOpen(true);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedProfile(null);
   };
 
-  // Helper to decide which image src to show:
-  // 1) If the friend has a base64 string, show it as data:image/png;base64,... 
-  // 2) Else if they have a normal path in "profile_pic", use that
-  // 3) Else fallback to "/default_profile.png"
   const getFriendPicSrc = (profile) => {
-    if (!profile) return "/default_profile.png";
+    if (!profile) return defaultProfilePic;
 
     if (profile.profile_pic_base64 && profile.profile_pic_base64.trim() !== "") {
-      // they have a base64 stored in the DB
+      if (profile.profile_pic_base64.startsWith('data:image')) {
+        return profile.profile_pic_base64;
+      }
       return `data:image/png;base64,${profile.profile_pic_base64}`;
-    } else if (profile.profile_pic) {
-      // they have a stored path
-      return profile.profile_pic;
-    } else {
-      // no image, use default
-      return "/default_profile.png";
     }
+    
+    if (profile.profile_pic) {
+      if (profile.profile_pic.startsWith('/')) {
+        return `${API_URL}${profile.profile_pic}`;
+      }
+      return profile.profile_pic;
+    }
+
+    return defaultProfilePic;
   };
 
   return (
     <Layout>
-      <h1>Friends</h1>
-
-      {/* Friend list */}
-      <div className="friends-list">
-        <h2>Friends List</h2>
-        <ul>
+      <div className="friends-page">
+        <h1 className="friends-title">🌟 My Friends 🌟</h1>
+        
+        {/* Friends List */}
+        <div className="friends-section">
+          <h2 className="section-title">👥 My Friend Squad</h2>
           {friends.length > 0 ? (
-            friends.map((friend, index) => (
-              <li key={index}>
-                <span className='friend-username'>{friend}{" "}</span>
-                <button onClick={() => createChat(friend)}>Chat</button>
-                <button onClick={() => handleViewProfile(friend)}>View Profile</button>
-              </li>
-            ))
+            <ul className="friends-list">
+              {friends.map((friend, index) => (
+                <li key={index} className="friend-item">
+                  <span className="friend-username">✨ {friend}</span>
+                  <div className="friend-actions">
+                    <button 
+                      className="friend-action-btn chat-btn"
+                      onClick={() => handleStartChat(friend)}
+                    >
+                      💬 Chat
+                    </button>
+                    <button 
+                      className="friend-action-btn profile-btn"
+                      onClick={() => handleViewProfile(friend)}
+                    >
+                      👀 View Profile
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
           ) : (
-            <p>No friends found</p>
+            <p className="no-friends">You don't have any friends yet. Add some below!</p>
           )}
-        </ul>
-      </div>
-
-      {/* If a friend’s profile is selected, show in a modal */}
-      {isModalOpen && selectedProfile && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Profile of {selectedProfile.username}</h3>
-            <p>Email: {selectedProfile.email}</p>
-            <p>Friend Count: {selectedProfile.friend_count}</p>
-
-            {/* Only show the friend’s image if it isn't empty */}
-            <img
-              src={getFriendPicSrc(selectedProfile)}
-              alt="Profile"
-              style={{ width: "100px", height: "100px" }}
-            />
-
-            <p>Games Won: {selectedProfile.games_won}</p>
-            <p>Games Played: {selectedProfile.games_played}</p>
-
-            <button className="close-modal-btn" onClick={closeModal}>
-              Close
-            </button>
-          </div>
         </div>
-      )}
 
-      {/* Manage friends (Add/Remove) */}
-      <div className="friends-container">
-        <h2>Manage Friends</h2>
-        <p className="logged-in-user">
-          Logged in as: <b>{username || "Loading..."}</b>
-        </p>
-        <div className="friends-form">
-          <form>
-            <label htmlFor="friend-name">Enter Friend's Username:</label>
-            <input 
-              id='friend-name' 
-              type="text"
-              name="friendUsername"
-              placeholder="Enter username..."
-              value={friendUsername}
-              onChange={(event) => setFriendUsername(event.target.value)}
-              autocomplete="off"
-            />
-            <div className="button-group">
-              <button onClick={(event) => handleFriendAction(event, "add")}>
-                Add Friend
+        {/* Add/Remove Friends */}
+        <div className="manage-friends-section">
+          <h2 className="section-title">🛠️ Manage Friends</h2>
+          <p className="logged-in-user">
+            Logged in as: <span className="username-highlight">{username || "Loading..."}</span>
+          </p>
+          
+          <form className="friends-form">
+            <div className="form-group">
+              <label htmlFor="friend-name" className="form-label">
+                Enter Friend's Username:
+              </label>
+              <input
+                id="friend-name"
+                type="text"
+                name="friendUsername"
+                placeholder="Type username here..."
+                value={friendUsername}
+                onChange={(event) => setFriendUsername(event.target.value)}
+                autoComplete="off"
+                className="friend-input"
+              />
+            </div>
+            
+            <div className="action-buttons">
+              <button 
+                className="action-btn add-btn"
+                onClick={(event) => handleFriendAction(event, "add")}
+              >
+                ➕ Add Friend
               </button>
               <button 
-                onClick={(event) => handleFriendAction(event, "remove")} 
-                className="remove-btn"
+                className="action-btn remove-btn"
+                onClick={(event) => handleFriendAction(event, "remove")}
               >
-                Remove Friend
+                ➖ Remove Friend
               </button>
             </div>
           </form>
-          {friendMessage && <p className="friend-message">{friendMessage}</p>}
+          
+          {friendMessage && (
+            <p className={`friend-message ${friendMessage.includes('❌') ? 'error' : 'success'}`}>
+              {friendMessage}
+            </p>
+          )}
         </div>
+
+        {/* Friend Profile Modal */}
+        {isModalOpen && selectedProfile && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="close-modal-btn" onClick={closeModal}>
+                ✖
+              </button>
+              
+              <h3 className="profile-modal-title">
+                🎯 {selectedProfile.username}'s Profile
+              </h3>
+              
+              <div className="profile-pic-container">
+                <img
+                  src={getFriendPicSrc(selectedProfile)}
+                  alt="Profile"
+                  className="profile-pic"
+                  onError={(e) => {
+                    e.target.onerror = null; 
+                    e.target.src = defaultProfilePic;
+                  }}
+                />
+              </div>
+              
+              <div className="profile-details">
+                <div className="profile-detail">
+                  <span className="detail-label">📧 Email:</span>
+                  <span className="detail-value">{selectedProfile.email || "Not shared"}</span>
+                </div>
+                <div className="profile-detail">
+                  <span className="detail-label">🤝 Friends:</span>
+                  <span className="detail-value">{selectedProfile.friend_count || 0}</span>
+                </div>
+                <div className="profile-detail">
+                  <span className="detail-label">🏆 Games Won:</span>
+                  <span className="detail-value">{selectedProfile.games_won || 0}</span>
+                </div>
+                <div className="profile-detail">
+                  <span className="detail-label">🎮 Games Played:</span>
+                  <span className="detail-value">{selectedProfile.games_played || 0}</span>
+                </div>
+              </div>
+              <button 
+                className="friend-action-btn chat-btn"
+                style={{ marginTop: '20px', width: '100%' }}
+                onClick={() => {
+                  handleStartChat(selectedProfile.username);
+                  closeModal();
+                }}
+              >
+                💬 Start Chat
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

@@ -20,6 +20,7 @@ export const ContextProvider = ({ children }) => {
 
         useEffect(() => {
             const newSocket = io(API_URL, {
+                transports: ['websocket', 'polling'], // Add 'polling' transport
               auth: {
                 token: LocalStorageUtils.getToken(),
               },

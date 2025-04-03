@@ -8,8 +8,10 @@ eventlet.monkey_patch()"""
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit, join_room, leave_room
 from setup.extensions import db# , socketio  # Import from extensions.py
 from models import User, Friendship  # Import models
+from models import User, Message, Chat, ChatParticipant
 from auth import auth  # Import auth routes
 from games.word_chain import word_chain_bp
 from games.word_blitz import word_blitz_bp
@@ -20,7 +22,7 @@ from setup.seed_data import seed_question_sets # Import seed function
 from profile_user import profile_bp
 import jwt
 from chat import chat_bp, get_active_chat_details, get_all_active_chat_details_as_array
-
+from utils.auth_utils import get_user_from_token
 
 
 app = Flask(__name__)
@@ -34,7 +36,8 @@ CORS(app)
 db.init_app(app)
 migrate = Migrate(app, db)
 #socketio.init_app(app)
-
+#added
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 # Register Blueprints
 app.register_blueprint(auth, url_prefix="/auth")
@@ -80,10 +83,10 @@ with app.app_context():
 # Chat Websockets
 # to be moved later
 
-from flask_socketio import SocketIO, emit, join_room, leave_room
+"""from flask_socketio import SocketIO, emit, join_room, leave_room
 from models import User, Message, Chat, ChatParticipant
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet") 
-from utils.auth_utils import get_user_from_req
+from utils.auth_utils import get_user_from_req"""
 
 
 username_to_sid = {} 
@@ -231,4 +234,7 @@ def join_chat_rooms(data):
 
 
 if __name__ == "__main__": 
+    with app.app_context():
+        db.create_all()
+        seed_question_sets()
     socketio.run(app, debug=True, port=5000)
