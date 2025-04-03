@@ -54,7 +54,7 @@ const GamesPage = () => {
                                     <li>✅ Thing</li>
                                     <li>✅ Food</li>
                                 </ul>
-                                <p>...ALL starting with the same letter? 🔠</p>
+                                <p>...ALL starting with the same letter? 🔠 </p>
                                 <p className="small-text"> Both Single Player and Multiplayer Modes</p>
                                 <div className="btn-div">
                                     <a className="header-style-btn play-btn"   href="/lettermatch"  onMouseEnter={playButtonSound}  > 🎮 Play</a>
