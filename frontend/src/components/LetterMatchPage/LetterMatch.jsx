@@ -25,6 +25,11 @@ const LetterMatch = () => {
   const [gameType, setGameType] = useState("LetterMatchLocal"); // or "LetterMatchOnline"
   const [timeLimit, setTimeLimit] = useState(60);
 
+  //for single player
+  const [selectedLetter, setSelectedLetter] = useState("random");
+  const [roundCount, setRoundCount] = useState(5);
+
+
   // Local players typed in UI
   const [playerNames, setPlayerNames] = useState([""]);
 
@@ -53,10 +58,7 @@ const LetterMatch = () => {
   // For listing open online games
   const [openGames, setOpenGames] = useState([]);
 
-  // For custom question sets
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customSetName, setCustomSetName] = useState("");
-  const [customQuestions, setCustomQuestions] = useState(Array(10).fill(""));
+ 
 
   //---------------------------------------------------------------------------
   // 1. On mount, fetch logged-in user (for online)
@@ -80,6 +82,31 @@ const LetterMatch = () => {
     };
     fetchUser();
   }, []);
+
+  //---------------------------------------------------------------------------
+  // 1.5 "Single Player" single playerplayer gets "timeLimit" seconds, they verse an AI
+  //---------------------------------------------------------------------------
+  useEffect(() => {
+    if (gameType !== "LetterMatchSingle") return; //only ran for single player
+    if (!gameStarted || gameOver) return; //timer only runs when game is started
+
+    //counts down the time
+    const intervalId = setInterval(() => {
+      setLocalTimeLeft((prev) => {
+        if (prev <= 1) {
+          //countdown stops when timer hits zero
+          clearInterval(intervalId);
+          // Auto-submit for this player
+          submitAllAnswers(true);
+          return 0;
+        }
+        return prev - 1; //decrease time 1 sec
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId); //cleaning interval 
+  }, [gameType, gameStarted, gameOver]);
+
 
   //---------------------------------------------------------------------------
   // 2. "Local" Turn Timer: each local player gets "timeLimit" seconds
@@ -157,6 +184,8 @@ const LetterMatch = () => {
   //---------------------------------------------------------------------------
   // 4. CREATE GAME
   //---------------------------------------------------------------------------
+
+  //Local Game -----------------------------------
   const createGame = async () => {
     if (!room) {
       return setStatus("❌ Please enter a room name!");
@@ -165,12 +194,19 @@ const LetterMatch = () => {
       return setStatus("❌ Must be logged in for online game!");
     }
 
+   
     const payload =
-      gameType === "LetterMatchLocal"
+    gameType === "LetterMatchSingle"  //single player game
+      ? {
+          room,
+          game_type: "LetterMatchSingle", //we domt need to get other players since this is single player
+          time_limit: parseInt(timeLimit, 10),
+        }
+        :  gameType === "LetterMatchLocal" //local multiplayer game
         ? {
             room,
             game_type: "LetterMatchLocal",
-            player_names: playerNames.filter((p) => p.trim() !== ""),
+            player_names: playerNames.filter((p) => p.trim() !== ""), //local player
             time_limit: parseInt(timeLimit, 10),
           }
         : {
@@ -180,37 +216,78 @@ const LetterMatch = () => {
             time_limit: parseInt(timeLimit, 10),
           };
 
-    try {
-      const resp = await fetch(`${API_BASE_URL}/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json();
-      if (data.error) {
-        setStatus("❌ " + data.error);
-      } else {
-        setStatus("✅ " + data.message);
-        setIsCreator(true);
-        setInRoom(true);
+        try {
+          const resp = await fetch(`${API_BASE_URL}/create`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const data = await resp.json();
+          if (data.error) {
+            setStatus("❌ " + data.error);
+          } else {
+            setStatus("✅ " + data.message);
+            setIsCreator(true);
+            setInRoom(true);
 
-        // If the backend returns a game_id:
-        if (data.game_id) {
-          setGameId(data.game_id);
-        }
+            // If the backend returns a game_id:
+            if (data.game_id) {
+              setGameId(data.game_id);
+            }
 
-        // If local, auto-start
-        if (gameType === "LetterMatchLocal") {
-          const firstName = playerNames[0].trim() || "LocalHost";
-          autoStartLocalGame(firstName);
+            // If single-player, auto-start
+            if (gameType === "LetterMatchSingle") {
+                autoStartSinglePlayerGame();
+            }
+
+            // If local, auto-start
+            if (gameType === "LetterMatchLocal") {
+              const firstName = playerNames[0].trim() || "LocalHost";
+              autoStartLocalGame(firstName);
+            }
+          }
+        } catch (err) {
+          console.error(err);
+          setStatus("❌ Server error while creating game");
         }
+      };
+
+    //autostart single player game
+    const autoStartSinglePlayerGame = async (creatorName) => {
+      try {
+        const resp = await fetch(`${API_BASE_URL}/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ room, username: creatorName }),
+        });
+        const data = await resp.json();
+        if (data.error) {
+          setStatus("❌ " + data.error);
+        } else {
+          setStatus("✅ " + data.message);
+          setGameStarted(true);
+
+          setQuestions(data.questions || []); //provides questions: source Chatgpt
+          setPlayers([{ username: "SinglePlayer", score: 0 }]); //sets score
+
+  
+          setCurrentLocalPlayerIndex(0); //bc this is single playee
+          setLocalTimeLeft(timeLimit);
+  
+          const initAns = {};
+          (data.questions || []).forEach((q) => {
+            initAns[q.question_id] = "";
+          });
+          setAnswers(initAns);
+        }
+      } catch (err) {
+        console.error(err);
+        setStatus("❌ Could not auto-start single player game");
       }
-    } catch (err) {
-      console.error(err);
-      setStatus("❌ Server error while creating game");
-    }
-  };
+    };
 
+     
+    
   // Start a local game by calling /start with first player's username
   const autoStartLocalGame = async (creatorName) => {
     try {
@@ -305,7 +382,15 @@ const LetterMatch = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ room, username: loggedInUser }),
       });
+
+      if (gameType == "LetterMatchSingle") {
+        payload.starting_letter = selectedLetter;
+        payload.rounds = roundCount;
+      }
+
       const data = await resp.json();
+
+
       if (data.error) {
         setStatus("❌ " + data.error);
       } else {
@@ -339,7 +424,7 @@ const LetterMatch = () => {
     }
 
     // If not autoFromTimer, ensure each question has an answer
-    if (!autoFromTimer && gameType === "LetterMatchLocal") {
+    if (!autoFromTimer && gameType === "LetterMatchLocal" || gameType === "LetterMatchSingle") {
       for (const q of questions) {
         if (!answers[q.question_id] || !answers[q.question_id].trim()) {
           setStatus(`❌ Please fill all answers before submitting!`);
@@ -369,10 +454,17 @@ const LetterMatch = () => {
         if (gameType === "LetterMatchLocal") {
           await reloadPlayersScores();
           advanceLocalTurn();
-        } else {
+        } 
+        else if(gameType === "LetterMatchSingle") {
+          //game ends 
+          setGameOver(true);
+          await reloadPlayersScores();
+        } 
+        else {
           fetchGameState();
         }
       }
+      
     } catch (err) {
       console.error(err);
       setStatus("❌ Server error submitting answers");
@@ -430,29 +522,6 @@ const LetterMatch = () => {
     setGameId(null);
   };
 
-  //---------------------------------------------------------------------------
-  // 9. Add Custom Questions
-  //---------------------------------------------------------------------------
-  const submitCustomQuestions = async () => {
-    if (!customSetName) {
-      return setStatus("❌ Please enter a set name!");
-    }
-    try {
-      const response = await fetch(`${API_BASE_URL}/add_questions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ set_name: customSetName, questions: customQuestions }),
-      });
-      const data = await response.json();
-      setStatus(data.message || data.error);
-      setIsModalOpen(false);
-      setCustomSetName("");
-      setCustomQuestions(Array(10).fill(""));
-    } catch (err) {
-      console.error(err);
-      setStatus("❌ Server error adding custom questions");
-    }
-  };
 
   //---------------------------------------------------------------------------
   // 10. POST-GAME CHECKER (Check All Answers)
@@ -510,11 +579,24 @@ const LetterMatch = () => {
       <div className="word-blitz-container">
         <h1 className="game-title">🌈✨ Letter Match ✨🌈</h1>
   
-        {/* Not in a game => create local or online */}
+        {/* Not in a game => create single, local or online */}
         {!inRoom && (
           <div className="game-setup-container">
             <h2 className="setup-title">🎮 Create a Game</h2>
             <div className="game-type-selector">
+
+              {/*Single player */}
+              <label className="game-type-option">
+                <input
+                  type="radio"
+                  value="LetterMatchSingle"
+                  checked={gameType === "LetterMatchSingle"}
+                  onChange={() => setGameType("LetterMatchSingle")}
+                />
+                <span className="game-type-label">🧑🏻‍🦱 Single-Player</span>
+              </label>
+          
+              {/*local player */}
               <label className="game-type-option">
                 <input
                   type="radio"
@@ -524,6 +606,7 @@ const LetterMatch = () => {
                 />
                 <span className="game-type-label">🎲 Local Game</span>
               </label>
+              {/*online player */}
               <label className="game-type-option">
                 <input
                   type="radio"
@@ -571,6 +654,44 @@ const LetterMatch = () => {
                 </button>
               </div>
             )}
+
+            {/* for single player helps them to decide num rounds and letter choice*/}
+            {gameType === "LetterMatchSingle" && (
+              <div className="single-player-section">
+                <div className="letter-choice">
+                  <label style = {{color: "#4a90e2", fontWeight: "bold"}}>
+                    🎯 Starting Letter 🎯
+                    <select 
+                      value={selectedLetter}
+                      onChange={(e) => setSelectedLetter(e.target.value)}
+                      className="letter-selection"
+                    >
+                     <option value="random">Random</option>
+                      {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => (
+                        <option key={letter} 
+                          value={letter.toUpperCase()}>
+                          {letter}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>        
+                <div className="round-choice">
+                  <label style = {{color: "#4a90e2", fontWeight: "bold"}}>
+                    🔁 Number of Rounds:
+                    <input
+                      type="number"
+                      min="1"
+                      max="26"
+                      value={roundCount}
+                      onChange={(e) => setRoundCount(parseInt(e.target.value))}
+                      className="round-input"
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
+                      
   
             <div className="time-limit-container">
               <label className="time-limit-label">
@@ -622,73 +743,7 @@ const LetterMatch = () => {
           </div>
         )}
   
-        {/* Add custom questions button */}
-        {!inRoom && (
-          <button
-            className="add-questions-button"
-            onClick={() => setIsModalOpen(true)}
-          >
-            🧩 Add Custom Questions
-          </button>
-        )}
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2 className="modal-title">✨ Create New Question Set ✨</h2>
-              <input
-                type="text"
-                placeholder="📝 Set Name"
-                value={customSetName}
-                onChange={(e) => setCustomSetName(e.target.value)}
-                className="set-name-input"
-              />
-              <div className="question-list">
-                {customQuestions.map((q, index) => (
-                  <div key={index} className="question-box">
-                    <input
-                      type="text"
-                      placeholder={`❓ Question ${index + 1}`}
-                      value={q}
-                      onChange={(e) => {
-                        const arr = [...customQuestions];
-                        arr[index] = e.target.value;
-                        setCustomQuestions(arr);
-                      }}
-                      className="custom-question-input"
-                    />
-                  </div>
-                ))}
-              </div>
-              <button onClick={submitCustomQuestions} className="submit-questions-btn">
-                🎉 Submit Questions
-              </button>
-              <button className="close-modal-btn" onClick={() => setIsModalOpen(false)}>
-                ✖ Close
-              </button>
-            </div>
-          </div>
-        )}
-  
-        {/* Online waiting room */}
-        {inRoom && !gameStarted && gameType === "LetterMatchOnline" && (
-          <div className="waiting-room-container">
-            <h2 className="waiting-title">🕒 Waiting Room: {room}</h2>
-            <p className="players-waiting">Players ready to play:</p>
-            <ul className="players-list">
-              {players.map((p, i) => (
-                <li key={i} className="player-item">
-                  👤 {p.username}
-                </li>
-              ))}
-            </ul>
-            {isCreator && (
-              <button onClick={startGame} className="start-game-btn">
-                🏁 Start Game!
-              </button>
-            )}
-          </div>
-        )}
-  
+       
         {/* Game in progress */}
         {gameStarted && !gameOver && (
           <div className="game-play-container">
