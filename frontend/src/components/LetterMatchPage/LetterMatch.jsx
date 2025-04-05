@@ -235,6 +235,7 @@ const LetterMatch = () => {
               setGameId(data.game_id);
             }
 
+            
             // If single-player, auto-start
             if (gameType === "LetterMatchSingle") {
                 autoStartSinglePlayerGame();
