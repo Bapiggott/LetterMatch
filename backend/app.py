@@ -16,7 +16,7 @@ from auth import auth  # Import auth routes
 from games.word_chain import word_chain_bp
 from games.word_blitz import word_blitz_bp
 from games.answer_checker import answer_checker_bp
-# from games.letter_match import letter_match_bp
+from games.letter_match import letter_match_bp
 from friends import friends_bp  # Import the new friends module
 from setup.seed_data import seed_question_sets # Import seed function
 from profile_user import profile_bp
@@ -44,7 +44,7 @@ app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(word_chain_bp, url_prefix="/word_chain")
 app.register_blueprint(word_blitz_bp, url_prefix="/word_blitz")
 app.register_blueprint(answer_checker_bp, url_prefix="/answer_checker")
-# app.register_blueprint(letter_match_bp, url_prefix="/letter_match")
+app.register_blueprint(letter_match_bp, url_prefix="/letter_match")
 app.register_blueprint(friends_bp, url_prefix="/friends")
 app.register_blueprint(profile_bp, url_prefix="/profile")
 app.register_blueprint(chat_bp, url_prefix="/chat")

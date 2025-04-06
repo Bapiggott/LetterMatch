@@ -15,10 +15,7 @@ import SettingsPage from './components/SettingsPage/SettingsPage';
 import { ContextProvider } from './ContextProvider';
 import 'boxicons'
 
-// Letter match routes
-import LM_singlePlayer from './components/LetterMatchPage/LM_singlePlayer';
-// import LM_LocalPlayer from './components/LetterMatchPage/LM_LocalPlayer';
-// import LM_onlineMode from './components/LetterMatchPage/LM_onlineMode';
+
 
 
 
@@ -39,7 +36,6 @@ const App = () => {
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="/games" element={<GamesPage />} />
                     <Route path="/about" element={<AboutPage />} />
-                    <Route path="/singlePlayer" element={<LM_singlePlayer />} />
                     <Route element={<PrivateRoute />}>
                         <Route path="/Friends" element={<FriendsPage />} />
                         <Route path="/settings" element={<SettingsPage />} />
