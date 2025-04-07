@@ -3,10 +3,6 @@ import "./LetterMatch.css";
 import Layout from "../Layout/Layout.jsx";
 import { useNavigate } from "react-router-dom";
 
-
-
-
-
 // Import the PostGameChecker component
 import PostGameChecker from "../PostGameChecker/PostGameChecker";
 
@@ -576,10 +572,32 @@ const LetterMatch = () => {
   // RENDERING
   //---------------------------------------------------------------------------
   return (
+    
+
+ 
     <Layout>
-      <div className="word-blitz-container">
-        <h1 className="game-title">🌈✨ Letter Match ✨🌈</h1>
-  
+
+      <div className="letter-match-container">
+      {/* had to specify style here for the Game title bc its not applying the css */}
+      <h1
+          style={{
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+            marginBottom: '20px',
+            textAlign: 'center',
+            padding: '10px',
+            maxWidth: '100%',
+            wordBreak: 'break-word',
+            background: 'linear-gradient(to right, #4a90e2, #7519C6)', 
+            WebkitBackgroundClip: 'text', 
+            WebkitTextFillColor: 'transparent', 
+            backgroundClip: 'text', 
+            color: 'transparent', 
+            display: 'inline-block',
+          }}
+        >
+          🌈✨ Letter Match ✨🌈
+      </h1>
+
         {/* Not in a game => create single, local or online */}
         {!inRoom && (
           <div className="game-setup-container">
@@ -626,6 +644,7 @@ const LetterMatch = () => {
                 value={room}
                 onChange={(e) => setRoom(e.target.value)}
                 className="room-name-input"
+                
               />
             </div>
   
