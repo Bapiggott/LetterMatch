@@ -1,0 +1,28 @@
+.settings {
+    text-align: center;
+}
+
+h1{
+    margin-bottom: 100px;
+}
+
+select {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #333;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    cursor: pointer;
+}
+
+select:hover {
+    border-color: #888;
+}
+
+select:focus {
+    border-color: #555;
+    box-shadow: 0 0 0 2px rgba(100, 100, 255, 0.2);
+}

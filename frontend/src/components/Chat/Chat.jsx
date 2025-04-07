@@ -68,7 +68,7 @@ const Chat = () => {
         <div className='chat-div'>
 
           <div className='corner-icons-div' onClick={() => setIsChatMenuOpen(!isChatMenuOpen)}>
-            <div className='chat-corner-icon'><box-icon name='message-dots'></box-icon></div>
+            <div className='chat-corner-icon'><box-icon name='message-square-dots'></box-icon></div>
 
             {chats && chats.length > 0 && totalUnreadMessages > 0 &&(
               <div className='unread-message-alert-div'>

@@ -65,7 +65,6 @@ const Header = () => {
             {!showHamburger && (
                 <nav className="desktop-nav">
                     <ul>
-                        <a href="/home"><li>Home</li></a>
                         <a href='/games'><li>Games</li></a>
                         <a href="/friends"><li>Friends</li></a>
                     </ul>
@@ -73,7 +72,7 @@ const Header = () => {
                         {isLoggedIn ? (
                             <>
                                 <div>
-                                    <span className="hello-user-span">hi, { LocalStorageUtils.getUsername() || "Unknown" }</span>
+                                    <span className="hello-user-span">Hi { LocalStorageUtils.getUsername() || "Unknown" }!</span>
                                 </div>
                                 <div className="user-icon-div" ref={userMenuRef}>
                                     <box-icon onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} name='user-circle' ></box-icon>

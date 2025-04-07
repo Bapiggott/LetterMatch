@@ -43,10 +43,16 @@
   --header-color-hightlight-brightened: #ffdb4d;
   --main-bg-color: #ffe0b2;
 }
-[data-color-theme="default"]{
+/* [data-color-theme="default"]{
   --header-bg-color: #1a1a1a;
   --header-color-highlight: rgb(0, 119, 255);
   --header-color-hightlight-brightened: rgb(80, 162, 255);
+  --main-bg-color: #f8f9fa;
+} */
+[data-color-theme="default"]{
+  --header-bg-color: rgb(15, 87, 196);
+  --header-color-highlight:rgb(229, 255, 0);
+  --header-color-hightlight-brightened: rgb(229, 255, 0);
   --main-bg-color: #f8f9fa;
 }
 [data-color-theme="lightmode"]{
@@ -96,7 +102,10 @@ main{
 body {
   background-color: var(--footer-bg-color);
 }
-
+ 
+header, footer{
+  font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
+}
 
 
 /* Start of Header */
@@ -272,8 +281,8 @@ header .call-to-action-div box-icon {
   fill: white;
  }
  .chat-corner-icon box-icon{
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
  }
  .unread-message-alert-div,
  .unread-chat-messages-div{
