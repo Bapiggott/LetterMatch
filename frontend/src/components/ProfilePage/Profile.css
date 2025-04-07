@@ -2,9 +2,10 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e3e9f2 100%);
+  background-image: url('/images/notebookSeniorProj.png');
+/*  background: linear-gradient(135deg, #1c59b4b7 0%, #e3e9f2 100%); */
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  
 }
 
 .profile-header {
@@ -72,7 +73,7 @@
 }
 
 .profile-content {
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
