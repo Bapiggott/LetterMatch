@@ -5,8 +5,12 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-image: url('/images/cute_background.png');
+  background-size: cover; 
+  background-position: center center;
+  background-repeat: no-repeat; 
   padding: 20px;
+
 }
 
 /* Register form box */
@@ -28,6 +32,7 @@ h1 {
   margin-bottom: 20px;
   color: #333;
   text-align: center;
+  margin-top:130px;
 }
 
 /* Input fields */
