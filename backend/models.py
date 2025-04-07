@@ -139,3 +139,51 @@ class AnswerVote(db.Model):
     __table_args__ = (
         db.UniqueConstraint('answer_id', 'user_id', name='uniq_answer_user_vote'),
     )
+
+#letter match tables ---------------------------------------------------
+
+#will provide our question prompts
+class question_LetterMatch(db.Model):
+    __tablename__ = 'question_LetterMatch'
+    id = db.Column(db.Integer, primary_key=True)
+    prompt = db.Column(db.String, nullable=False)
+
+#link question to letters
+class game_question_lettermatch(db.Model):
+    __tablename__ = 'game_question_lettermatch'
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
+    letter = db.Column(db.String(1), nullable=False)
+
+    # Relationship to question_lettermatch
+    question = db.relationship("question_LetterMatch", backref="game_questions", lazy=True)
+        
+#answers provided by players
+class playerAnswer_LetterMatch (db.Model):
+
+    __tablename__ = 'playerAnswer_LetterMatch'
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
+    answer = db.Column(db.String, nullable=False)
+    is_correct = db.Column(db.Boolean, default=False)
+    answer_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    #relationship to PLayer and question_letterMatch
+    player = db.relationship("Player", backref="answers", lazy=True)
+    question = db.relationship("question_LetterMatch", backref="answers", lazy=True)
+
+#correct answers table 
+class LetterMatch_Answers(db.Model):
+    __tablename__ = 'LetterMatch_Answers'
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
+    correct_answer = db.Column(db.String, nullable=False)
+
+        # Relationship to question_lettermatch
+    question = db.relationship("question_LetterMatch", backref="correct_answers", lazy=True)
+
+
+   

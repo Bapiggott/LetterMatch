@@ -25,6 +25,7 @@ from chat import chat_bp, get_active_chat_details, get_all_active_chat_details_a
 from utils.auth_utils import get_user_from_token
 
 
+
 app = Flask(__name__)
 
 # Configuration
