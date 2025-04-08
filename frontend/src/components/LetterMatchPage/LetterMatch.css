@@ -321,28 +321,6 @@
     transform: scale(1.05);
   }
   
-  /* Add Questions Button */
-  .add-questions-button {
-    background: linear-gradient(to right, #e67e22, #e74c3c);
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 25px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    margin: 20px 0;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .add-questions-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-  
   /* Modal Styles */
   .modal-overlay {
     position: fixed;
@@ -393,19 +371,7 @@
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
   }
   
-  .custom-question-input {
-    width: 100%;
-    padding: 10px;
-    margin: 5px 0;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s;
-  }
-  
-  .custom-question-input:focus {
-    border-color: #e67e22;
-  }
+
   
   .submit-questions-btn {
     background: linear-gradient(to right, #e67e22, #e74c3c);

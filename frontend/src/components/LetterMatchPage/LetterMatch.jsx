@@ -1,61 +1,68 @@
 import React, { useState, useEffect } from "react";
-import "./LetterMatch.css";
-import Layout from "../Layout/Layout.jsx";
-import { useNavigate } from "react-router-dom";
+import './LetterMatch.css';
+import Layout from "../Layout/Layout";
+import '../LoginFormPage/LoginForm.css';
 
-// Import the PostGameChecker component
-import PostGameChecker from "../PostGameChecker/PostGameChecker";
+
+import PostGameChecker from '../PostGameChecker/PostGameChecker.jsx'; 
+import { useNavigate } from "react-router-dom";
 
 const API_URL = "http://localhost:5000";
 const API_BASE_URL = `${API_URL}/letter_match`;
 
 const LetterMatch = () => {
-  // Logged-in user (for online)
-  const [loggedInUser, setLoggedInUser] = useState("");
-
-  // ID of the currently active game
-  const [gameId, setGameId] = useState(null);
-
-  // Basic game config
-  const [room, setRoom] = useState("");
-  const [gameType, setGameType] = useState("LetterMatchLocal"); // or "LetterMatchOnline"
-  const [timeLimit, setTimeLimit] = useState(60);
-
-  //for single player
-  const [selectedLetter, setSelectedLetter] = useState("random");
-  const [roundCount, setRoundCount] = useState(5);
 
 
-  // Local players typed in UI
-  const [playerNames, setPlayerNames] = useState([""]);
+//default setting game type 
+const [gameType, setGameType] = useState("LetterMatchSingle"); // or "LetterMatchOnline" or "letterMatchLocal"
+// Basic game config
+const [room, setRoom] = useState("");
+// Local players typed in UI
+const [playerNames, setPlayerNames] = useState([""]);
+
+const [selectedLetter, setSelectedLetter] = useState("random");
+//sets round for single player
+const [roundCount, setRoundCount] = useState(1);
+
+//set time limit
+const [timeLimit, setTimeLimit] = useState(60);
+
+// Current status + questions + answers
+const [status, setStatus] = useState("");
+const [openGames, setOpenGames] = useState([]);
 
   // True if we created or joined a game
-  const [inRoom, setInRoom] = useState(false);
+const [inRoom, setInRoom] = useState(false);
+// Game state
+const [gameStarted, setGameStarted] = useState(false);
+const [gameOver, setGameOver] = useState(false);
 
-  // Game state
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
+// players[] = array of { username, score }
+const [players, setPlayers] = useState([]);
+const [answers, setAnswers] = useState({});
 
-  // For online only: are we the host?
-  const [isCreator, setIsCreator] = useState(false);
+const [checkerVisible, setCheckerVisible] = useState(false);
 
-  // Current status + questions + answers
-  const [status, setStatus] = useState("");
-  const [questions, setQuestions] = useState([]);
-  const [answers, setAnswers] = useState({});
-  // players[] = array of { username, score }
-  const [players, setPlayers] = useState([]);
+// Local countdown for the current player’s turn
+const [localTimeLeft, setLocalTimeLeft] = useState(timeLimit);
+// Index of the local player whose turn it is
+const [currentLocalPlayerIndex, setCurrentLocalPlayerIndex] = useState(0);
 
-  // Index of the local player whose turn it is
-  const [currentLocalPlayerIndex, setCurrentLocalPlayerIndex] = useState(0);
-  // Local countdown for the current player’s turn
-  const [localTimeLeft, setLocalTimeLeft] = useState(timeLimit);
 
-  // For listing open online games
-  const [openGames, setOpenGames] = useState([]);
+
+
+
+// Logged-in user (for online)
+const [loggedInUser, setLoggedInUser] = useState("");
+
+// ID of the currently active game
+const [gameId, setGameId] = useState(null);
+
+
+// For online only: are we the host?
+const [isCreator, setIsCreator] = useState(false);
 
  
-
   //---------------------------------------------------------------------------
   // 1. On mount, fetch logged-in user (for online)
   //---------------------------------------------------------------------------
@@ -85,7 +92,17 @@ const LetterMatch = () => {
   useEffect(() => {
     if (gameType !== "LetterMatchSingle") return; //only ran for single player
     if (!gameStarted || gameOver) return; //timer only runs when game is started
-
+    const testBackendConnection = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/test`);
+        const data = await response.json();
+        console.log("Backend response:", data);
+        setStatus(`✅ Backend connection test: ${data.message}`);
+      } catch (error) {
+        console.error("Connection test failed:", error);
+        setStatus(`❌ Backend connection failed: ${error.message}`);
+      }
+    };
     //counts down the time
     const intervalId = setInterval(() => {
       setLocalTimeLeft((prev) => {
@@ -111,6 +128,17 @@ const LetterMatch = () => {
     if (gameType !== "LetterMatchLocal") return;
     if (!gameStarted || gameOver) return;
 
+    const testBackendConnection = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/test`);
+        const data = await response.json();
+        console.log("Backend response:", data);
+        setStatus(`✅ Backend connection test: ${data.message}`);
+      } catch (error) {
+        console.error("Connection test failed:", error);
+        setStatus(`❌ Backend connection failed: ${error.message}`);
+      }
+    };
     const intervalId = setInterval(() => {
       setLocalTimeLeft((prev) => {
         if (prev <= 1) {
@@ -144,6 +172,17 @@ const LetterMatch = () => {
   //---------------------------------------------------------------------------
   // fetchGameState (ONLINE only) – local is handled in front end
   //---------------------------------------------------------------------------
+  const testBackendConnection = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/test`);
+      const data = await response.json();
+      console.log("Backend response:", data);
+      setStatus(`✅ Backend connection test: ${data.message}`);
+    } catch (error) {
+      console.error("Connection test failed:", error);
+      setStatus(`❌ Backend connection failed: ${error.message}`);
+    }
+  };
   const fetchGameState = async () => {
     if (!room || !inRoom) return;
     try {
@@ -184,144 +223,143 @@ const LetterMatch = () => {
   //Local Game -----------------------------------
   const createGame = async () => {
     if (!room) {
-      return setStatus("❌ Please enter a room name!");
+        return setStatus("❌ Please enter a room name!");
     }
     if (gameType === "LetterMatchOnline" && !loggedInUser) {
-      return setStatus("❌ Must be logged in for online game!");
+        return setStatus("❌ Must be logged in for online game!");
     }
 
-   
-    const payload =
-    gameType === "LetterMatchSingle"  //single player game
-      ? {
-          room,
-          game_type: "LetterMatchSingle", //we domt need to get other players since this is single player
-          time_limit: parseInt(timeLimit, 10),
-        }
-        :  gameType === "LetterMatchLocal" //local multiplayer game
-        ? {
-            room,
-            game_type: "LetterMatchLocal",
-            player_names: playerNames.filter((p) => p.trim() !== ""), //local player
-            time_limit: parseInt(timeLimit, 10),
-          }
-        : {
-            room,
-            game_type: "LetterMatchOnline",
-            creator_username: loggedInUser,
-            time_limit: parseInt(timeLimit, 10),
-          };
+    setStatus("Creating game...");
+    
+    const payload = {
+        room: room,
+        game_type: gameType,
+        time_limit: parseInt(timeLimit, 10),
+        ...(gameType === "LetterMatchSingle" && {
+            username: "SinglePlayer"
+        }),
+        ...(gameType === "LetterMatchLocal" && {
+            player_names: playerNames.filter(p => p.trim() !== "")
+        }),
+        ...(gameType === "LetterMatchOnline" && {
+            creator_username: loggedInUser
+        })
+    };
 
-        try {
-          const resp = await fetch(`${API_BASE_URL}/create`, {
+    try {
+        // Create the game
+        const resp = await fetch(`${API_BASE_URL}/create`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
-          });
-          const data = await resp.json();
-          if (data.error) {
-            setStatus("❌ " + data.error);
-          } else {
-            setStatus("✅ " + data.message);
-            setIsCreator(true);
-            setInRoom(true);
-
-            // If the backend returns a game_id:
-            if (data.game_id) {
-              setGameId(data.game_id);
-            }
-
-            
-            // If single-player, auto-start
-            if (gameType === "LetterMatchSingle") {
-                autoStartSinglePlayerGame();
-            }
-
-            // If local, auto-start
-            if (gameType === "LetterMatchLocal") {
-              const firstName = playerNames[0].trim() || "LocalHost";
-              autoStartLocalGame(firstName);
-            }
-          }
-        } catch (err) {
-          console.error(err);
-          setStatus("❌ Server error while creating game");
-        }
-      };
-
-    //autostart single player game
-    const autoStartSinglePlayerGame = async (creatorName) => {
-      try {
-        const resp = await fetch(`${API_BASE_URL}/start`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ room, username: creatorName }),
         });
+        
         const data = await resp.json();
-        if (data.error) {
-          setStatus("❌ " + data.error);
+        
+        if (!resp.ok) {
+            throw new Error(data.error || "Failed to create game");
+        }
+
+        setStatus("✅ Game created! Starting...");
+        setIsCreator(true);
+        setInRoom(true);
+        setGameId(data.game_id);
+
+        // Auto-start the game based on type
+        if (gameType === "LetterMatchSingle") {
+            await autoStartSinglePlayerGame();
+        } else if (gameType === "LetterMatchLocal") {
+            const firstName = playerNames[0].trim() || "Player1";
+            await autoStartLocalGame(firstName);
         } else {
-          setStatus("✅ " + data.message);
-          setGameStarted(true);
-
-          setQuestions(data.questions || []); //provides questions: source Chatgpt
-          setPlayers([{ username: "SinglePlayer", score: 0 }]); //sets score
-
-  
-          setCurrentLocalPlayerIndex(0); //bc this is single playee
-          setLocalTimeLeft(timeLimit);
-  
-          const initAns = {};
-          (data.questions || []).forEach((q) => {
-            initAns[q.question_id] = "";
-          });
-          setAnswers(initAns);
+            // For online, wait for host to manually start
+            fetchGameState();
         }
-      } catch (err) {
-        console.error(err);
-        setStatus("❌ Could not auto-start single player game");
-      }
-    };
+    } catch (err) {
+        console.error("Game creation error:", err);
+        setStatus(`❌ ${err.message}`);
+    }
+};
 
-     
-    
-  // Start a local game by calling /start with first player's username
-  const autoStartLocalGame = async (creatorName) => {
+const autoStartSinglePlayerGame = async () => {
     try {
-      const resp = await fetch(`${API_BASE_URL}/start`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ room, username: creatorName }),
-      });
-      const data = await resp.json();
-      if (data.error) {
-        setStatus("❌ " + data.error);
-      } else {
-        setStatus("✅ " + data.message);
-        setGameStarted(true);
-
-        setQuestions(data.questions || []);
-        // fetch the actual players from the server
-        const gameStateResp = await fetch(`${API_BASE_URL}/get_state?room=${room}`);
-        const gameStateData = await gameStateResp.json();
-        if (!gameStateData.error) {
-          setPlayers(gameStateData.players || []);
+        const resp = await fetch(`${API_BASE_URL}/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                room,
+                username: "SinglePlayer",
+                letter: selectedLetter === "random" ? null : selectedLetter,
+                rounds: roundCount
+            }),
+        });
+        
+        const data = await resp.json();
+        
+        if (!resp.ok) {
+            throw new Error(data.error || "Failed to start game");
         }
 
+        setStatus("✅ Game started!");
+        setGameStarted(true);
+        
+        // Initialize game state
+        setQuestions(data.questions || []);
+        setPlayers(data.players || []);
         setCurrentLocalPlayerIndex(0);
         setLocalTimeLeft(timeLimit);
-
+        
+        // Initialize empty answers
         const initAns = {};
         (data.questions || []).forEach((q) => {
-          initAns[q.question_id] = "";
+            initAns[q.id] = "";
         });
         setAnswers(initAns);
-      }
     } catch (err) {
-      console.error(err);
-      setStatus("❌ Could not auto-start local");
+        console.error("Game start error:", err);
+        setStatus(`❌ ${err.message}`);
     }
-  };
+};
+
+const autoStartLocalGame = async (creatorName) => {
+    try {
+        const resp = await fetch(`${API_BASE_URL}/start`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                room,
+                username: creatorName,
+                letter: selectedLetter === "random" ? null : selectedLetter,
+                rounds: roundCount
+            }),
+        });
+        
+        const data = await resp.json();
+        
+        if (!resp.ok) {
+            throw new Error(data.error || "Failed to start game");
+        }
+
+        setStatus("✅ Game started!");
+        setGameStarted(true);
+        
+        // Initialize game state
+        setQuestions(data.questions || []);
+        setPlayers(data.players || []);
+        setCurrentLocalPlayerIndex(0);
+        setLocalTimeLeft(timeLimit);
+        
+        // Initialize empty answers
+        const initAns = {};
+        (data.questions || []).forEach((q) => {
+            initAns[q.id] = "";
+        });
+        setAnswers(initAns);
+    } catch (err) {
+        console.error("Game start error:", err);
+        setStatus(`❌ ${err.message}`);
+    }
+};
 
   //---------------------------------------------------------------------------
   // 5. JOIN an Existing Online Game
@@ -421,7 +459,7 @@ const LetterMatch = () => {
     }
 
     // If not autoFromTimer, ensure each question has an answer
-    if (!autoFromTimer && gameType === "LetterMatchLocal" || gameType === "LetterMatchSingle") {
+    if (!(autoFromTimer) && (gameType === "LetterMatchLocal" || gameType === "LetterMatchSingle")) {
       for (const q of questions) {
         if (!answers[q.question_id] || !answers[q.question_id].trim()) {
           setStatus(`❌ Please fill all answers before submitting!`);
@@ -523,7 +561,6 @@ const LetterMatch = () => {
   //---------------------------------------------------------------------------
   // 10. POST-GAME CHECKER (Check All Answers)
   //---------------------------------------------------------------------------
-  const [checkerVisible, setCheckerVisible] = useState(false);
   const [finalAnswers, setFinalAnswers] = useState([]);
 
   // Suppose we have an isAdmin check
@@ -572,33 +609,10 @@ const LetterMatch = () => {
   // RENDERING
   //---------------------------------------------------------------------------
   return (
-    
-
- 
     <Layout>
-
       <div className="letter-match-container">
-      {/* had to specify style here for the Game title bc its not applying the css */}
-      <h1
-          style={{
-            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-            marginBottom: '-7px',
-            textAlign: 'center',
-            padding: '10px',
-            maxWidth: '100%',
-            wordBreak: 'break-word',
-            background: 'linear-gradient(to right,rgb(33, 73, 119), #7519C6)', 
-            WebkitBackgroundClip: 'text', 
-            WebkitTextFillColor: 'transparent', 
-            backgroundClip: 'text', 
-            color: 'transparent', 
-            display: 'inline-block',
-            marginTop: '40px',
-          }}
-        >
-          🌈✨ Letter Match ✨🌈
-      </h1>
-
+        <h1 className="game-title">🌈✨ Letter Match ✨🌈</h1>
+  
         {/* Not in a game => create single, local or online */}
         {!inRoom && (
           <div className="game-setup-container">
@@ -645,7 +659,6 @@ const LetterMatch = () => {
                 value={room}
                 onChange={(e) => setRoom(e.target.value)}
                 className="room-name-input"
-                
               />
             </div>
   
@@ -730,6 +743,9 @@ const LetterMatch = () => {
   
             <button onClick={createGame} className="create-game-btn">
               🚀 Create Game
+            </button>
+            <button onClick={testBackendConnection} className="create-game-btn">
+            🔌 Test Backend Connection
             </button>
           </div>
         )}
