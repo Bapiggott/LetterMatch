@@ -1,9 +1,30 @@
 .settings {
     text-align: center;
+    background-image: url('/images/cute_background.png');
+    background-size: cover;  
+    background-position: center;
+    width: 100vw;  
+    height: 100vh; 
+    padding: 2rem; 
+    justify-content: center;
+    align-items: center;
+    
 }
 
 h1{
-    margin-bottom: 100px;
+
+    fontSize: 'clamp(2rem, 5vw, 3.5rem)';
+    textAlign: 'center';
+    padding: '10px';
+    maxWidth: '100%';
+    wordBreak: 'break-word';
+    background: 'linear-gradient(to right, #4a90e2, #7519C6)';
+    WebkitBackgroundClip: 'text';
+    WebkitTextFillColor: 'transparent';
+    backgroundClip: 'text';
+    color: 'transparent'; 
+    display: 'inline-block';
+    marginTop: '50px';
 }
 
 select {

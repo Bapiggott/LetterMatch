@@ -34,9 +34,25 @@ const SettingsPage = () => {
     return (
         <Layout>
             <div className="settings">
-                <h1>Settings</h1>
+                <h1
+                    style={{
+                        fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                        marginBottom: '20px',
+                        textAlign: 'center',
+                        padding: '10px',
+                        maxWidth: '100%',
+                        wordBreak: 'break-word',
+                        background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
+                        display: 'inline-block',
+                        borderRadius: '8px',
+                        color: 'white',
+                        
+                    }}
+                    >
+                    🌈✨ Change Theme ✨🌈
+                </h1>
                 <div className="theme-div">
-                    <h2>Color Theme</h2>
+                   
                     <select 
                         value={colorTheme} 
                         onChange={(e) => changeColorTheme(e.target.value)}
