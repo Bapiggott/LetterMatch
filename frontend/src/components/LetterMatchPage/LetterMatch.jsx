@@ -125,10 +125,10 @@ const LetterMatch = () => {
         setStatus("❌ " + data.error);
         return;
       }
-
+  
       setGameStarted(data.started);
       setPlayers(data.players || []);
-
+  
       if (data.started && data.questions) {
         setQuestions(data.questions);
         const initAns = {};
@@ -137,9 +137,8 @@ const LetterMatch = () => {
         });
         setAnswers((old) => ({ ...initAns, ...old }));
       }
-
+  
       if (data.started && data.time_left === 0) {
-        // Time ended => game over
         setGameOver(true);
         setStatus("⏰ Time's up! Final scores shown below.");
       }
@@ -148,7 +147,7 @@ const LetterMatch = () => {
       setStatus("❌ Failed to fetch state");
     }
   };
-
+  
   //---------------------------------------------------------------------------
   // 4. CREATE GAME
   //---------------------------------------------------------------------------
@@ -318,11 +317,11 @@ const LetterMatch = () => {
   // 7. SUBMIT answers
   //---------------------------------------------------------------------------
   const submitAllAnswers = async (autoFromTimer = false) => {
+    // Validation
     if (!questions.length) {
       return setStatus("❌ No questions to answer.");
     }
-
-    // For local, find the player's name from currentLocalPlayerIndex
+    
     let localPlayerName = "";
     if (gameType === "LetterMatchLocal") {
       const p = players[currentLocalPlayerIndex];
@@ -332,8 +331,8 @@ const LetterMatch = () => {
       }
       localPlayerName = p.username;
     }
-
-    // If not autoFromTimer, ensure each question has an answer
+  
+    // Check if answers are filled out (for local)
     if (!autoFromTimer && gameType === "LetterMatchLocal") {
       for (const q of questions) {
         if (!answers[q.question_id] || !answers[q.question_id].trim()) {
@@ -342,10 +341,8 @@ const LetterMatch = () => {
         }
       }
     }
-
-    // Debug log to ensure we see all Q/A pairs
-    console.log("Submitting answers:", answers);
-
+  
+    // Submit answers
     try {
       const resp = await fetch(`${API_BASE_URL}/submit_all`, {
         method: "POST",
@@ -362,10 +359,10 @@ const LetterMatch = () => {
       } else {
         setStatus("✅ " + data.message);
         if (gameType === "LetterMatchLocal") {
-          await reloadPlayersScores();
-          advanceLocalTurn();
+          await reloadPlayersScores(); // Reload updated scores for local game
+          advanceLocalTurn(); // Advance to the next player's turn
         } else {
-          fetchGameState();
+          fetchGameState(); // Fetch updated game state for online game
         }
       }
     } catch (err) {
@@ -373,19 +370,20 @@ const LetterMatch = () => {
       setStatus("❌ Server error submitting answers");
     }
   };
+  
 
   const reloadPlayersScores = async () => {
     try {
       const resp = await fetch(`${API_BASE_URL}/get_state?room=${room}`);
       const data = await resp.json();
       if (!data.error && data.players) {
-        setPlayers(data.players);
+        setPlayers(data.players); // Update players with new scores
       }
     } catch (err) {
       console.error("Error reloading players:", err);
     }
   };
-
+  
   const advanceLocalTurn = () => {
     const nextIndex = currentLocalPlayerIndex + 1;
     if (nextIndex >= players.length) {

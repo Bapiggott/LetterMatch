@@ -160,20 +160,19 @@ class game_question_lettermatch(db.Model):
     question = db.relationship("question_LetterMatch", backref="game_questions", lazy=True)
         
 #answers provided by players
-class playerAnswer_LetterMatch (db.Model):
-
-    __tablename__ = 'playerAnswer_LetterMatch'
+class playerAnswer_LetterMatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
     player_id = db.Column(db.Integer, db.ForeignKey('player.id'), nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
-    answer = db.Column(db.String, nullable=False)
+    answer = db.Column(db.String(255))
     is_correct = db.Column(db.Boolean, default=False)
-    answer_time = db.Column(db.DateTime, default=datetime.utcnow)
+    score = db.Column(db.Integer)
 
-    #relationship to PLayer and question_letterMatch
-    player = db.relationship("Player", backref="answers", lazy=True)
-    question = db.relationship("question_LetterMatch", backref="answers", lazy=True)
+    game = db.relationship('Game', backref=db.backref('player_answers', lazy=True))
+    player = db.relationship('Player', backref=db.backref('answers', lazy=True))
+    question = db.relationship('question_LetterMatch', backref=db.backref('answers', lazy=True))
+
 
 #correct answers table 
 class LetterMatch_Answers(db.Model):
