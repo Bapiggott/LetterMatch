@@ -113,21 +113,21 @@ const Profile = () => {
       <div className="profile-container">
         <div className="profile-header">
             <h1
-                    style={{
-                        fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                        marginBottom: '20px',
-                        textAlign: 'center',
-                        padding: '10px',
-                        maxWidth: '100%',
-                        wordBreak: 'break-word',
-                        background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
-                        display: 'inline-block',
-                        borderRadius: '8px',
-                        color: 'white',
-                        
-                    }}
-                    >
-                    🌟 My Awesome Profile 🌟
+                style={{
+                    fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                    marginBottom: '20px',
+                    textAlign: 'center',
+                    padding: '10px',
+                    maxWidth: '100%',
+                    wordBreak: 'break-word',
+                    background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
+                    display: 'inline-block',
+                    borderRadius: '8px',
+                    color: 'white',
+                    
+                }}
+                >
+                  🌟 My Awesome Profile 🌟
                 </h1>
          
           {status && <p className={`status-message ${status.includes('❌') ? 'error' : 'success'}`}>{status}</p>}

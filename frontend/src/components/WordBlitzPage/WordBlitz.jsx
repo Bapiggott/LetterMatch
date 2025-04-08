@@ -505,21 +505,20 @@ const WordBlitz = () => {
       <div className="word-blitz-container">
       <h1
           style={{
-            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-            marginBottom: '20px',
-            textAlign: 'center',
-            padding: '5px',
-            maxWidth: '100%',
-            wordBreak: 'break-word',
-            background: 'linear-gradient(to right,rgb(7, 86, 177), #7519C6)', 
-            WebkitBackgroundClip: 'text', 
-            WebkitTextFillColor: 'transparent', 
-            backgroundClip: 'text', 
-            color: 'transparent', 
-            display: 'inline-block',
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              marginBottom: '20px',
+              textAlign: 'center',
+              padding: '10px',
+              maxWidth: '100%',
+              wordBreak: 'break-word',
+              background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
+              display: 'inline-block',
+              borderRadius: '8px',
+              color: 'white',
+              
           }}
-        >
-          🌈✨ Word Blitz ✨🌈
+          >
+              🌈✨ Word Blitz ✨🌈
       </h1>
   
         {/* Not in a game => create local or online */}

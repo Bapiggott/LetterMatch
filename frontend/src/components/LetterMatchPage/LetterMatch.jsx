@@ -611,7 +611,24 @@ const autoStartLocalGame = async (creatorName) => {
   return (
     <Layout>
       <div className="letter-match-container">
-        <h1 className="game-title">🌈✨ Letter Match ✨🌈</h1>
+      <h1
+          style={{
+              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              marginBottom: '20px',
+              textAlign: 'center',
+              padding: '10px',
+              maxWidth: '100%',
+              wordBreak: 'break-word',
+              background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
+              display: 'inline-block',
+              borderRadius: '8px',
+              color: 'white',
+              
+          }}
+          >
+              🌈✨ Letter Match ✨🌈
+      </h1>
+  
   
         {/* Not in a game => create single, local or online */}
         {!inRoom && (
