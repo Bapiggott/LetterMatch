@@ -4,8 +4,12 @@
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-image: url('/images/cute_background.png') !important;
     font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
+    background-size: cover; 
+    background-position: center center;
+    background-repeat: no-repeat; 
+    
   }
   
   .game-title {
@@ -13,7 +17,7 @@
     color: #4a90e2;
     margin-bottom: 20px;
     text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
-    background: linear-gradient(to right, #4a90e2, #9b59b6);
+    background: 'linear-gradient(to right,rgb(33, 73, 119), #7519C6)' !important;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     padding: 10px;
@@ -29,6 +33,9 @@
     max-width: 600px;
     margin: 20px 0;
     border: 3px solid #4a90e2;
+    transform: scale(0.85);
+    
+
   }
   
   .setup-title {
@@ -66,6 +73,7 @@
   
   .room-input-container {
     margin: 15px 0;
+    
   }
   
   .room-name-input {
@@ -76,6 +84,7 @@
     font-size: 1rem;
     outline: none;
     transition: all 0.3s;
+    
   }
   
   .room-name-input:focus {
@@ -85,6 +94,7 @@
   
   .local-players-section {
     margin: 20px 0;
+    
   }
   
   .players-title {
@@ -181,6 +191,8 @@
     max-width: 600px;
     margin: 20px 0;
     border: 3px solid #9b59b6;
+    transform: scale(0.90);
+    
   }
   
   .join-title {
@@ -233,6 +245,7 @@
     background-color: #f8f9fa;
     border-radius: 10px;
     transition: all 0.3s;
+    
   }
   
   .game-item:hover {
@@ -285,6 +298,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    transform: scale(0.90);
   }
   
   .add-questions-button:hover {
@@ -350,6 +364,7 @@
     border-radius: 8px;
     font-size: 1rem;
     transition: all 0.3s;
+    transform: scale(0.90);
   }
   
   .custom-question-input:focus {
@@ -473,8 +488,9 @@
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     width: 100%;
     max-width: 800px;
-    margin: 20px 0;
+    margin: -60px 0 !important;
     border: 3px solid #4a90e2;
+    transform: scale(0.90);
   }
   
   .game-room-title {
@@ -551,6 +567,7 @@
     gap: 15px;
     width: 100%;
     margin-top: 20px;
+    
   }
   
   .question-box {

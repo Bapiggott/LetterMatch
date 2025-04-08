@@ -503,7 +503,7 @@ const WordBlitz = () => {
   return (
     <Layout>
       <div className="word-blitz-container">
-        <h1 className="game-title">🌈✨ WordBlitz ✨🌈</h1>
+        <h1 className="game-title">🌈✨ Word Blitz ✨🌈</h1>
   
         {/* Not in a game => create local or online */}
         {!inRoom && (
