@@ -13,15 +13,19 @@
   }
   
   .game-title {
-    font-size: 3rem;
-    color: #4a90e2;
-    margin-bottom: 20px;
-    text-shadow: 3px 3px 0 rgba(0,0,0,0.1);
-    background: 'linear-gradient(to right,rgb(33, 73, 119), #7519C6)' !important;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    padding: 10px;
-  }
+    fontSize: 'clamp(2rem, 5vw, 3.5rem)';
+    marginBottom: '20px';
+    textAlign: 'center';
+    padding: '5px';
+    maxWidth: '100%';
+    wordBreak: 'break-word';
+    background: 'linear-gradient(to right,rgb(7, 86, 177), #7519C6)';
+    WebkitBackgroundClip: 'text';
+    WebkitTextFillColor: 'transparent';
+    backgroundClip: 'text';
+    color: 'transparent';
+    display: 'inline-block';
+}
   
   /* Game Setup Styles */
   .game-setup-container {
