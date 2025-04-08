@@ -218,7 +218,7 @@ def get_state():
     for p in players:
         player_data.append({
             "username": p.username,
-            "score": p.score  # <-- Now we include the player's actual score
+            "score": p.score
         })
 
     return jsonify({
@@ -279,10 +279,12 @@ def submit_answer():
         return jsonify({"error": "Invalid question"}), 400
     if letters.letter != submitted_word[0].upper():
        print(f"Answer must start with '{letters.letter}'")
-       word_correct = False
+       word_correct = True
+       player.score += 10
     else:
-        word_correct = True
-        player.score += 10
+        word_correct = False
+        print(f"Answer is correct: '{submitted_word}'")
+    player.score =0
     
 
     # Record the word in Word_blitz

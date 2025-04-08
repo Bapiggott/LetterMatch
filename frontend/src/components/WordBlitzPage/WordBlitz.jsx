@@ -11,47 +11,31 @@ const API_BASE_URL = `${API_URL}/word_blitz`;
 const WordBlitz = () => {
   // Logged-in user (for online)
   const [loggedInUser, setLoggedInUser] = useState("");
-
-  // ID of the currently active game
   const [gameId, setGameId] = useState(null);
-
-  // Basic game config
   const [room, setRoom] = useState("");
-  const [gameType, setGameType] = useState("WordBlitzLocal"); // or "WordBlitzOnline"
+  const [gameType, setGameType] = useState("WordBlitzLocal");
   const [timeLimit, setTimeLimit] = useState(60);
-
-  // Local players typed in UI
   const [playerNames, setPlayerNames] = useState([""]);
-
-  // True if we created or joined a game
   const [inRoom, setInRoom] = useState(false);
-
-  // Game state
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-
-  // For online only: are we the host?
   const [isCreator, setIsCreator] = useState(false);
-
-  // Current status + questions + answers
   const [status, setStatus] = useState("");
   const [questions, setQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
-  // players[] = array of { username, score }
   const [players, setPlayers] = useState([]);
-
-  // Index of the local player whose turn it is
   const [currentLocalPlayerIndex, setCurrentLocalPlayerIndex] = useState(0);
-  // Local countdown for the current player’s turn
   const [localTimeLeft, setLocalTimeLeft] = useState(timeLimit);
-
-  // For listing open online games
   const [openGames, setOpenGames] = useState([]);
-
-  // For custom question sets
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customSetName, setCustomSetName] = useState("");
   const [customQuestions, setCustomQuestions] = useState(Array(10).fill(""));
+  const [checkerVisible, setCheckerVisible] = useState(false);
+  const [finalAnswers, setFinalAnswers] = useState([]);
+  const [scoreUpdateInterval, setScoreUpdateInterval] = useState(null);
+  //const isAdmin = false; // or real admin check
+  const [isAdmin, setIsAdmin] = useState(false);
+
 
   //---------------------------------------------------------------------------
   // 1. On mount, fetch logged-in user (for online)
@@ -59,20 +43,26 @@ const WordBlitz = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
-      if (!token) return; 
+      if (!token) return;
+      
       try {
         const response = await fetch(`${API_URL}/auth/me`, {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
         });
+        
         if (response.ok) {
           const data = await response.json();
-          setLoggedInUser(data.username);
+          setLoggedInUser(data.username); // Set just the username
+          
+          // Check if user is admin (role === 0)
+          setIsAdmin(data.role === 0);
         }
       } catch (error) {
         console.error("Error fetching user:", error);
       }
     };
+    
     fetchUser();
   }, []);
 
@@ -112,7 +102,24 @@ const WordBlitz = () => {
       if (pollId) clearInterval(pollId);
     };
   }, [inRoom, gameOver, gameType]);
+  useEffect(() => {
+    if (gameOver) {
+      // Start polling for score updates every 3 seconds
+      const interval = setInterval(() => {
+        if (gameType === "WordBlitzOnline") {
+          fetchGameState();
+        } else {
+          reloadPlayersScores();
+        }
+      }, 3000);
+      setScoreUpdateInterval(interval);
 
+      // Clean up interval on unmount
+      return () => {
+        if (scoreUpdateInterval) clearInterval(scoreUpdateInterval);
+      };
+    }
+  }, [gameOver]);
   //---------------------------------------------------------------------------
   // fetchGameState (ONLINE only) – local is handled in front end
   //---------------------------------------------------------------------------
@@ -141,7 +148,7 @@ const WordBlitz = () => {
       if (data.started && data.time_left === 0) {
         // Time ended => game over
         setGameOver(true);
-        setStatus("⏰ Time's up! Final scores shown below.");
+        setStatus("⏰ Time's up! Game over!");
       }
     } catch (err) {
       console.error(err);
@@ -386,6 +393,32 @@ const WordBlitz = () => {
     }
   };
 
+  // Fetch all answers for post-game checker
+  const handleShowChecker = async () => {
+    try {
+      const resp = await fetch(`${API_BASE_URL}/all_answers?game_id=${gameId}`);
+      const data = await resp.json();
+      if (data.error) {
+        setStatus("❌ " + data.error);
+      } else if (data.answers) {
+        setFinalAnswers(data.answers);
+        setCheckerVisible(true);
+        setStatus("");
+      }
+    } catch (err) {
+      console.error("Error fetching all answers:", err);
+      setStatus("❌ Server error fetching all answers");
+    }
+  };
+
+  const handleScoresChanged = () => {
+    if (gameType === "WordBlitzOnline") {
+      fetchGameState();
+    } else {
+      reloadPlayersScores();
+    }
+  };
+
   const advanceLocalTurn = () => {
     const nextIndex = currentLocalPlayerIndex + 1;
     if (nextIndex >= players.length) {
@@ -449,47 +482,12 @@ const WordBlitz = () => {
     }
   };
 
-  //---------------------------------------------------------------------------
-  // 10. POST-GAME CHECKER (Check All Answers)
-  //---------------------------------------------------------------------------
-  const [checkerVisible, setCheckerVisible] = useState(false);
-  const [finalAnswers, setFinalAnswers] = useState([]);
 
-  // Suppose we have an isAdmin check
-  const isAdmin = false; // or real admin check
-
-  // Fetch all answers once the game is over
-  const handleShowChecker = async () => {
-    try {
-      const resp = await fetch(`${API_BASE_URL}/all_answers?game_id=${gameId}`);// room=${room}
-      const data = await resp.json();
-      console.log("all_answers response:", data);
-      if (data.error) {
-        setStatus("❌ " + data.error);
-      } else if (data.answers) {
-        setStatus("✅ All answers fetched!");
-        setFinalAnswers(data.answers);
-        setCheckerVisible(true);
-        setStatus("");
-      }
-    } catch (err) {
-      console.error("Error fetching all answers:", err);
-      setStatus("❌ Server error fetching all answers");
-    }
-  };
 
   const handleCloseChecker = () => {
     setCheckerVisible(false);
   };
 
-  const handleScoresChanged = () => {
-    // Re-fetch the game state, which includes updated players[] scores
-    if (gameType === "WordBlitzOnline") {
-      fetchGameState();
-    } else {
-      reloadPlayersScores();
-    }
-  };
 
   // Show which local player is up:
   const currentLocalPlayerName =
@@ -503,8 +501,8 @@ const WordBlitz = () => {
   return (
     <Layout>
       <div className="word-blitz-container">
-      <h1
-          style={{
+        <h1 
+            style={{
               fontSize: 'clamp(2rem, 5vw, 3.5rem)',
               marginBottom: '20px',
               textAlign: 'center',
@@ -517,9 +515,7 @@ const WordBlitz = () => {
               color: 'white',
               
           }}
-          >
-              🌈✨ Word Blitz ✨🌈
-      </h1>
+          >🌈✨ Word Blitz ✨🌈</h1>
   
         {/* Not in a game => create local or online */}
         {!inRoom && (
@@ -674,7 +670,7 @@ const WordBlitz = () => {
                 🎉 Submit Questions
               </button>
               <button className="close-modal-btn" onClick={() => setIsModalOpen(false)}>
-                ✖ Close
+                ✖
               </button>
             </div>
           </div>
@@ -757,12 +753,18 @@ const WordBlitz = () => {
           <div className="game-over-container">
             <h2 className="final-scores-title">🏆 Final Scores 🏆</h2>
             <ul className="final-scores">
-              {players.map((p, i) => (
-                <li key={i} className={`final-score-item ${i === 0 ? 'winner' : ''}`}>
-                  <span className="final-player">👤 {p.username}</span>
-                  <span className="final-score">🎯 {p.score} points</span>
-                </li>
-              ))}
+              {players
+                .sort((a, b) => b.score - a.score) // Sort by score descending
+                .map((p, i) => (
+                  <li key={i} className={`final-score-item ${i === 0 ? 'winner' : ''}`}>
+                    <span className="final-player">
+                      {i === 0 ? "👑 " : "👤 "} 
+                      {p.username}
+                    </span>
+                    <span className="final-score">🎯 {p.score} points</span>
+                    {i === 0 && <span className="winner-badge">Winner!</span>}
+                  </li>
+                ))}
             </ul>
             <div className="game-over-actions">
               {isCreator && (

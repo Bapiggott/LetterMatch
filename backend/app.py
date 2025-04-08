@@ -1,42 +1,44 @@
 import eventlet
 eventlet.monkey_patch()
 import traceback
-"""import eventlet
-import eventlet.wsgi
-eventlet.monkey_patch()"""
-
 from flask import Flask, request, jsonify
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from setup.extensions import db# , socketio  # Import from extensions.py
-from models import User, Friendship  # Import models
+from flask_jwt_extended import JWTManager
+from setup.extensions import db
+from models import User, Friendship
 from models import User, Message, Chat, ChatParticipant
-from auth import auth  # Import auth routes
+from auth import auth
 from games.word_chain import word_chain_bp
 from games.word_blitz import word_blitz_bp
 from games.answer_checker import answer_checker_bp
 from games.letter_match import letter_match_bp
-from friends import friends_bp  # Import the new friends module
-from setup.seed_data import seed_question_sets # Import seed function
+from friends import friends_bp
+from setup.seed_data import seed_question_sets
 from profile_user import profile_bp
 import jwt
 from chat import chat_bp, get_active_chat_details, get_all_active_chat_details_as_array
 from utils.auth_utils import get_user_from_token
-
 
 app = Flask(__name__)
 
 # Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///LetterMatch.db'
 app.config['SECRET_KEY'] = 'VerySecretKey!'
+
+# JWT Configuration
+app.config['JWT_SECRET_KEY'] = 'super-secret-jwt-key'  # Change this in production
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
+app.config['JWT_HEADER_NAME'] = 'Authorization'
+app.config['JWT_HEADER_TYPE'] = 'Bearer'
+
 CORS(app)
 
 # Initialize Extensions
 db.init_app(app)
 migrate = Migrate(app, db)
-#socketio.init_app(app)
-#added
+jwt = JWTManager(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 # Register Blueprints
@@ -49,19 +51,11 @@ app.register_blueprint(friends_bp, url_prefix="/friends")
 app.register_blueprint(profile_bp, url_prefix="/profile")
 app.register_blueprint(chat_bp, url_prefix="/chat")
 
-    
 # Routes
 @app.route("/")
 def home():
     return jsonify({"message": "Backend is running!"})
 
-
-"""if __name__ == "__main__":
-    with app.app_context():  # Ensure app context is set
-        db.create_all()  # Create tables
-    app.run(debug=True, port=5000)"""
-
-    
 def get_jwt_token(request):
     token = request.headers.get('Authorization')
     if not token:
@@ -75,22 +69,11 @@ def get_jwt_token(request):
         return jsonify({"message": "Invalid or expired token!"}), 401
 
 with app.app_context():
-    db.create_all()  # Ensure all tables exist
+    db.create_all()
     seed_question_sets()
 
-
-
-# Chat Websockets
-# to be moved later
-
-"""from flask_socketio import SocketIO, emit, join_room, leave_room
-from models import User, Message, Chat, ChatParticipant
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet") 
-from utils.auth_utils import get_user_from_req"""
-
-
+# SocketIO Handlers
 username_to_sid = {} 
-
 
 @socketio.on('create_chat')
 def create_chat(data):
@@ -138,7 +121,6 @@ def create_chat(data):
         db.session.commit()
 
     room_name = chat.id
-    
     join_room(room_name)
 
     emit('joined_room', {'room_name': room_name}, room=sender_id)
@@ -151,7 +133,6 @@ def create_chat(data):
 
 @socketio.on('create_message')
 def create_message(data):
-
     token = data.get('token')
     if not token:
         emit('error', {'message': 'Missing token'})
@@ -180,7 +161,6 @@ def create_message(data):
     db.session.commit()  
     
     all_chat_details = get_all_active_chat_details_as_array(sender_user.id)
-
     new_chat_details = get_active_chat_details(chat.id, sender_user.id)
 
     new_message_details = {
@@ -196,13 +176,7 @@ def create_message(data):
 
     join_room(room_name, sid=request.sid)
 
-    emit('message_created',  {'all_chat_details': all_chat_details, 'new_chat_details': new_chat_details, 'new_message_details': new_message_details} , room=room_name)
-
-
-
-from flask_socketio import join_room, emit
-from utils.auth_utils import get_user_from_token
-from chat import get_all_active_chat_details_as_array 
+    emit('message_created',  {'all_chat_details': all_chat_details, 'new_chat_details': new_chat_details, 'new_message_details': new_message_details}, room=room_name)
 
 @socketio.on('join_chat_rooms')
 def join_chat_rooms(data):
@@ -229,9 +203,6 @@ def join_chat_rooms(data):
         room_ids.append(room_id)
 
     emit('joined_chat_rooms', {'rooms': room_ids}, room=request.sid)
-
-
-
 
 if __name__ == "__main__": 
     with app.app_context():
