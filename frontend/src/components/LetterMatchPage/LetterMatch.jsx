@@ -582,17 +582,18 @@ const LetterMatch = () => {
       <h1
           style={{
             fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-            marginBottom: '20px',
+            marginBottom: '-7px',
             textAlign: 'center',
             padding: '10px',
             maxWidth: '100%',
             wordBreak: 'break-word',
-            background: 'linear-gradient(to right, #4a90e2, #7519C6)', 
+            background: 'linear-gradient(to right,rgb(33, 73, 119), #7519C6)', 
             WebkitBackgroundClip: 'text', 
             WebkitTextFillColor: 'transparent', 
             backgroundClip: 'text', 
             color: 'transparent', 
             display: 'inline-block',
+            marginTop: '40px',
           }}
         >
           🌈✨ Letter Match ✨🌈

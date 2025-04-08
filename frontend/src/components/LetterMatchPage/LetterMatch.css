@@ -9,6 +9,7 @@
   background-position: center center;
   background-repeat: no-repeat; 
   font-family: 'Comic Sans MS', 'Marker Felt', 'Arial Rounded MT Bold', sans-serif;
+
 }
 
   
@@ -43,7 +44,7 @@
     margin-top: 0.5rem;
     margin-right: 5px;
     margin-left: 5px;
-    transform: scale(0.90);
+    transform: scale(0.9);
     border-radius: 5px;
     border: 1px solid #ccc;
     background-color: #fff; 
@@ -62,17 +63,15 @@
   .game-setup-container {
     max-width: 450px;
     width: 90%;
-    margin: 0 auto;
     padding: 1.5rem;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: flex;
     flex-direction: column;
     gap: 1rem;
     box-sizing: border-box;
-
-
+    justify-content: center;
+    align-items: center;
    
   }
   
@@ -106,6 +105,7 @@
   
   .room-input-container {
     margin: 15px 0;
+    transform: scale(0.97);
   }
   
   .room-name-input {
@@ -119,15 +119,18 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    transform: scale(0.95);
   }
   
   .room-name-input:focus {
     border-color: #9b59b6;
     box-shadow: 0 0 0 3px rgba(155, 89, 182, 0.2);
+    
   }
   
   .local-players-section {
     margin: 20px 0;
+    transform: scale(0.93);
   }
   
   .players-title {
@@ -164,6 +167,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    transform: scale(0.97);
   }
   
   .add-player-btn:hover {
@@ -181,6 +185,8 @@
     gap: 10px;
     font-weight: bold;
     color: #4a90e2;
+    text-align: center;
+
   }
   
   .time-limit-input {
@@ -189,6 +195,7 @@
     border-radius: 8px;
     width: 80px;
     text-align: center;
+    transform: scale(0.90);
   }
   
   .create-game-btn {
@@ -207,6 +214,7 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    transform: scale(0.97);
   }
   
   .create-game-btn:hover {
@@ -841,6 +849,7 @@
     width: 100%;
     justify-content: center;
     font-size: 1rem;
+    text-align: center;
   }
 
   .game-over-actions {
@@ -930,6 +939,12 @@
     font-size: 16px;
     overflow-x: hidden;
   }
+  
+  .game-setup-container {
+    padding: 1rem;
+    max-width: 95%;
+    width: 100%;
+  }
 
   /* Adjust container to be more compact */
   .create-game-container {
@@ -987,6 +1002,7 @@
     text-align: center !important;
     margin-right: 5px;
     margin-left: 5px;
+    
     
     
   }
