@@ -30,7 +30,23 @@ const GamesPage = () => {
 
     return (
         <Layout>
-            <h1 style={{ backgroundColor: 'var(--header-bg-color)', color: 'white', fontSize: '3rem' }}>🎮 GAMES 🎮</h1>
+            <div style={{ textAlign: 'center' }}>
+        <h1
+            style={{
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+            marginBottom: '20px',
+            padding: '10px 24px',
+            wordBreak: 'break-word',
+            background: 'linear-gradient(to right, #4a90e2, rgb(57, 25, 198))',
+            display: 'inline-block',
+            borderRadius: '8px',
+            color: 'white',
+            }}
+        >
+            🎮 GAMES 🎮
+        </h1>
+        </div>
+
 
             <div>
                 <section>
