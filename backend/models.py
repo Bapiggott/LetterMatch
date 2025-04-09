@@ -176,7 +176,7 @@ class playerAnswer_LetterMatch(db.Model):
 
 #correct answers table 
 class letterMatch_answers(db.Model):
-    __tablename__ = 'LetterMatch_Answers'
+    __tablename__ = 'LetterMatch_answers'
     id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
     correct_answer = db.Column(db.String, nullable=False)

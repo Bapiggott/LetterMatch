@@ -17,9 +17,7 @@ letter_match_bp = Blueprint('letter_match', __name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-#
-# Optional: If you want AI validation, define your dictionaries here:
-#
+
 
 def ai_valid(word, category):
     """
@@ -368,6 +366,11 @@ def submit_all_answers():
     results = {}
     try:
         for qid_str, word in answers_map.items():
+
+            #allows the game to skip emty letters
+            if not word:
+                continue
+
             qid = int(qid_str)
 
             gqb = game_question_lettermatch.query.filter_by(game_id=game.id, question_id=qid).first()
@@ -375,18 +378,11 @@ def submit_all_answers():
                 results[qid_str] = {"word": word, "status": "❌ Invalid question"}
                 continue
 
-            # Must start with the letter
+            # Must start with the letter 
             if not word or word[0].upper() != gqb.letter.upper():
                 results[qid_str] = {"word": word, "status": f"❌ Must start with {gqb.letter}"}
                 continue
 
-            # (Optional) AI validate by category
-            question_obj = question_LetterMatch.query.get(qid)
-            if question_obj:
-                cat = prompt_to_category(question_obj.prompt)
-                if cat and not ai_valid(word, cat):
-                    results[qid_str] = {"word": word, "status": "❌ Not valid per AI check"}
-                    continue
 
             # if passes checks, record answer
             new_ans = playerAnswer_LetterMatch(
