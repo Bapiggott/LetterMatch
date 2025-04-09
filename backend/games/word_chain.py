@@ -2,13 +2,14 @@ import traceback
 from flask import Blueprint, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from setup.extensions import db
-from models import Game, Player, Word
+from models import Game, Player, Word, User
 from threading import Timer
 
 word_chain_bp = Blueprint('word_chain', __name__)
 
 # Keep track of active timers for the "start_timer" endpoint
 active_timers = {}
+
 
 @word_chain_bp.route("/create", methods=["POST"])
 def create_word_chain():
@@ -220,12 +221,21 @@ def veto_word():
 
         # Only admin can veto words
         admin = Player.query.filter_by(game_id=game.id).order_by(Player.id.asc()).first()
-        if not admin or admin.username != admin_username:
+        print(f"Admin: {admin}, Admin Username: {admin_username}")
+        user = User.query.filter_by(username=admin_username).first()
+        if not user:
+            print(f"No User found for {admin_username}")
+            return jsonify({"error": "Invalid admin username"}), 404
+        print(f"User: {user}, User_role: {user.role}")
+        if user.role == 1:
+            print(f"User '{admin_username}' is not an admin")
             return jsonify({"error": "Only the admin can veto words"}), 403
+
 
         # Check if the word is in the chain
         w = Word.query.filter_by(game_id=game.id, word=word_to_veto).first()
         if not w:
+            print(f"Word '{word_to_veto}' not found in game {room}")
             return jsonify({"error": f"Word '{word_to_veto}' not found in the game"}), 404
 
         # Remove it
