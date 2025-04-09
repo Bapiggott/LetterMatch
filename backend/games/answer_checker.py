@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from setup.extensions import db
-from models import Answer, Game, User, Question_blitz, Word_blitz, AnswerVote, Player, QuestionSet_blitz as QuestionSet
+from models import Answer, Game, User, Question_blitz, Word_blitz, AnswerVote, Player, QuestionSet_blitz as QuestionSet, GameQuestionBlitz
 from datetime import datetime
 from ollama import chat, ChatResponse
 import json
@@ -8,6 +8,91 @@ import traceback
 
 answer_checker_bp = Blueprint('answer_checker', __name__)
 
+@answer_checker_bp.route("/check1", methods=["POST"])
+def check_answer1():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No JSON body provided"}), 400
+
+        game_id = data.get("game_id")
+        question_id = data.get("question_id")
+        username = data.get("username")  # Changed from user_name to username for consistency
+        answer_text = (data.get("answer_text") or "").strip()
+
+        if not all([game_id, question_id, username, answer_text]):
+            return jsonify({"error": "Missing required fields"}), 400
+
+        game = Game.query.get(game_id)
+        if not game:
+            return jsonify({"error": "Game not found"}), 404
+
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        question = Question_blitz.query.get(question_id)
+        if not question:
+            return jsonify({"error": "Question not found"}), 404
+
+        # 1. Insert a new Answer row for this submission.
+        new_answer = Answer(
+            game_id=game_id,
+            question_id=question_id,
+            user_id=user.id,
+            answer_text=answer_text
+        )
+        db.session.add(new_answer)
+        db.session.commit()
+
+        # 2. Prepare the system prompt for AI correctness checking
+        system_prompt = (
+            "You are a correctness checker. Respond in JSON format only:\n"
+            "{\"correct\": boolean, \"explanation\": \"text\"}"
+        )
+        user_prompt = f"Question: {question.prompt}\nAnswer: {answer_text}\nIs this correct?"
+
+        # 3. Call the AI model (Ollama or another)
+        try:
+            response: ChatResponse = chat(
+                model="llama3.2:1b",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                format="json",
+            )
+            ai_response = json.loads(response.message.content)
+        except Exception as e:
+            print(f"AI error: {str(e)}")
+            ai_response = {"correct": False, "explanation": "AI verification failed"}
+
+        # 4. Update the new Answer with AI’s result
+        new_answer.ai_correct = bool(ai_response.get("correct", False))
+        new_answer.ai_result = ai_response.get("explanation", "")
+        db.session.commit()
+
+        # 5. If AI says it's correct, increment the player's score right away.
+        if new_answer.ai_correct:
+            # Lookup the Player record for this user in this game
+            player = Player.query.filter_by(game_id=game_id, username=username).first()
+            if player:
+                # Add 10 points (or 1, or any logic you desire)
+                player.score += 10
+                db.session.commit()
+
+        return jsonify({
+            "message": "Answer checked via AI",
+            "ai_correct": new_answer.ai_correct,
+            "ai_result": new_answer.ai_result,
+            "answer_id": new_answer.id
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error in check_answer: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+    
 @answer_checker_bp.route("/check", methods=["POST"])
 def check_answer():
     try:
@@ -41,14 +126,17 @@ def check_answer():
         gqb = GameQuestionBlitz.query.filter_by(game_id=game.id, question_id=question_id).first()
         if not gqb:
             return jsonify({"error": "Invalid question/letter assignment"}), 404
-
+        print(f"Letter for question {question_id} is {gqb.letter}.")
+        Correct_Letter = True
         # If the first letter doesn’t match, return an error.
         if not answer_text or answer_text[0].upper() != gqb.letter.upper():
-            return jsonify({
+            print(f"Answer '{answer_text}' does not start with '{gqb.letter}'.")
+            Correct_Letter = False
+            """return jsonify({
                 "error": f"Answer must start with '{gqb.letter}'",
                 "message": "No AI check or vote possible when letter doesn't match."
             }), 400
-
+"""
         # 3. At this point the letter matches => create the Answer row
         new_answer = Answer(
             game_id=game_id,
@@ -58,29 +146,30 @@ def check_answer():
         )
         db.session.add(new_answer)
         db.session.commit()
-
-        # 4. Prepare AI system prompt
-        system_prompt = (
-            "You are a correctness checker. Respond in JSON format only:\n"
-            "{\"correct\": boolean, \"explanation\": \"text\"}"
-        )
-        user_prompt = f"Question: {question.prompt}\nAnswer: {answer_text}\nIs this correct?"
-
-        # 5. Call AI
-        try:
-            response: ChatResponse = chat(
-                model="llama3.2:1b",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                format="json",
+        if Correct_Letter:
+            # 4. Prepare AI system prompt
+            system_prompt = (
+                "You are a correctness checker. Respond in JSON format only:\n"
+                "{\"correct\": boolean, \"explanation\": \"text\"}"
             )
-            ai_response = json.loads(response.message.content)
-        except Exception as e:
-            print(f"AI error: {str(e)}")
-            ai_response = {"correct": False, "explanation": "AI verification failed"}
+            user_prompt = f"Question: {question.prompt}\nAnswer: {answer_text}\nIs this correct?"
 
+            # 5. Call AI
+            try:
+                response: ChatResponse = chat(
+                    model="llama3.2:1b",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    format="json",
+                )
+                ai_response = json.loads(response.message.content)
+            except Exception as e:
+                print(f"AI error: {str(e)}")
+                ai_response = {"correct": False, "explanation": "AI verification failed"}
+        else:
+            ai_response = {"correct": False, "explanation": "Letter mismatch"}
         # 6. Update the Answer row with AI correctness
         new_answer.ai_correct = bool(ai_response.get("correct", False))
         new_answer.ai_result = ai_response.get("explanation", "")
