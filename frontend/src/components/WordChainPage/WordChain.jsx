@@ -36,6 +36,7 @@ const WordChain = () => {
         if (response.ok) {
           const data = await response.json();
           setLoggedInUser(data.username);
+          setIsAdmin(data.role === 0); // Set admin status based on role
         }
       } catch (error) {
         console.error("Error fetching user:", error);
@@ -77,11 +78,12 @@ const WordChain = () => {
 
   useEffect(() => {
     if (players.length > 0 && currentUser) {
-      setIsAdmin(players[0] === currentUser);
+      // User is admin if they're first player OR have admin role (isAdmin)
+      setIsAdmin(players[0] === currentUser || isAdmin);
     } else {
       setIsAdmin(false);
     }
-  }, [players, currentUser]);
+  }, [players, currentUser, isAdmin]);
 
   const createGame = async () => {
     if (!room) {
@@ -192,7 +194,6 @@ const WordChain = () => {
         setStatus(`✅ ${data.message}`);
         wordInput.value = "";
         
-        // Only advance turn if in local game and word was successfully submitted
         if (inLocalGame && !data.error) {
           advanceToNextTurn();
         }
@@ -257,7 +258,6 @@ const WordChain = () => {
 
     setTurnPlayers(updated);
     
-    // Adjust turn index if needed
     let newIndex = currentTurnIndex;
     if (currentTurnIndex >= updated.length) {
       newIndex = 0;
@@ -302,9 +302,18 @@ const WordChain = () => {
 
     const duration = 30;
     try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/start_timer`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({
           room,
           admin_username: loggedInUser,
@@ -352,9 +361,18 @@ const WordChain = () => {
       return;
     }
     try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/kick_player`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({
           room,
           admin_username: gameMode === "online" ? loggedInUser : currentUser,
@@ -384,10 +402,23 @@ const WordChain = () => {
       return;
     }
 
+    if (!window.confirm(`Are you sure you want to veto the word "${wordToVeto}"?`)) {
+      return;
+    }
+
     try {
+      const token = localStorage.getItem("token");
+      const headers = {
+        "Content-Type": "application/json",
+      };
+      
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(`${API_BASE_URL}/veto_word`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers,
         body: JSON.stringify({
           room,
           admin_username: gameMode === "online" ? loggedInUser : currentUser,
@@ -414,23 +445,22 @@ const WordChain = () => {
   return (
     <Layout>
       <div className="word-blitz-container">
-      <h1
+        <h1
           style={{
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              marginBottom: '20px',
-              textAlign: 'center',
-              padding: '10px',
-              maxWidth: '100%',
-              wordBreak: 'break-word',
-              background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
-              display: 'inline-block',
-              borderRadius: '8px',
-              color: 'white',
-              
+            fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+            marginBottom: '20px',
+            textAlign: 'center',
+            padding: '10px',
+            maxWidth: '100%',
+            wordBreak: 'break-word',
+            background: 'linear-gradient(to right, #4a90e2,rgb(57, 25, 198))',  
+            display: 'inline-block',
+            borderRadius: '8px',
+            color: 'white',
           }}
-          >
-              🌈✨ Word Chain ✨🌈
-      </h1>
+        >
+          🌈✨ Word Chain ✨🌈
+        </h1>
   
         <div className="game-setup-container">
           <h2 className="setup-title">🎮 Choose Game Mode</h2>
@@ -468,13 +498,13 @@ const WordChain = () => {
               </div>
   
               {gameMode === "local" && (
-                <div className="player-name-input-container">
+                <div className="room-name-input-container">
                   <input
                     type="text"
                     placeholder="👤 Your Username"
                     value={currentUser}
                     onChange={(e) => setCurrentUser(e.target.value)}
-                    className="player-name-input"
+                    className="room-name-input"
                   />
                 </div>
               )}
@@ -484,6 +514,7 @@ const WordChain = () => {
                   <span className="online-username-value">
                     {loggedInUser || "Not logged in!"}
                   </span>
+                  {isAdmin && <span className="admin-badge">👑 Admin</span>}
                 </p>
               )}
   
@@ -536,11 +567,15 @@ const WordChain = () => {
             <ul className="players-list">
               {players.map((p, index) => (
                 <li key={index} className="player-item">
-                  👤 {p}
-                  {isAdmin && p !== currentUser && p !== loggedInUser && (
+                  <span className="player-name">
+                    {index === 0 ? "👑 " : "👤 "}{p}
+                    {p === loggedInUser && " (You)"}
+                  </span>
+                  {isAdmin && p !== loggedInUser && (
                     <button
                       onClick={() => kickPlayer(p)}
                       className="kick-player-btn"
+                      title="Remove player from game"
                     >
                       🚫 Kick
                     </button>
@@ -584,13 +619,14 @@ const WordChain = () => {
             <ul className="word-chain-list">
               {wordChain.map((w, index) => (
                 <li key={index} className="word-chain-item">
-                  {w}
+                  <span className="word-text">{w}</span>
                   {isAdmin && (
                     <button
                       onClick={() => vetoWord(w)}
                       className="veto-btn"
+                      title="Remove this word (admin only)"
                     >
-                      ❌ Veto
+                      <span className="icon">✖</span> Veto
                     </button>
                   )}
                 </li>
@@ -606,6 +642,7 @@ const WordChain = () => {
               placeholder="✨ Enter a word" 
               className="word-input" 
               id="wordInput" 
+              onKeyPress={(e) => e.key === 'Enter' && submitWord()}
             />
             <button onClick={submitWord} className="submit-word-btn">
               🚀 Submit
@@ -613,7 +650,7 @@ const WordChain = () => {
           </div>
         </div>
   
-        <p className={`status-message ${status.includes('Error') ? 'error' : ''}`}>
+        <p className={`status-message ${status.includes('❌') ? 'error' : ''}`}>
           {status}
         </p>
       </div>
