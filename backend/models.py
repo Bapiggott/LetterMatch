@@ -175,10 +175,10 @@ class playerAnswer_LetterMatch(db.Model):
 
 
 #correct answers table 
-class LetterMatch_Answers(db.Model):
+class letterMatch_answers(db.Model):
     __tablename__ = 'LetterMatch_Answers'
     id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
     correct_answer = db.Column(db.String, nullable=False)
 
         # Relationship to question_lettermatch

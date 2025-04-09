@@ -191,7 +191,7 @@ def start_game():
     room = data.get('room')
     username = data.get('username')
     chosen_letter = data.get('letter')  # Might be None or "random"
-    round_count = data.get('rounds', 5) #set to 5 to display 5 questions
+    round_count = data.get('rounds', 5)
 
     if not room or not username:
         return jsonify({'error': 'Missing room or username'}), 400
@@ -398,15 +398,8 @@ def submit_all_answers():
             )
             db.session.add(new_ans)
 
-            #to see whats being inserted b4 commiting
-            logger.info(f"Inserting answer: game_id={game.id}, player_id={player.id}, question_id={qid}, answer={word}, is_correct=True")
-            db.session.commit()
-
-            db.session.commit()  # Commit the changes
-
             # reward points
             player.score += 10
-            db.session.commit()  # Commit changes to database
             results[qid_str] = {"word": word, "status": "✅ Accepted"}
 
         db.session.commit()
