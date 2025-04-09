@@ -236,9 +236,9 @@ const PostGameChecker = ({ visible, onClose, gameId, isAdmin, onScoresChanged })
         {error && <p className="error-message">🚨 {error} 🚨</p>}
         {loading && <p className="loading-message">Loading...</p>}
 
-        <div className="debug-info">
+        {/*<div className="debug-info">
           <p>Logged in as {loggedInUser || 'Guest'} | Answers: {answersState.length}</p>
-        </div>
+        </div>*/}
   
         <div className="checker-table">
           {answersState.map((ans, idx) => {
@@ -361,13 +361,13 @@ const PostGameChecker = ({ visible, onClose, gameId, isAdmin, onScoresChanged })
                   )}
                 </div>
 
-                <div className="debug-row-info">
+                {/*<div className="debug-row-info">
                   <small>
                     AnswerID: {ans.answerId || 'none'} | 
                     VoteRequested: {ans.voteRequested ? 'yes' : 'no'} | 
                     Override: {ans.adminOverride ? 'yes' : 'no'}
                   </small>
-                </div>
+                </div>*/}
               </div>
             );
           })}

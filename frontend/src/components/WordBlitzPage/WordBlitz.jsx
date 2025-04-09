@@ -632,7 +632,7 @@ const WordBlitz = () => {
         {/* Add custom questions button */}
         {!inRoom && (
           <button
-            className="add-questions-button"
+            className="custom-questions-btn"
             onClick={() => setIsModalOpen(true)}
           >
             🧩 Add Custom Questions
