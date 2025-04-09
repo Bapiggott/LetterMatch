@@ -418,6 +418,7 @@ def submit_all_answers():
         return jsonify({"error": "Server error"}), 500
 
 
+
 @letter_match_bp.route('/all_answers', methods=['GET'])
 def all_answers():
     """

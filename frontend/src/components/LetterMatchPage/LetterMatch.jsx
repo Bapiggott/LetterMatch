@@ -428,30 +428,6 @@ const LetterMatch = () => {
   };
 
   //---------------------------------------------------------------------------
-  // 9. Add Custom Questions (example)
-  //---------------------------------------------------------------------------
-  const submitCustomQuestions = async () => {
-    if (!customSetName) {
-      return setStatus("❌ Please enter a set name!");
-    }
-    try {
-      const response = await fetch(`${API_BASE_URL}/add_questions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ set_name: customSetName, questions: customQuestions }),
-      });
-      const data = await response.json();
-      setStatus(data.message || data.error);
-      setIsModalOpen(false);
-      setCustomSetName("");
-      setCustomQuestions(Array(10).fill(""));
-    } catch (err) {
-      console.error(err);
-      setStatus("❌ Server error adding custom questions");
-    }
-  };
-
-  //---------------------------------------------------------------------------
   // 10. POST-GAME CHECKER (Check All Answers)
   //---------------------------------------------------------------------------
   const [checkerVisible, setCheckerVisible] = useState(false);
@@ -635,15 +611,8 @@ const LetterMatch = () => {
           </div>
         )}
 
-        {/* Add custom questions button */}
-        {!inRoom && (
-          <button
-            className="add-questions-button"
-            onClick={() => setIsModalOpen(true)}
-          >
-            🧩 Add Custom Questions
-          </button>
-        )}
+       
+       
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="modal-content">
@@ -778,9 +747,7 @@ const LetterMatch = () => {
                   🔄 Play Again?
                 </button>
               )}
-              <button onClick={handleShowChecker} className="check-answers-btn">
-                🔍 Check All Answers
-              </button>
+
             </div>
           </div>
         )}
