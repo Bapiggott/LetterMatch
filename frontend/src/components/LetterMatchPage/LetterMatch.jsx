@@ -332,18 +332,7 @@ const LetterMatch = () => {
       localPlayerName = p.username;
     }
   
-    // so users can submit despite answers not being
-    if (!autoFromTimer && gameType === "LetterMatchLocal") {
-
-      //had to comment this so users dont have to fill the entire questions
-     /* for (const q of questions) {
-        // Ensure it checks for empty or whitespace-only answers
-        if (!answers[q.question_id] && !answers[q.question_id].trim()) {
-          setStatus(`❌ Please fill all answers before submitting!`);
-          return;
-        }
-      } */
-    }
+    
 
   
     // Submit answers
