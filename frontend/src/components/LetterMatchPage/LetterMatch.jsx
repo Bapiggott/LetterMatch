@@ -82,22 +82,26 @@ const LetterMatch = () => {
   useEffect(() => {
     if (gameType !== "LetterMatchLocal") return;
     if (!gameStarted || gameOver) return;
-
+  
+    // Get the username of the current player whose turn it is
+    const currentPlayer = players[currentLocalPlayerIndex]?.username;
+    if (!currentPlayer) return;
+  
+    // Only run timer for the current player
     const intervalId = setInterval(() => {
       setLocalTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(intervalId);
-          // Auto-submit for this player
-          submitAllAnswers(true);
+          submitAllAnswers(true); // Auto-submit for current player
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-
+  
     return () => clearInterval(intervalId);
-  }, [gameType, gameStarted, gameOver, currentLocalPlayerIndex]);
-
+  }, [gameType, gameStarted, gameOver, currentLocalPlayerIndex, players]);
+  
   //---------------------------------------------------------------------------
   // 3. For ONLINE: poll server for "time_left" etc.
   //---------------------------------------------------------------------------

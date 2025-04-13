@@ -211,7 +211,7 @@ def start_game():
         # remove existing associations if any
         game_question_lettermatch.query.filter_by(game_id=game.id).delete()
 
-        # fetch random questions
+        # fetch questions
         questions = question_LetterMatch.query.order_by(func.random()).limit(round_count).all()
         if not questions:
             return jsonify({'error': 'No letter-match questions in DB'}), 400
@@ -305,6 +305,7 @@ def get_state():
         'players': player_data,
         'questions': questions_data,
         'time_left': time_left
+         
     })
 
 
@@ -313,6 +314,8 @@ def open_games():
     # Return all LetterMatchOnline games that have not started yet
     games = Game.query.filter_by(started=False, game_type='LetterMatchOnline').all()
     result = []
+
+
     for g in games:
         p_list = Player.query.filter_by(game_id=g.id).all()
         players = [p.username for p in p_list]
@@ -350,41 +353,49 @@ def submit_all_answers():
     if not game:
         return jsonify({'error': 'Game not found'}), 404
 
-    # Has the game started? Time check?
-    if not game.started:
-        return jsonify({'error': 'Game not started yet'}), 400
-
-    elapsed = (datetime.utcnow() - game.start_time).total_seconds() if game.start_time else 0
-    if elapsed > game.time_limit:
-        return jsonify({"error": "Time is up"}), 400
-
     player = Player.query.filter_by(game_id=game.id, username=username).first()
     if not player:
         print(f"Player {username} not found in game {room}")
         return jsonify({'error': 'Player not found in this game'}), 404
 
+    # Time check
+    elapsed = (datetime.utcnow() - game.start_time).total_seconds() if game.start_time else 0
+    if elapsed > game.time_limit:
+        print(f"Time is up for {username}. Elapsed: {elapsed:.2f}s")
+
+        # Optional: Mark timeout somehow if needed, like setting a flag
+
+        # Handle local turn advancement if applicable
+        if game.game_type == "LetterMatchLocal":
+            players = Player.query.filter_by(game_id=game.id).order_by(Player.id).all()
+            current_index = next((i for i, p in enumerate(players) if p.username == username), 0)
+            next_index = (current_index + 1) % len(players)
+            game.current_turn = next_index
+            game.start_time = datetime.utcnow()
+            db.session.commit()
+
+        return jsonify({
+            "message": "⏰ Time is up! No answers recorded.",
+            "results": {},
+            "score": player.score
+        }), 200
+
     results = {}
     try:
         for qid_str, word in answers_map.items():
-
-            #allows the game to skip emty letters
             if not word:
                 continue
 
             qid = int(qid_str)
-
             gqb = game_question_lettermatch.query.filter_by(game_id=game.id, question_id=qid).first()
             if not gqb:
                 results[qid_str] = {"word": word, "status": "❌ Invalid question"}
                 continue
 
-            # Must start with the letter 
-            if not word or word[0].upper() != gqb.letter.upper():
+            if word[0].upper() != gqb.letter.upper():
                 results[qid_str] = {"word": word, "status": f"❌ Must start with {gqb.letter}"}
                 continue
 
-
-            # if passes checks, record answer
             new_ans = playerAnswer_LetterMatch(
                 game_id=game.id,
                 player_id=player.id,
@@ -393,19 +404,20 @@ def submit_all_answers():
                 is_correct=True
             )
             db.session.add(new_ans)
-
-            #to see whats being inserted b4 commiting
             logger.info(f"Inserting answer: game_id={game.id}, player_id={player.id}, question_id={qid}, answer={word}, is_correct=True")
-            db.session.commit()
-
-            db.session.commit()  # Commit the changes
-
-            # reward points
             player.score += 10
-            db.session.commit()  # Commit changes to database
             results[qid_str] = {"word": word, "status": "✅ Accepted"}
 
         db.session.commit()
+
+        if game.game_type == "LetterMatchLocal":
+            players = Player.query.filter_by(game_id=game.id).order_by(Player.id).all()
+            current_index = next((i for i, p in enumerate(players) if p.username == username), 0)
+            next_index = (current_index + 1) % len(players)
+            game.current_turn = next_index
+            game.start_time = datetime.utcnow()
+            db.session.commit()
+
         return jsonify({
             "message": "All answers submitted!",
             "results": results,
@@ -416,7 +428,6 @@ def submit_all_answers():
         logger.error("Error in submit_all", exc_info=True)
         db.session.rollback()
         return jsonify({"error": "Server error"}), 500
-
 
 
 @letter_match_bp.route('/all_answers', methods=['GET'])
