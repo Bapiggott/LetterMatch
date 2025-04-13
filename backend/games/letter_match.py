@@ -10,6 +10,7 @@ from models import (
     game_question_lettermatch,
     question_LetterMatch,
     playerAnswer_LetterMatch,
+    letterMatch_answers,
 )
 
 letter_match_bp = Blueprint('letter_match', __name__)
@@ -17,52 +18,18 @@ letter_match_bp = Blueprint('letter_match', __name__)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+#to validate the player's answer is correct
+def validate_answer(question_id, player_answer):
+    # Get all valid answers for the question/category
+    correct_answers = letterMatch_answers.query.filter_by(category_id=question_id).all()
+
+    # creates correct answer set in uppercase
+    correct_answers_set = {a.answer.lower() for a in correct_answers}
+
+    # check if player answer = correct answer in db
+    return player_answer.strip().lower() in correct_answers_set
 
 
-def ai_valid(word, category):
-    """
-    Checks if 'word' appears in the known 'category' dict below.
-    category is one of: 'Names', 'Animals', 'Objects', 'Cities_or_Countries', 'Foods'.
-    """
-    word = word.strip()
-    if not word:
-        return False
-
-    category_map = {
-        'Names': {
-            'A': ['Alice','Adam','Aaron'],
-            'B': ['Ben','Bella','Bobby'],
-            'C': ['Charlie','Catherine','Chris'],
-            # ... fill out as desired ...
-        },
-        'Animals': {
-            'A': ['Antelope','Alligator','Aardvark'],
-            'B': ['Bear','Bison','Bat'],
-            # ... fill out as desired ...
-        },
-        'Objects': {
-            'A': ['Apple','Anchor','Armchair'],
-            'B': ['Ball','Bottle','Broom'],
-            # ... fill out as desired ...
-        },
-        'Cities_or_Countries': {
-            'A': ['Amsterdam','Athens','Algeria'],
-            'B': ['Berlin','Brussels','Brazil'],
-            # ... fill out as desired ...
-        },
-        'Foods': {
-            'A': ['Apple','Apricot','Avocado'],
-            'B': ['Banana','Blueberry','Blackberry'],
-            # ... fill out as desired ...
-        },
-    }
-
-    # Must map first letter to uppercase
-    first_letter = word[0].upper()
-    valid_set = category_map.get(category, {}).get(first_letter, [])
-
-    # Compare capitalized
-    return word.capitalize() in valid_set
 
 def prompt_to_category(prompt):
     """
@@ -396,27 +363,43 @@ def submit_all_answers():
                 results[qid_str] = {"word": word, "status": f"❌ Must start with {gqb.letter}"}
                 continue
 
+            #inserttt
+            required_letter = gqb.letter
+            is_correct = False
+            score = 0
+
+            if word[0].upper() != required_letter.upper():
+                status_msg = f"❌ Must start with {required_letter}"
+            else:
+                if validate_answer(qid, word):
+                    is_correct = True
+                    score = 10
+                    status_msg = "✅ Accepted"
+                else:
+                    status_msg = "❌ Not a valid answer"
+
+            # Save answer with correct validation
             new_ans = playerAnswer_LetterMatch(
                 game_id=game.id,
                 player_id=player.id,
                 question_id=qid,
                 answer=word,
-                is_correct=True
+                is_correct=is_correct
             )
             db.session.add(new_ans)
-            logger.info(f"Inserting answer: game_id={game.id}, player_id={player.id}, question_id={qid}, answer={word}, is_correct=True")
-            player.score += 10
-            results[qid_str] = {"word": word, "status": "✅ Accepted"}
 
-        db.session.commit()
+            player.score += score
+            results[qid_str] = {"word": word, "status": status_msg}
 
-        if game.game_type == "LetterMatchLocal":
-            players = Player.query.filter_by(game_id=game.id).order_by(Player.id).all()
-            current_index = next((i for i, p in enumerate(players) if p.username == username), 0)
-            next_index = (current_index + 1) % len(players)
-            game.current_turn = next_index
-            game.start_time = datetime.utcnow()
             db.session.commit()
+
+            if game.game_type == "LetterMatchLocal":
+                players = Player.query.filter_by(game_id=game.id).order_by(Player.id).all()
+                current_index = next((i for i, p in enumerate(players) if p.username == username), 0)
+                next_index = (current_index + 1) % len(players)
+                game.current_turn = next_index
+                game.start_time = datetime.utcnow()
+                db.session.commit()
 
         return jsonify({
             "message": "All answers submitted!",

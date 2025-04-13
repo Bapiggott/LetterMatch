@@ -8,6 +8,9 @@ const PostGameChecker = ({ visible, onClose, gameId, isAdmin, onScoresChanged })
   const [userVotes, setUserVotes] = useState({});
   const [loggedInUser, setLoggedInUser] = useState("");
 
+
+
+
   const CHECKER_API = "http://localhost:5000/answer_checker";
   const API_URL = "http://localhost:5000";
 

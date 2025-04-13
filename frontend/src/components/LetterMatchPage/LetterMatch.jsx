@@ -53,6 +53,10 @@ const LetterMatch = () => {
   const [customSetName, setCustomSetName] = useState("");
   const [customQuestions, setCustomQuestions] = useState(Array(10).fill(""));
 
+  //to initalize the 10 seconds left warning
+  const [isWarning, setIsWarning] = useState(false);
+  const [isTurnNotify, setIsTurnNotify] = useState(false);
+
   //---------------------------------------------------------------------------
   // 1. On mount, fetch logged-in user (for online)
   //---------------------------------------------------------------------------
@@ -101,6 +105,7 @@ const LetterMatch = () => {
   
     return () => clearInterval(intervalId);
   }, [gameType, gameStarted, gameOver, currentLocalPlayerIndex, players]);
+
   
   //---------------------------------------------------------------------------
   // 3. For ONLINE: poll server for "time_left" etc.
@@ -116,6 +121,15 @@ const LetterMatch = () => {
       if (pollId) clearInterval(pollId);
     };
   }, [inRoom, gameOver, gameType]);
+
+
+  //10 seconds left popup warning ------------------------------
+  useEffect(() => {
+    if (localTimeLeft === 10) {
+      setIsWarning(true);
+      setTimeout(() => setIsWarning(false), 3000); // Hide the warning after 3 seconds
+    }
+  }, [localTimeLeft]);
 
   //---------------------------------------------------------------------------
   // fetchGameState (ONLINE only) – local is handled in front end
@@ -390,13 +404,15 @@ const LetterMatch = () => {
     } else {
       setCurrentLocalPlayerIndex(nextIndex);
       setLocalTimeLeft(timeLimit);
-
+  
       const blankAnswers = {};
       questions.forEach((q) => {
         blankAnswers[q.question_id] = "";
       });
       setAnswers(blankAnswers);
       setStatus(`Now it's ${players[nextIndex].username}'s turn!`);
+      setIsTurnNotifi(true);
+      setTimeout(() => setIsTurnNotify(false), 3000); // Hide the notification after 3 seconds
     }
   };
 
@@ -688,6 +704,24 @@ const LetterMatch = () => {
               ))}
             </ul>
 
+
+            {/* Show current player and timer for LOCAL mode */}
+            {gameStarted && !gameOver && gameType === "LetterMatchLocal" && (
+             
+              <div className="turn-info">
+                <h2> 🎮 It's <span className="turn-popup">{currentLocalPlayerName}</span>'s turn!</h2>
+                
+
+                {/* 10 second warning */}
+                {isWarning && (
+                  <div className="warning-message">
+                    ⚠️ 10 seconds left! SUBMIT QUICK to avoid 0pts !!! ⚠️
+                  </div>
+                )}
+              </div>
+            )}
+
+
             <div className="question-list">
               {questions.map((q) => (
                 <div key={q.question_id} className="question-box">
@@ -744,6 +778,7 @@ const LetterMatch = () => {
             </div>
           </div>
         )}
+        
 
         <p className={`status-message ${status.includes("Error") ? "error" : ""}`}>
           {status}

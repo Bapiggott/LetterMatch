@@ -179,7 +179,8 @@ class letterMatch_answers(db.Model):
     __tablename__ = 'LetterMatch_answers'
     id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('question_LetterMatch.id'), nullable=False)
-    correct_answer = db.Column(db.String, nullable=False)
+    answer = db.Column(db.String, nullable=False)
+    letter= db.Column(db.String, nullable=False)
 
-        # Relationship to question_lettermatch
+    # Relationship to question_lettermatch
     question = db.relationship("question_LetterMatch", backref="correct_answers", lazy=True)
