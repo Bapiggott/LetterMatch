@@ -238,7 +238,18 @@ def get_state():
     if not game:
         return jsonify({'error': 'Game not found'}), 404
 
-    players = Player.query.filter_by(game_id=game.id).all()
+    if game.started and game.start_time:
+        elapsed = (datetime.utcnow() - game.start_time).total_seconds()
+        game_ended = elapsed >= game.time_limit
+    else:
+        game_ended = False
+
+    # sorts by score when game is over
+    if game_ended:
+        players = Player.query.filter_by(game_id=game.id).order_by(Player.score.desc()).all()
+    else:
+        players = Player.query.filter_by(game_id=game.id).order_by(Player.id).all()
+
     player_data = []
     for p in players:
         player_data.append({

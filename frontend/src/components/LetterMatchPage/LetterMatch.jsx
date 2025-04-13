@@ -57,6 +57,10 @@ const LetterMatch = () => {
   const [isWarning, setIsWarning] = useState(false);
   const [isTurnNotify, setIsTurnNotify] = useState(false);
 
+  //online mode submit >> locks input if user hit submit
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+
   //---------------------------------------------------------------------------
   // 1. On mount, fetch logged-in user (for online)
   //---------------------------------------------------------------------------
@@ -115,12 +119,15 @@ const LetterMatch = () => {
     if (inRoom && gameType === "LetterMatchOnline" && !gameOver) {
       pollId = setInterval(() => {
         fetchGameState();
-      }, 3000);
+      }, 1000);
     }
     return () => {
       if (pollId) clearInterval(pollId);
     };
   }, [inRoom, gameOver, gameType]);
+
+  //synchs start time so both online players can start at same time
+
 
 
   //10 seconds left popup warning ------------------------------
@@ -154,6 +161,11 @@ const LetterMatch = () => {
           initAns[q.question_id] = "";
         });
         setAnswers((old) => ({ ...initAns, ...old }));
+      }
+
+      // Update time_left (only for online game mode)
+      if (gameType === "LetterMatchOnline") {
+        setLocalTimeLeft(data.time_left);
       }
   
       if (data.started && data.time_left === 0) {
@@ -335,6 +347,9 @@ const LetterMatch = () => {
   // 7. SUBMIT answers
   //---------------------------------------------------------------------------
   const submitAllAnswers = async (autoFromTimer = false) => {
+    //prevent submission
+    if (gameType === "LetterMatchOnline" && hasSubmitted) return; 
+
     // Validation
     if (!questions.length) {
       return setStatus("❌ No questions to answer.");
@@ -372,7 +387,12 @@ const LetterMatch = () => {
         if (gameType === "LetterMatchLocal") {
           await reloadPlayersScores(); // Reload updated scores for local game
           advanceLocalTurn(); // Advance to the next player's turn
-        } else {
+        }
+        if (gameType === "LetterMatchOnline") {
+          setHasSubmitted(true); //to lock submission
+        }
+
+        else {
           fetchGameState(); // Fetch updated game state for online game
         }
       }
@@ -411,7 +431,7 @@ const LetterMatch = () => {
       });
       setAnswers(blankAnswers);
       setStatus(`Now it's ${players[nextIndex].username}'s turn!`);
-      setIsTurnNotifi(true);
+      setIsTurnNotify(true);
       setTimeout(() => setIsTurnNotify(false), 3000); // Hide the notification after 3 seconds
     }
   };
@@ -715,11 +735,28 @@ const LetterMatch = () => {
                 {/* 10 second warning */}
                 {isWarning && (
                   <div className="warning-message">
-                    ⚠️ 10 seconds left! SUBMIT QUICK to avoid 0pts !!! ⚠️
+                    ⚠️ 10 seconds left! SUBMIT QUICK to avoid 0 pts !!! ⚠️
                   </div>
                 )}
               </div>
             )}
+
+            {/* shows timer for online mode */}
+            {gameStarted && !gameOver && gameType === "LetterMatchOnline" && (
+             
+             <div className="turn-info">
+                ⏱️ <span className="time-left">{localTimeLeft}</span> seconds left
+               
+
+               {/* 10 second warning */}
+               {isWarning && (
+                 <div className="warning-message">
+                   ⚠️ 10 seconds left! SUBMIT QUICK !!! ⚠️
+                 </div>
+               )}
+             </div>
+           )}
+
 
 
             <div className="question-list">

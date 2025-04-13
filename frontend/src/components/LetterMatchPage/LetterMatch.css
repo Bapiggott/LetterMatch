@@ -984,42 +984,15 @@ button {
   margin-left: 10px;
 }
 
-.toast-popup {
-  position: fixed;
-  bottom: 10%;
-  left: 50%;
-  transform: translateX(-50%) translateY(100%);
-  background-color: #fff6e5;
-  color: #333;
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
-  font-weight: bold;
-  font-size: 1.2rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  z-index: 9999;
-  opacity: 0;
-  animation: slide-in 0.5s forwards, slide-out 0.5s 3s forwards;
+/* for the online mode boxes after user hits submit  */
+.disabled-input {
+  background-color: #f0f0f0; 
+  color: #888888;  
+  cursor: not-allowed;  /*  to indicate it's not interactable */
+  border: 1px solid #ccc; /* border for disabled input */
 }
 
-.toast-warning {
-  background-color: #ffe5e5;
-  color: #e63946;
-  border: 2px solid #e76f51;
-}
 
-@keyframes slide-in {
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-  }
-}
 
-@keyframes slide-out {
-  to {
-    transform: translateX(-50%) translateY(100%);
-    opacity: 0;
-  }
-}
 
 }
-
