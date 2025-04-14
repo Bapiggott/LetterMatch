@@ -33,8 +33,8 @@ def validate_answer(question_id, player_answer):
 
 def prompt_to_category(prompt):
     """
-    Example mapper from your question_LetterMatch.prompt
-    to the categories in ai_valid.  You can expand as needed:
+    Example mapper from question_LetterMatch.prompt
+    to the category ids
     """
     mapping = {
         'Name': 'Names',
@@ -343,13 +343,19 @@ def submit_all_answers():
 
         # Optional: Mark timeout somehow if needed, like setting a flag
 
-        # Handle local turn advancement if applicable
+        # Handle next person's turn
         if game.game_type == "LetterMatchLocal":
+            #get all players by join order
             players = Player.query.filter_by(game_id=game.id).order_by(Player.id).all()
+
+            #gets current index of player
             current_index = next((i for i, p in enumerate(players) if p.username == username), 0)
+
+            #gets index of next player
             next_index = (current_index + 1) % len(players)
-            game.current_turn = next_index
-            game.start_time = datetime.utcnow()
+            game.current_turn = next_index #assigns next player to current player
+
+            game.start_time = datetime.utcnow() #reset time for new playeer
             db.session.commit()
 
         return jsonify({

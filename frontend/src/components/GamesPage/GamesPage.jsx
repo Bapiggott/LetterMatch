@@ -47,7 +47,16 @@ const GamesPage = () => {
                                 <div className="flip-card-inner">
                                     <div className="flip-card-front">
                                         <div className="flip-card" style={{ backgroundImage: 'url("/images/letterMatch_coverImg.png")' }}></div>
-                                        <h1 style={{ backgroundColor: 'black', color: 'white', fontSize: '3rem' }}>Letter Match</h1>
+                                        <h1 style={{  
+                                                backgroundColor: 'black',
+                                                color: 'white',
+                                                fontSize: '3rem',
+                                                textAlign: 'center',
+                                                margin: '1rem auto',
+                                                width: 'fit-content',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '0.5rem'
+                                            }}>Letter Match</h1>
                                     </div>
                                     <div className="flip-card-back small-card">
                                         <h2>Can you Beat the Clock? ⏳</h2>
@@ -73,7 +82,16 @@ const GamesPage = () => {
                                 <div className="flip-card-inner">
                                     <div className="flip-card-front">
                                         <div className="flip-card" style={{ backgroundImage: 'url("/images/wordBlitz.png")' }}></div>
-                                        <h1 style={{ backgroundColor: 'black', color: 'white', fontSize: '3rem' }}>Word Blitz</h1>
+                                        <h1 style={{  
+                                                backgroundColor: 'black',
+                                                color: 'white',
+                                                fontSize: '3rem',
+                                                textAlign: 'center',
+                                                margin: '1rem auto',
+                                                width: 'fit-content',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '0.5rem'
+                                            }}>Word Blitz</h1>
                                         <img src="word-blitz.jpg" alt="Word Blitz" />
                                     </div>
                                     <div className="flip-card-back">
@@ -100,7 +118,17 @@ const GamesPage = () => {
                                 <div className="flip-card-inner">
                                     <div className="flip-card-front">
                                         <div className="flip-card" style={{ backgroundImage: 'url("/images/wordChain.png")' }}></div>
-                                        <h1 style={{ backgroundColor: 'black', color: 'white', fontSize: '3rem' }}>Word Chain</h1>
+                                        <h1 style={{  
+                                                backgroundColor: 'black',
+                                                color: 'white',
+                                                fontSize: '3rem',
+                                                textAlign: 'center',
+                                                margin: '1rem auto',
+                                                width: 'fit-content',
+                                                padding: '0.5rem 1rem',
+                                                borderRadius: '0.5rem'
+                                            }}
+                                             >Word Chain</h1>
                                         <img src="word-chain.jpg" alt="Word Chain" />
                                     </div>
                                     <div className="flip-card-back">
